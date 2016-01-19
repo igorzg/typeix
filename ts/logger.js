@@ -2,7 +2,7 @@
 var util_1 = require('util');
 var core_1 = require('./core');
 // cleanups on inspect
-var replace = [];
+let replace = [];
 // remove colors from inspect
 for (var i = 0; i < 100; ++i) {
     replace.push(new RegExp('\\[' + i + 'm', 'ig'));
@@ -16,27 +16,22 @@ for (var i = 0; i < 100; ++i) {
  * @description
  * Level is private class used by logger to define log levels
  */
-var Level = (function () {
-    function Level(name, level, callback) {
+class Level {
+    constructor(name, level, callback) {
         this.name = name;
         this.level = level;
         this.callback = callback;
     }
-    Level.prototype.getName = function () {
+    getName() {
         return this.name;
-    };
-    Level.prototype.getLevel = function () {
+    }
+    getLevel() {
         return this.level;
-    };
-    Level.prototype.call = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i - 0] = arguments[_i];
-        }
-        return this.callback.apply(this, args);
-    };
-    return Level;
-})();
+    }
+    call(...args) {
+        return this.callback(...args);
+    }
+}
 /**
  * @license Mit Licence 2015
  * @since 1.0.0
@@ -46,21 +41,21 @@ var Level = (function () {
  * @description
  * Log is private class used by logger to present logs to outputs
  */
-var Log = (function () {
-    function Log(message, data, level) {
+class Log {
+    constructor(message, data, level) {
         this.message = message;
         this.level = level;
         this.created = new Date().toISOString();
         this.data = data instanceof Error ? data.stack : data;
     }
-    Log.prototype.getName = function () {
+    getName() {
         return this.level.getName();
-    };
-    Log.prototype.getLevel = function () {
+    }
+    getLevel() {
         return this.level.getLevel();
-    };
-    Log.prototype.prettify = function (prettify) {
-        var log = Logger.inspect({
+    }
+    prettify(prettify) {
+        let log = Logger.inspect({
             level: this.getLevel(),
             type: this.getName(),
             message: this.message,
@@ -71,12 +66,11 @@ var Log = (function () {
             log = Logger.clean(log);
         }
         return log;
-    };
-    Log.prototype.toString = function () {
+    }
+    toString() {
         return JSON.stringify(this.prettify(true));
-    };
-    return Log;
-})();
+    }
+}
 /**
  * @license Mit Licence 2015
  * @since 1.0.0
@@ -91,9 +85,8 @@ var Log = (function () {
  * Logger in system is delivered as component
  * @example
  */
-var Logger = (function () {
-    function Logger() {
-        var _this = this;
+class Logger {
+    constructor() {
         this.hooks = new Set();
         this.levels = [];
         this.enabled = true;
@@ -106,13 +99,11 @@ var Logger = (function () {
         this.levels.push(new Level('ERROR', 50, console.error));
         this.levels.push(new Level('FATAL', 60, console.error));
         if (this.console) {
-            this.levels.forEach(function (item) {
-                return _this.addHook(function (log) {
-                    if (log.getLevel() === item.getLevel()) {
-                        item.call(log.prettify());
-                    }
-                });
-            });
+            this.levels.forEach((item) => this.addHook((log) => {
+                if (log.getLevel() === item.getLevel()) {
+                    item.call(log.prettify());
+                }
+            }));
         }
     }
     /**
@@ -123,13 +114,9 @@ var Logger = (function () {
      * @description
      * Trace
      */
-    Logger.prototype.trace = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    trace(message, ...args) {
         return this.log(message, args, this.filter(10));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -138,13 +125,9 @@ var Logger = (function () {
      * @description
      * Log info case
      */
-    Logger.prototype.info = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    info(message, ...args) {
         return this.log(message, args, this.filter(20));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -153,13 +136,9 @@ var Logger = (function () {
      * @description
      * Debug
      */
-    Logger.prototype.debug = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    debug(message, ...args) {
         return this.log(message, args, this.filter(30));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -168,13 +147,9 @@ var Logger = (function () {
      * @description
      * Log warn case
      */
-    Logger.prototype.warn = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    warn(message, ...args) {
         return this.log(message, args, this.filter(40));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -183,13 +158,9 @@ var Logger = (function () {
      * @description
      * Log error case
      */
-    Logger.prototype.error = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    error(message, ...args) {
         return this.log(message, args, this.filter(50));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -198,13 +169,9 @@ var Logger = (function () {
      * @description
      * Fatal error
      */
-    Logger.prototype.fatal = function (message) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    fatal(message, ...args) {
         return this.log(message, args, this.filter(60));
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -214,11 +181,11 @@ var Logger = (function () {
      * Get level name
      * This is used internally by logger class
      */
-    Logger.prototype.filter = function (level) {
-        return this.levels.find(function (item) {
+    filter(level) {
+        return this.levels.find(item => {
             return item.getLevel() === level;
         });
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -227,13 +194,13 @@ var Logger = (function () {
      * @description
      * Write to file and exec hooks
      */
-    Logger.prototype.log = function (message, data, level) {
+    log(message, data, level) {
         if (!this.enabled || level.getLevel() < this.debugLevel) {
             return false;
         }
-        this.hooks.forEach(function (hook) { return hook(new Log(message, data, level)); });
+        this.hooks.forEach(hook => hook(new Log(message, data, level)));
         return true;
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -243,9 +210,9 @@ var Logger = (function () {
      * @description
      * Add hook to log output so developer can extend where to store log
      */
-    Logger.prototype.addHook = function (callback) {
+    addHook(callback) {
         this.hooks.add(callback);
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -255,9 +222,9 @@ var Logger = (function () {
      * Clean inspect message
      * @return {String} message
      */
-    Logger.clean = function (message) {
+    static clean(message) {
         if (core_1.isString(message)) {
-            replace.forEach(function (value) {
+            replace.forEach(value => {
                 message = message.replace(value, '');
             });
             message = message.replace(/\\'/g, '\'');
@@ -265,7 +232,7 @@ var Logger = (function () {
             return message.replace(/\\u001b/g, '\u001b');
         }
         return message;
-    };
+    }
     /**
      * @since 1.0.0
      * @function
@@ -275,11 +242,10 @@ var Logger = (function () {
      * @description
      * Inspect log data output
      */
-    Logger.inspect = function (data, level) {
+    static inspect(data, level) {
         return util_1.inspect(data, { colors: true, depth: level });
-    };
-    Logger.inspectLevel = 5;
-    return Logger;
-})();
+    }
+}
+Logger.inspectLevel = 5;
 exports.Logger = Logger;
 //# sourceMappingURL=logger.js.map

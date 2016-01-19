@@ -2,8 +2,8 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 __export(require('reflect-metadata'));
-var METADATA_KEYS = 'design:paramtypes';
-var COMPONENT_CONFIG_KEYS = 'component:config';
+const METADATA_KEYS = 'design:paramtypes';
+const COMPONENT_CONFIG_KEYS = 'component:config';
 function stringify(token) {
     if (typeof token === 'string') {
         return token;
@@ -34,77 +34,78 @@ exports.stringify = stringify;
  * Dependency injection for class injection
  *
  */
-var Injector = (function () {
-    function Injector(parent) {
+class Injector {
+    constructor(parent) {
         this.parent = parent;
         this.list = new Map();
         this.children = [];
     }
-    Injector.prototype.set = function (key, value) {
+    set(key, value) {
         this.list.set(key, value);
-    };
-    Injector.prototype.has = function (key) {
+    }
+    has(key) {
         return this.list.has(key);
-    };
-    Injector.prototype.get = function (key) {
+    }
+    get(key) {
         if (!this.has(key) && this.parent instanceof Injector) {
             return this.parent.get(key);
         }
         return this.list.get(key);
-    };
-    Injector.prototype.setChild = function (injector) {
+    }
+    setChild(injector) {
         this.children.push(injector);
-    };
-    Injector.prototype.removeChild = function (injector) {
+    }
+    removeChild(injector) {
         this.children.splice(this.children.indexOf(injector), 1);
-    };
-    Injector.prototype.destroy = function () {
+    }
+    destroy() {
         if (this.parent instanceof Injector) {
             this.parent.removeChild(this);
         }
-        this.children.forEach(function (injector) { return injector.destroy(); });
+        this.children.forEach(injector => injector.destroy());
         this.children = null;
         this.parent = null;
         this.list = null;
-    };
-    Injector.prototype.createAndResolve = function (Class, o) {
-        var _this = this;
+    }
+    createAndResolve(Class, o) {
         if (Array.isArray(o)) {
-            o = o.map(function (ChildClass) {
-                if (!_this.has(ChildClass) && typeof ChildClass === 'function') {
-                    var child = _this.createAndResolve(ChildClass, Injector.getMetadata(ChildClass));
-                    _this.set(ChildClass, child);
+            o = o.map(ChildClass => {
+                if (!this.has(ChildClass) && typeof ChildClass === 'function') {
+                    let child = this.createAndResolve(ChildClass, Injector.getMetadata(ChildClass));
+                    this.set(ChildClass, child);
                 }
                 else if (typeof ChildClass === 'object' && ChildClass !== null) {
                     return ChildClass;
                 }
-                else if (!_this.has(ChildClass)) {
-                    throw new Error(" Invalid injection type for\n\t\t\t\t\t\t" + stringify(ChildClass) + "\n\t\t\t\t\t");
+                else if (!this.has(ChildClass)) {
+                    throw new Error(` Invalid injection type for
+						${stringify(ChildClass)}
+					`);
                 }
-                return _this.get(ChildClass);
+                return this.get(ChildClass);
             });
         }
         return Injector.initialize(Class, o);
-    };
-    Injector.getMetadata = function (Class) {
-        var metadata = Reflect.getMetadata(METADATA_KEYS, Class);
+    }
+    static getMetadata(Class) {
+        let metadata = Reflect.getMetadata(METADATA_KEYS, Class);
         if (!Array.isArray(metadata)) {
             return [];
         }
         return metadata;
-    };
-    Injector.createAndResolveChild = function (injector, Class, o) {
-        var childInjector = new Injector(injector);
+    }
+    static createAndResolveChild(injector, Class, o) {
+        let childInjector = new Injector(injector);
         childInjector.createAndResolve(Class, o);
         injector.setChild(childInjector);
         return childInjector;
-    };
-    Injector.createAndResolve = function (Class, o) {
-        var childInjector = new Injector();
+    }
+    static createAndResolve(Class, o) {
+        let childInjector = new Injector();
         childInjector.createAndResolve(Class, o);
         return childInjector;
-    };
-    Injector.initialize = function (t, o) {
+    }
+    static initialize(t, o) {
         if (!Array.isArray(o)) {
             return new t();
         }
@@ -152,10 +153,9 @@ var Injector = (function () {
             default:
                 return new t();
         }
-        throw new Error("Cannot create a instance for '" + stringify(t) + "' because its constructor has more than 20 arguments");
-    };
+        throw new Error(`Cannot create a instance for '${stringify(t)}' because its constructor has more than 20 arguments`);
+    }
     ;
-    return Injector;
-})();
+}
 exports.Injector = Injector;
 //# sourceMappingURL=injector.js.map
