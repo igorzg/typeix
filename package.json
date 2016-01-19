@@ -1,0 +1,21 @@
+{
+  "name": "typeix",
+  "version": "0.0.1",
+  "dependencies": {
+    "typescript": "1.7.5",
+    "reflect-metadata": "0.1.3"
+  },
+  "description": "Typeis is nodejs framework for typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "typeix",
+    "typescript",
+    "nodejs",
+    "framework"
+  ],
+  "author": "igor.zg1987@gmail.com",
+  "license": "MIT"
+}
