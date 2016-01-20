@@ -37,10 +37,6 @@ class Router {
     constructor(logger) {
         this.logger = logger;
         this.routes = [];
-        this.methods = [
-            'GET', 'HEAD', 'POST', 'PUT', 'DELETE',
-            'TRACE', 'OPTIONS', 'CONNECT', 'PATCH'
-        ];
     }
     /**
      * @since 1.0.0
@@ -107,7 +103,7 @@ class Router {
                     routeName += k + '=' + encodeURIComponent(v);
                 });
             }
-            //return Promise.resolve('/' + routeName);
+            return Promise.resolve('/' + routeName);
         });
     }
 }

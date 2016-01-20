@@ -37,13 +37,7 @@ export interface Headers{
  */
 export class Router {
 	private routes:Route[] = [];
-	private methods:Array<string> = [
-		'GET', 'HEAD', 'POST', 'PUT', 'DELETE',
-		'TRACE', 'OPTIONS', 'CONNECT', 'PATCH'
-	];
-
-	constructor(private logger:Logger) {
-	}
+	constructor(private logger:Logger) {}
 
 	/**
 	 * @since 1.0.0
@@ -94,7 +88,7 @@ export class Router {
 	 * @description
 	 * Create url based on route and params
 	 */
-	async createUrl(routeName: string, params: RouteParams) : Promise<Route> {
+	async createUrl(routeName: string, params: RouteParams) : Promise<string> {
 		for (let route of this.routes) {
 			let result = await route.createUrl(routeName, params);
 			if (!!result) {
@@ -107,7 +101,6 @@ export class Router {
 				routeName += k + '=' + encodeURIComponent(v);
 			});
 		}
-
-		//return Promise.resolve('/' + routeName);
+		return Promise.resolve('/' + routeName);
 	}
 }
