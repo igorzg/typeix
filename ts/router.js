@@ -84,7 +84,7 @@ class Router {
      * @function
      * @name Router#createUrl
      * @param {String} routeName
-     * @param {RouteParams} params
+     * @param {Params} params
      *
      * @description
      * Create url based on route and params
@@ -94,7 +94,7 @@ class Router {
             for (let route of this.routes) {
                 let result = yield route.createUrl(routeName, params);
                 if (!!result) {
-                    return result;
+                    return Promise.resolve(result);
                 }
             }
             if (params.size > 0) {

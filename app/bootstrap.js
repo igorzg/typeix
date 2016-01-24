@@ -23,13 +23,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var core_1 = require('../core');
 var assets_1 = require('./components/assets');
 let Application = class {
-    constructor(assets, b, c, a) {
+    constructor(assets, router) {
         console.log('arguments', arguments);
     }
 };
 Application = __decorate([
     core_1.Bootstrap(), 
-    __metadata('design:paramtypes', [assets_1.Assets, assets_1.A, assets_1.B, assets_1.C])
+    __metadata('design:paramtypes', [assets_1.Assets, core_1.Router])
 ], Application);
 exports.Application = Application;
 core_1.bootstrap(Application);

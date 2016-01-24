@@ -1,19 +1,7 @@
 import {Logger} from './logger';
 import {HttpError} from './error';
 import {isArray} from './core';
-export interface Route {
-	parseRequest(pathName: string, method: string, headers: Headers) : Promise<any>;
-	createUrl(routeName: string, params: RouteParams) : Promise<any>
-}
-
-export interface RouteParams{
-	size: number;
-	forEach(callback : Function) : any;
-}
-
-export interface Headers{
-
-}
+import {Route, Headers, Params} from './route';
 /**
  * @license Mit Licence 2015
  * @since 1.0.0
@@ -37,7 +25,9 @@ export interface Headers{
  */
 export class Router {
 	private routes:Route[] = [];
-	constructor(private logger:Logger) {}
+
+	constructor(private logger:Logger) {
+	}
 
 	/**
 	 * @since 1.0.0
@@ -53,6 +43,7 @@ export class Router {
 		this.logger.info('Router.add', rule);
 		rule.forEach(rule => this.routes.push(rule));
 	}
+
 	/**
 	 * @since 1.0.0
 
@@ -65,7 +56,7 @@ export class Router {
 	 * @description
 	 * Parse request based on pathName and method
 	 */
-	async parseRequest(pathName: string, method: string, headers: Headers) : Promise<Route>{
+	async parseRequest(pathName:string, method:string, headers:Headers):Promise<Route> {
 		for (let route of this.routes) {
 			let result = await route.parseRequest(pathName, method, headers);
 			if (!!result) {
@@ -77,22 +68,23 @@ export class Router {
 			method
 		});
 	}
+
 	/**
 	 * @since 1.0.0
 
 	 * @function
 	 * @name Router#createUrl
 	 * @param {String} routeName
-	 * @param {RouteParams} params
+	 * @param {Params} params
 	 *
 	 * @description
 	 * Create url based on route and params
 	 */
-	async createUrl(routeName: string, params: RouteParams) : Promise<string> {
+	async createUrl(routeName:string, params:Params):Promise<string> {
 		for (let route of this.routes) {
-			let result = await route.createUrl(routeName, params);
+			let result:string = await route.createUrl(routeName, params);
 			if (!!result) {
-				return result;
+				return Promise.resolve(result);
 			}
 		}
 		if (params.size > 0) {

@@ -16,4 +16,6 @@ function __export(m) {
 }
 __export(require('./ts/bootstrap'));
 __export(require('./ts/decorators'));
+__export(require('./ts/route'));
+__export(require('./ts/router'));
 //# sourceMappingURL=core.js.map
