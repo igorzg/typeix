@@ -31,7 +31,7 @@ class Level {
 		return this.level;
 	}
 
-	call(...args):any {
+	exec(...args) {
 		return this.callback(...args);
 	}
 }
@@ -117,7 +117,7 @@ export class Logger {
 			this.levels.forEach((item:Level) =>
 				this.addHook((log:Log) => {
 					if (log.getLevel() === item.getLevel()) {
-						item.call(log.prettify());
+						item.exec(log.prettify());
 					}
 				})
 			);

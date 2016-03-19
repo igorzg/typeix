@@ -1,7 +1,13 @@
-export * from 'reflect-metadata';
+import * as Reflect from 'reflect-metadata';
+import { inspect } from 'util';
+
+console.log(
+	inspect(Reflect, {colors: true, showHidden: true, depth: 2})
+);
 
 const METADATA_KEYS = 'design:paramtypes';
 const COMPONENT_CONFIG_KEYS = 'component:config';
+
 
 /**
  * @license Mit Licence 2016
