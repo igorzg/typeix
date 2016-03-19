@@ -1,5 +1,5 @@
 {
-  "version": "1.7.5",
+  "version": "1.8.9",
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": false
+    "noImplicitAny": true
   },
   "exclude": [
     "node_modules"

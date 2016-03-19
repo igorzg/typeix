@@ -2,7 +2,7 @@
   "name": "typeix",
   "version": "0.0.1",
   "dependencies": {
-    "typescript": "1.7.5",
+    "typescript": "1.8.9",
     "reflect-metadata": "0.1.3"
   },
   "description": "Typeis is nodejs framework for typescript",
