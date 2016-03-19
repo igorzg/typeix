@@ -10,11 +10,20 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": true
+    "noImplicitAny": false
   },
   "files": [
-    "ts/**/*.ts",
-    "typings/main.d.ts"
+    "ts/bootstrap.ts",
+    "ts/core.ts",
+    "ts/decorators.ts",
+    "ts/error.ts",
+    "ts/injector.ts",
+    "ts/logger.ts",
+    "ts/request.ts",
+    "ts/route.ts",
+    "ts/router.ts",
+    "typings/main.d.ts",
+    "app/bootstrap.ts"
   ],
   "exclude": [
     "node_modules"

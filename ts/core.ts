@@ -8,7 +8,7 @@
  * @example
  * uuid();
  */
-export function uuid() : string {
+export function uuid():string {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
 		let r = Math.random() * 16 | 0;
 		if (c === 'x') {
@@ -28,7 +28,7 @@ export function uuid() : string {
  * @example
  * isString();
  */
-export function isString(value: string) : boolean {
+export function isString(value: string): boolean {
 	return typeof value === 'string';
 }
 
@@ -43,7 +43,7 @@ export function isString(value: string) : boolean {
  * @example
  * isBoolean();
  */
-export function isBoolean(value: boolean) : boolean {
+export function isBoolean(value: any): boolean {
 	return typeof value === 'boolean';
 }
 
@@ -58,8 +58,8 @@ export function isBoolean(value: boolean) : boolean {
  * @example
  * isString();
  */
-export function isUndefined(value) : boolean {
-	return typeof value === "undefined";
+export function isUndefined(value: any): boolean {
+	return typeof value === 'undefined';
 }
 
 /**
@@ -72,8 +72,8 @@ export function isUndefined(value) : boolean {
  * @example
  * isNumber();
  */
-export function isNumber(value) : boolean {
-	return typeof value === "number" && !isNaN(value);
+export function isNumber(value: any): boolean {
+	return typeof value === 'number' && !isNaN(value);
 }
 
 /**
@@ -86,7 +86,7 @@ export function isNumber(value) : boolean {
  * @example
  * isArray();
  */
-export function isArray(value) : boolean {
+export function isArray(value: any): boolean {
 	return Array.isArray(value);
 }
 
@@ -100,7 +100,7 @@ export function isArray(value) : boolean {
  * @example
  * isNull();
  */
-export function isNull(value) : boolean {
+export function isNull(value: any): boolean {
 	return value === null;
 }
 
@@ -115,8 +115,8 @@ export function isNull(value) : boolean {
  * @example
  * isFunction();
  */
-export function isFunction(value) : boolean {
-	return typeof value === "function";
+export function isFunction(value: any): boolean {
+	return typeof value === 'function';
 }
 
 
@@ -130,8 +130,8 @@ export function isFunction(value) : boolean {
  * @example
  * isObject();
  */
-export function isObject(value) : boolean {
-	return !isNull(value) && typeof value === "object";
+export function isObject(value: any): boolean {
+	return !isNull(value) && typeof value === 'object';
 }
 
 
@@ -145,10 +145,9 @@ export function isObject(value) : boolean {
  * @example
  * isDate();
  */
-export function isDate(value) : boolean {
-	return Object.prototype.toString.call(value) === "[object Date]";
+export function isDate(value: any): boolean {
+	return Object.prototype.toString.call(value) === '[object Date]';
 }
-
 
 
 /**
@@ -161,6 +160,6 @@ export function isDate(value) : boolean {
  * @example
  * isRegExp();
  */
-export function isRegExp(value) : boolean {
-	return Object.prototype.toString.call(value) === "[object RegExp]";
+export function isRegExp(value: any): boolean {
+	return Object.prototype.toString.call(value) === '[object RegExp]';
 }
