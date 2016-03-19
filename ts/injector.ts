@@ -1,5 +1,5 @@
 import * as Reflect from 'reflect-metadata';
-import { inspect } from 'util';
+import {inspect} from 'util';
 
 
 const METADATA_KEYS = 'design:paramtypes';
@@ -20,7 +20,8 @@ const COMPONENT_CONFIG_KEYS = 'component:config';
  */
 export class Injector {
 	private list:Map<any, any> = new Map();
-	private children: Array<Injector> = [];
+	private children:Array<Injector> = [];
+
 	constructor(private parent?:Injector) {}
 
 	set(key:any, value:Object):void {
@@ -38,11 +39,11 @@ export class Injector {
 		return this.list.get(key);
 	}
 
-	setChild(injector: Injector) {
+	setChild(injector:Injector) {
 		this.children.push(injector);
 	}
 
-	removeChild(injector: Injector) {
+	removeChild(injector:Injector) {
 		this.children.splice(this.children.indexOf(injector), 1);
 	}
 
@@ -56,7 +57,7 @@ export class Injector {
 		this.list = null;
 	}
 
-	createAndResolve(Class:Function, o?:Array<any>) : any {
+	createAndResolve(Class:Function, o?:Array<any>):any {
 		if (Array.isArray(o)) {
 			o = o.map(ChildClass => {
 				if (!this.has(ChildClass) && typeof ChildClass === 'function') {
@@ -78,7 +79,7 @@ export class Injector {
 		return Injector.initialize(Class, o);
 	}
 
-	static getMetadata(Class:Function) : Array<any>{
+	static getMetadata(Class:Function):Array<any> {
 		let metadata = Reflect.getMetadata(METADATA_KEYS, Class);
 		if (!Array.isArray(metadata)) {
 			return [];
