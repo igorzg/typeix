@@ -1,8 +1,8 @@
 {
-  "version": "1.8.9",
+  "version": "1.8.10",
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
@@ -13,6 +13,10 @@
     "noImplicitAny": false
   },
   "files": [
+    "typings/main.d.ts",
+    "ts/components/router.ts",
+    "ts/components/logger.ts",
+    "ts/main.d.ts",
     "ts/bootstrap.ts",
     "ts/core.ts",
     "ts/decorators.ts",
@@ -22,7 +26,6 @@
     "ts/request.ts",
     "ts/route.ts",
     "ts/router.ts",
-    "typings/main.d.ts",
     "app/bootstrap.ts"
   ],
   "exclude": [

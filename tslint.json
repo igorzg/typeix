@@ -10,7 +10,7 @@
     "forin": true,
     "indent": [
       true,
-      "tabs"
+      "spaces"
     ],
     "label-position": true,
     "label-undefined": true,
@@ -62,7 +62,7 @@
     ],
     "quotemark": [
       true,
-      "single",
+      "double",
       "avoid-escape"
     ],
     "radix": true,
@@ -71,7 +71,7 @@
       true,
       {
         "singleline": "never",
-        "multiline": "always"
+        "multiline": "never"
       }
     ],
     "triple-equals": [

@@ -1,165 +1,230 @@
 /**
- * @since 1.0.0
- * @function
- * @name uuid
- * @description
- * Generate universally unique identifier
- * @return {String}
- * @example
- * uuid();
+ * Create unique id
+ *
+ * @returns {string}
  */
-export function uuid():string {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-		let r = Math.random() * 16 | 0;
-		if (c === 'x') {
-			return r.toString(16);
-		}
-		return (r & 0x3 | 0x8).toString(16);
-	});
+export function uuid(): string {
+  let d = new Date().getTime();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    let r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c == "x" ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
 
 /**
- * @since 1.0.0
- * @function
- * @name isString
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function toString
+ *
  * @description
- * Check if value is string
- * @return {Boolean}
- * @example
- * isString();
+ * Try to serialize object
  */
-export function isString(value: string): boolean {
-	return typeof value === 'string';
+export function toString(value): string {
+  try {
+    return JSON.stringify(value);
+  } catch (e) {
+    return value.toString();
+  }
 }
-
-
 /**
- * @since 1.0.0
- * @function
- * @name isBoolean
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isBoolean
+ *
  * @description
  * Check if value is boolean
- * @return {Boolean}
- * @example
- * isBoolean();
  */
-export function isBoolean(value: any): boolean {
-	return typeof value === 'boolean';
+export function isBoolean(value): boolean {
+  return typeof value === "boolean";
 }
-
-
 /**
- * @since 1.0.0
- * @function
- * @name isUndefined
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isUndefined
+ *
  * @description
- * Check if value is undefined
- * @return {Boolean}
- * @example
- * isString();
+ * Check if value is un-defined
  */
-export function isUndefined(value: any): boolean {
-	return typeof value === 'undefined';
+export function isUndefined(value): boolean {
+  return typeof value === "undefined";
 }
-
 /**
- * @since 1.0.0
- * @function
- * @name isNumber
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isString
+ *
  * @description
- * Check if value is number
- * @return {Boolean}
- * @example
- * isNumber();
+ * Check if value is string
  */
-export function isNumber(value: any): boolean {
-	return typeof value === 'number' && !isNaN(value);
+export function isString(value): boolean {
+  return typeof value === "string";
+}
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isNumber
+ *
+ * @description
+ * Check if value is isNumber
+ */
+export function isNumber(value): boolean {
+  return typeof value === "number" && !isNaN(value);
 }
 
 /**
- * @since 1.0.0
- * @function
- * @name isArray
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isArray
+ *
  * @description
  * Check if value is array
- * @return {Boolean}
- * @example
- * isArray();
  */
-export function isArray(value: any): boolean {
-	return Array.isArray(value);
+export function isArray(value): boolean {
+  return Array.isArray(value);
 }
-
 /**
- * @since 1.0.0
- * @function
- * @name isNull
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isNull
+ *
  * @description
- * Check if value is null
- * @return {Boolean}
- * @example
- * isNull();
+ * Check if value is funciton
  */
-export function isNull(value: any): boolean {
-	return value === null;
+export function isNull(value): boolean {
+  return value === null;
 }
-
-
 /**
- * @since 1.0.0
- * @function
- * @name isFunction
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isFunction
+ *
  * @description
- * Check if value is function
- * @return {Boolean}
- * @example
- * isFunction();
+ * Check if value is funciton
  */
-export function isFunction(value: any): boolean {
-	return typeof value === 'function';
+export function isFunction(value): boolean {
+  return typeof value === "function";
 }
-
-
 /**
- * @since 1.0.0
- * @function
- * @name isObject
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isArray
+ *
+ * @description
+ * Check if value is array
+ */
+export function isDate(value): boolean {
+  return Object.prototype.toString.call(value) === "[object Date]";
+}
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isRegExp
+ *
+ * @description
+ * Check if object is an regular expression
+ */
+export function isRegExp(value): boolean {
+  return Object.prototype.toString.call(value) === "[object RegExp]";
+}
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isObject
+ *
  * @description
  * Check if value is object
- * @return {Boolean}
- * @example
- * isObject();
  */
-export function isObject(value: any): boolean {
-	return !isNull(value) && typeof value === 'object';
+export function isObject(value): boolean {
+  return !isNull(value) && typeof value === "object";
 }
 
-
 /**
- * @since 1.0.0
- * @function
- * @name isDate
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isPresent
+ *
  * @description
- * Check if value is Date object
- * @return {Boolean}
- * @example
- * isDate();
+ * Check if value is object
  */
-export function isDate(value: any): boolean {
-	return Object.prototype.toString.call(value) === '[object Date]';
+export function isPresent(value): boolean {
+  return !isNull(value) && !isUndefined(value);
+}
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isEqual
+ *
+ * @description
+ * Check if two objects are equal
+ */
+export function isEqual(a, b): boolean {
+  if (isString(a)) {
+    return a === b;
+  } else if (_isNumber(a)) {
+    if (isNaN(a) || isNaN(b)) {
+      return isNaN(a) === isNaN(b);
+    }
+    return a === b;
+  } else if (isBoolean(a)) {
+    return a === b;
+  } else if (isDate(a)) {
+    return a.getTime() === b.getTime();
+  } else if (isRegExp(a)) {
+    return a.source === b.source;
+  } else if (isArray(a) && isArray(b)) {
+
+    // check references first
+    if (a === b) {
+      return true;
+    } else if (a.constructor.name !== b.constructor.name) {
+      return false;
+    }
+
+    try {
+      if (a.length !== b.length) {
+        return false;
+      }
+      return a.every((item, index) => isEqual(item, b[index]));
+    } catch (e) {
+      throw e;
+    }
+  } else if (isObject(a) && isObject(b)) {
+    let equal: Array<boolean> = [];
+    // check references first
+
+    if (a === b) {
+      return true;
+    } else if (a.constructor.name !== b.constructor.name) {
+      return false;
+    }
+
+    try {
+      if (Object.keys(a).length === Object.keys(b).length) {
+        Object.keys(a).forEach(key => equal.push(isEqual(a[key], b[key])));
+      }
+    } catch (e) {
+      throw e;
+    }
+
+    if (equal.length === 0) {
+      return false;
+    }
+    return equal.every((item) => item === true);
+    /// compare undefined and nulls
+  } else if (a === b) {
+    return true;
+  }
+
+  return false;
 }
 
-
 /**
- * @since 1.0.0
- * @function
- * @name isRegExp
- * @description
- * Check if value is RegExp object
- * @return {Boolean}
- * @example
- * isRegExp();
+ * Internal is number
+ * @param value
+ * @returns {boolean}
+ * @private
  */
-export function isRegExp(value: any): boolean {
-	return Object.prototype.toString.call(value) === '[object RegExp]';
+function _isNumber(value): boolean {
+  return typeof value === "number";
 }

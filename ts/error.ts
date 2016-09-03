@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect } from "util";
 /**
  * @license Mit Licence 2015
  * @since 1.0.0
@@ -14,8 +14,8 @@ import { inspect } from 'util';
 export class HttpError extends Error {
 	constructor(code, message, data) {
 		super(message);
-		this.stack += '\n\nDATA: ' + inspect(data, {colors: true, depth: 5});
-		this.stack += '\n\nCODE: ' + inspect(code, {colors: true, depth: 5});
+		this.stack += "\n\nDATA: " + inspect(data, {colors: true, depth: 5});
+		this.stack += "\n\nCODE: " + inspect(code, {colors: true, depth: 5});
 	}
 
 	toString() {

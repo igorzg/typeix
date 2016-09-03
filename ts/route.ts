@@ -1,38 +1,36 @@
-import {Logger} from './logger';
+import {Logger} from "./components/logger";
 
 
-const methods: string[] = [
-	'GET', 'HEAD', 'POST', 'PUT', 'DELETE',
-	'TRACE', 'OPTIONS', 'CONNECT', 'PATCH'
+const METHODS: string[] = [
+	"GET", "HEAD", "POST", "PUT", "DELETE",
+	"TRACE", "OPTIONS", "CONNECT", "PATCH"
 ];
 
 export interface Params {
 	size: number;
-	forEach(callback:Function) : any;
+	forEach(callback: Function): any;
 }
 
 export interface Headers {
 }
 
 export interface Route {
-	parseRequest(pathName:string, method:string, headers:Headers) : Promise<any>;
-	createUrl(routeName:string, params:Params) : Promise<any>
+	parseRequest(pathName: string, method: string, headers: Headers): Promise<any>;
+	createUrl(routeName: string, params: Params): Promise<any>;
 }
 
 export class RouteRule implements Route {
 
-	constructor(
-		protected logger:Logger
-	) {
+	constructor(protected logger: Logger) {
 
 	}
 
 
-	parseRequest() : Promise<any> {
+	parseRequest(): Promise<any> {
 		return Promise.resolve();
 	}
 
-	createUrl() : Promise<any> {
+	createUrl(): Promise<any> {
 		return Promise.resolve();
 	}
 }

@@ -1,25 +1,23 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { Injector } from './injector';
-import { Router } from './router';
-import { Logger } from './logger';
-import { uuid } from './core';
+import {IncomingMessage, ServerResponse} from "http";
+import {Router} from "./components/router";
+import {uuid} from "./core";
+import {Inject, Injectable} from "./decorators";
+import {Logger} from "./components/logger";
 
+@Injectable()
+export class Request {
+  private id: string = uuid();
+  private isCustomError: boolean = false;
+  private isForwarded: boolean = false;
+  private isForwarder: boolean = false;
 
-export class Request{
-	private id : string = uuid();
-	private isCustomError: boolean = false;
-	private isForwarded: boolean = false;
-	private isForwarder: boolean = false;
+  constructor(logger: Logger,
+              router: Router,
+              @Inject("request") request,
+              @Inject("response") response,
+              @Inject("injector") injector) {
+    //logger.info("Request.args", request.url, router);
+    response.end("NICE");
 
-	constructor(
-		request: IncomingMessage,
-		response: ServerResponse,
-		injector: Injector,
-		logger: Logger,
-	    router: Router
-	) {
-		logger.info('Request.args', request.url, router);
-		response.end('NICE');
-
-	}
+  }
 }

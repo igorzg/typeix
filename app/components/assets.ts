@@ -1,36 +1,34 @@
+import {Injectable} from "../../ts/decorators";
 /**
  * Created by igi on 17/01/16.
  */
-import { Component } from '../../core';
 
-@Component()
+@Injectable()
 export class A{
-    name: string = 'aClass';
+    name: string = "aClass";
 }
 
-@Component({
-    name: 'assets'
-})
+@Injectable()
 export class Assets{
-    asset: string = 'aAsset';
+    asset: string = "aAsset";
     constructor(c: A) {
-        console.log('Assets.arg', arguments);
+        console.log("Assets.arg", arguments);
     }
 }
 
 
 
-@Component()
+@Injectable()
 export class B{
-    bName: string = 'bname';
+    bName: string = "bname";
     constructor(a: A) {
-        console.log('B.arg', arguments);
+        console.log("B.arg", arguments);
     }
 }
 
-@Component()
+@Injectable()
 export class C {
     constructor(assets: Assets) {
-        console.log('C.arg', arguments);
+        console.log("C.arg", arguments);
     }
 }

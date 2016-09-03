@@ -1,19 +1,35 @@
-/*
-import {Controller} from '../../ts/typeix/controller'
-
+import {Inject} from "../../ts/decorators";
 @Controller({
-    name: 'core'
+  name: 'core',
+  providers: [A]
 })
 class CoreController {
 
-    //@BeforeAction('index')
-    beforeIndex() {
+  @Inject(A) awe;
 
-    }
+  @BeforeAll
+  async blac(@Inject(A) c) {
+    let a = await b();
+    let c = await d();
 
-    //@Action('index')
-    index() {
 
-    }
+    let z = a + c;
+
+    return [a, b, c];
+  }
+
+  @Before('index')
+  blablablabla() {
+    this.a
+
+    return a;
+  }
+
+  @Action('index')
+  blabla(value, @Inject("a") generic, @Param("c") c): string {
+
+    return value;
+
+  }
+
 }
-    */

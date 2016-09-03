@@ -1,10 +1,7 @@
-import * as Reflect from 'reflect-metadata';
-import {inspect} from 'util';
-
-
-const METADATA_KEYS = 'design:paramtypes';
-const COMPONENT_CONFIG_KEYS = 'component:config';
-
+import {isFunction, toString, isString, isPresent, uuid, isArray} from "./core";
+import {Metadata} from "./metadata";
+import {IProvider} from "./interfaces/iprovider";
+import {IInjectKey} from "./interfaces/idecorators";
 
 /**
  * @license Mit Licence 2016
@@ -19,92 +16,150 @@ const COMPONENT_CONFIG_KEYS = 'component:config';
  *
  */
 export class Injector {
-	private list:Map<any, any> = new Map();
-	private children:Array<Injector> = [];
+  // injector indentifier
+  private uid: string = uuid();
+  private providers: Map<any, any> = new Map();
+  private children: Array<Injector> = [];
 
-	constructor(private parent?:Injector) {}
+  /**
+   * Create and resolve child
+   * @param parent
+   * @param Class
+   * @param providers
+   * @returns {Injector}
+   */
+  static createAndResolveChild(parent: Injector, Class: Function, providers: Array<IProvider|Function>) {
+    let child = new Injector(parent);
+    child.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
+    parent.setChild(child);
+    return child;
+  }
 
-	set(key:any, value:Object):void {
-		this.list.set(key, value);
-	}
+  /**
+   * Create and resolve
+   * @param Class
+   * @param providers
+   * @returns {Injector}
+   */
+  static createAndResolve(Class: Function, providers: Array<IProvider|Function>) {
+    let child = new Injector();
+    child.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
+    return child;
+  }
 
-	has(key:any):boolean {
-		return this.list.has(key);
-	}
+  /**
+   * Injector constructor
+   * @param parent
+   */
+  constructor(private parent?: Injector) {
+  }
 
-	get(key:any):any {
-		if (!this.has(key) && this.parent instanceof Injector) {
-			return this.parent.get(key);
-		}
-		return this.list.get(key);
-	}
+  /**
+   * Craete and resolve provider
+   * @param provider
+   * @param providers
+   * @returns {any}
+   */
+  createAndResolve(provider: IProvider, providers: Array<IProvider>): any {
+    // merge providers
+    providers = Metadata.mergeProviders(Metadata.getConstructorProviders(provider.provide), providers);
+    // create providers first
+    providers.forEach(item => this.createAndResolve(item, Metadata.getConstructorProviders(item.provide)));
+    // if provider.useValue is present return value
+    if (isPresent(provider.useValue)) {
+      this.set(provider.provide, provider.useValue);
+      return this.get(provider.provide);
+    }
 
-	setChild(injector:Injector) {
-		this.children.push(injector);
-	}
+    let keys = Metadata.getConstructorInjectKeys(provider.provide);
+    let args = keys.map(arg => this.get(arg, provider));
+    let instance = Reflect.construct(provider.useClass, args);
+    let protoKeys = Metadata.getConstructorPrototypeKeys(provider.useClass);
+    if (isArray(protoKeys) && providers.length > 0) {
+      protoKeys.forEach((item: IInjectKey) => {
+        Reflect.defineProperty(instance, item.key, {
+          value: this.get(item.value),
+          writable: false
+        });
+      });
+    }
+    this.set(provider.provide, instance);
+    if (provider.useClass.prototype.hasOwnProperty("afterConstruct") && isFunction(instance.afterConstruct)) {
+      instance.afterConstruct();
+    }
+    return instance;
+  }
 
-	removeChild(injector:Injector) {
-		this.children.splice(this.children.indexOf(injector), 1);
-	}
 
-	destroy() {
-		if (this.parent instanceof Injector) {
-			this.parent.removeChild(this);
-		}
-		this.children.forEach(injector => injector.destroy());
-		this.children = null;
-		this.parent = null;
-		this.list = null;
-	}
+  /**
+   * Destroy Injector
+   */
+  destroy() {
+    if (this.parent instanceof Injector) {
+      this.parent.removeChild(this);
+    }
+    this.children.forEach(injector => injector.destroy());
+    this.children = [];
+    this.parent = undefined;
+    this.providers.clear();
+  }
 
-	createAndResolve(Class:Function, o?:Array<any>):any {
-		if (Array.isArray(o)) {
-			o = o.map(ChildClass => {
-				if (!this.has(ChildClass) && typeof ChildClass === 'function') {
-					let child = this.createAndResolve(
-						ChildClass,
-						Injector.getMetadata(ChildClass)
-					);
-					this.set(ChildClass, child);
-				} else if (typeof ChildClass === 'object' && ChildClass !== null) {
-					return ChildClass;
-				} else if (!this.has(ChildClass)) {
-					throw new Error(` Invalid injection type for
-						${ChildClass.toString()}
-					`);
-				}
-				return this.get(ChildClass);
-			});
-		}
-		return Injector.initialize(Class, o);
-	}
 
-	static getMetadata(Class:Function):Array<any> {
-		let metadata = Reflect.getMetadata(METADATA_KEYS, Class);
-		if (!Array.isArray(metadata)) {
-			return [];
-		}
-		return metadata;
-	}
+  /**
+   * Add injector to parent
+   * @param injector
+   */
+  private setChild(injector: Injector): void {
+    this.children.push(injector);
+  }
 
-	static createAndResolveChild(injector:Injector, Class:Function, o?:Array<any>) {
-		let childInjector = new Injector(injector);
-		childInjector.createAndResolve(Class, o);
-		injector.setChild(childInjector);
-		return childInjector;
-	}
+  /**
+   * Remove injector from parent
+   * @param injector
+   */
+  private removeChild(injector: Injector): void {
+    this.children.splice(this.children.indexOf(injector), 1);
+  }
 
-	static createAndResolve(Class:Function, o?:Array<any>) {
-		let childInjector = new Injector();
-		childInjector.createAndResolve(Class, o);
-		return childInjector;
-	}
+  /**
+   * Set initialized provider
+   * @param key
+   * @param value
+   */
+  private set(key: any, value: Object): void {
+    this.providers.set(key, value);
+  }
 
-	static initialize(t:any, o:Array<any>):any {
-		if (!Array.isArray(o)) {
-			return new t();
-		}
-		return Reflect.construct(t, o);
-	};
+  /**
+   * Check if has initialized provider
+   * @param key
+   * @returns {boolean}
+   */
+  private has(key: any): boolean {
+    if (!this.providers.has(key) && this.parent instanceof Injector) {
+      return this.parent.providers.has(key);
+    }
+    return this.providers.has(key);
+  }
+
+  /**
+   * Query initialized provider
+   * @param provider
+   * @param Class
+   * @returns {any}
+   */
+  private get(provider: any, Class?: IProvider): any {
+    if (!this.providers.has(provider) && this.parent instanceof Injector) {
+      return this.parent.get(provider, Class);
+    } else if (this.providers.has(provider)) {
+      return this.providers.get(provider);
+    }
+    if (isPresent(Class)) {
+      throw new Error(`No provider for ${
+        isFunction(provider) ? provider.name : toString(provider)
+        } on class ${isFunction(Class.provide) ? Class.provide.name : Class.provide} , injector: ${this.uid}`);
+    }
+    throw new Error(`No provider for ${isFunction(provider) ? provider.name : toString(provider)}, injector: ${this.uid}`);
+  }
 }
 
