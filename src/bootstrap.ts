@@ -4,15 +4,14 @@ import {Request} from "./request";
 import {Router} from "./router/router";
 import {Logger} from "./logger/logger";
 import {isString, isArray} from "./core";
-import {Metadata, COMPONENT_CONFIG_KEYS} from "./metadata";
-import {IBootstrapMetadata} from "./interfaces/ibootstrap";
+import {Metadata} from "./metadata";
+import {IModuleMetadata} from "./interfaces/imodule";
 /**
  * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name bootstrap
  * @param {Object} Class bootstrap class
- * @param {IBootstrapMetadata} config
  * @returns {Injector}
  *
  * @description
@@ -21,7 +20,7 @@ import {IBootstrapMetadata} from "./interfaces/ibootstrap";
  * @example
  * import {bootstrap, Router} from "typeix/core"
  *
- * \@Bootstrap({
+ * \@Module({
  *    port: 9000
  * })
  * class App{
@@ -30,7 +29,7 @@ import {IBootstrapMetadata} from "./interfaces/ibootstrap";
  *    }
  * }
  */
-export function bootstrap(Class: Function): void {
+export function bootstrap(Class: Function): Injector {
   let config = Metadata.getComponentConfig(Class);
   let injector = Injector.createAndResolve(Class, []);
   let server = createServer();
@@ -51,16 +50,17 @@ export function bootstrap(Class: Function): void {
     server.listen(config.port);
   }
   let logger: Logger = injector.get(Logger);
-  logger.info("Bootstrap.info: Server started", config);
+  logger.info("Module.info: Server started", config);
   server.on("error", (e) => logger.error(e.stack));
+  return injector;
 }
 /**
- * Bootstrap decorator
+ * Module decorator
  * @param config
  * @returns {function(any): any}
  * @constructor
  */
-export var Bootstrap = (config: IBootstrapMetadata) => (Class) => {
+export var Module = (config: IModuleMetadata) => (Class) => {
   if (!isArray(config.providers)) {
     config.providers = [];
   }

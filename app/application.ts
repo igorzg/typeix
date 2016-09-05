@@ -1,9 +1,9 @@
-import {Bootstrap, Router} from "../core";
+import {Module, Router} from "../core";
 import {Assets, A, B, C} from "./components/assets";
 import {Inject} from "../src/decorators";
 import {Logger} from "../src/logger/logger";
 
-@Bootstrap({
+@Module({
   port: 9000,
   providers: [A, B, Assets, C]
 })
