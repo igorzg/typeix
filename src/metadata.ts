@@ -53,6 +53,23 @@ export class Metadata {
   }
 
   /**
+   * Get component config
+   * @param Class
+   * @returns {Array}
+   */
+  static getComponentConfig(Class: Function): any {
+    return Metadata.getMetadata(Class, COMPONENT_CONFIG_KEYS);
+  }
+
+  /**
+   * Set component config
+   * @param Class
+   * @param config
+   */
+  static setComponentConfig(Class: Function, config: any): void {
+    Metadata.defineMetadata(Class, COMPONENT_CONFIG_KEYS, config);
+  }
+  /**
    * Return constructor providers
    * @param Class
    * @returns {any}

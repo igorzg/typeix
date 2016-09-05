@@ -1,6 +1,6 @@
 import {IProvider} from "./interfaces/iprovider";
 import {isUndefined, isFunction, isPresent, isArray} from "./core";
-import {Metadata, INJECT_KEYS, COMPONENT_CONFIG_KEYS} from "./metadata";
+import {Metadata, INJECT_KEYS} from "./metadata";
 import {IInjectParam, IInjectKey, IComponentMetaData} from "./interfaces/idecorators";
 
 /**
@@ -39,7 +39,7 @@ export var Provider = (config: Array<IProvider|Function>) => {
     } else if (isPresent(config) && !isArray(config)) {
       throw new TypeError(`Provider value must be array of IProvider`);
     }
-    Metadata.defineMetadata(Class, COMPONENT_CONFIG_KEYS, {
+    Metadata.setComponentConfig(Class, {
       providers: isPresent(config) ? config.map(ProviderClass => Metadata.verifyProvider(ProviderClass)) : []
     });
     return Class;
@@ -60,7 +60,7 @@ export var Component = (config?: IComponentMetaData) => {
     if (isArray(config.providers)) {
       config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
     }
-    Metadata.defineMetadata(Class, COMPONENT_CONFIG_KEYS, config);
+    Metadata.setComponentConfig(Class, config);
     return Class;
   };
 }

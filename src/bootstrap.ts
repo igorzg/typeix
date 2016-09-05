@@ -30,7 +30,8 @@ import {IBootstrapMetadata} from "./interfaces/ibootstrap";
  *    }
  * }
  */
-function bootstrap(Class: Function, config: IBootstrapMetadata): void {
+export function bootstrap(Class: Function): void {
+  let config = Metadata.getComponentConfig(Class);
   let injector = Injector.createAndResolve(Class, []);
   let server = createServer();
   server.on("request", (request: IncomingMessage, response: ServerResponse) => {
@@ -72,6 +73,6 @@ export var Bootstrap = (config: IBootstrapMetadata) => (Class) => {
     config.providers.push(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
-  Metadata.defineMetadata(Class, COMPONENT_CONFIG_KEYS, config);
-  return bootstrap(Class, config);
+  Metadata.setComponentConfig(Class, config);
+  return Class;
 };
