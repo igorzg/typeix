@@ -17,3 +17,16 @@ export interface IProvider {
   useClass?: Function;
   useFactory?: Function;
 }
+
+/**
+ * @license Mit Licence 2016
+ * @since 1.0.0
+ * @interface
+ * @name IAfterConstruct
+ *
+ * @description
+ * After construct interface
+ */
+export interface IAfterConstruct {
+  afterConstruct(): void;
+}

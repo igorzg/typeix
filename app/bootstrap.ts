@@ -1,6 +1,7 @@
 import {Bootstrap, Router} from "../core";
 import {Assets, A, B, C} from "./components/assets";
-import {Inject} from "../ts/decorators";
+import {Inject} from "../src/decorators";
+import {Logger} from "../src/logger/logger";
 
 @Bootstrap({
   hostname: "localhost",
@@ -13,9 +14,11 @@ export class Application {
 
   constructor(assets: Assets,
               router: Router,
+              logger: Logger,
               @Inject(Assets) a) {
-
-    console.log("Application.arg", arguments);
+    logger.enable();
+    logger.printToConsole();
+    logger.info("Application.arg", arguments);
   }
 
   afterConstruct() {

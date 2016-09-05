@@ -1,7 +1,8 @@
-import {Logger} from "./logger";
+import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
-import {Route, Headers, Params} from "../route";
-import {Injectable} from "../decorators";
+import {Route, Headers, Params, RouteRuleConfig} from "./route";
+import {Injectable, Inject} from "../decorators";
+import {RouteRule} from "./route-rule";
 /**
  * @license Mit Licence 2015
  * @since 1.0.0
@@ -26,24 +27,30 @@ import {Injectable} from "../decorators";
  */
 @Injectable()
 export class Router {
-  private routes: Route[] = [];
-
-  constructor(private logger: Logger) {
-  }
+  /**
+   * Inject logger
+   */
+  @Inject(Logger)
+  private logger: Logger;
+  /**
+   * Array of routes definition
+   * @type {Array}
+   */
+  private routes: Array<Route> = [];
 
   /**
    * @since 1.0.0
    * @function
-   * @name Router#add
-   * @param {Array<Route>} rule
+   * @name Router#addRules
+   * @param {Array<RouteRuleConfig>} rules
    *
    * @description
    * Add route to routes list.
    * All routes must be inherited from Route interface.
    */
-  add(rule: Array<Route>): void {
-    this.logger.info("Router.add", rule);
-    rule.forEach(item => this.routes.push(item));
+  addRules(rules: Array<RouteRuleConfig>): void {
+    this.logger.info("Router.addRules", rules);
+    rules.forEach(rule => this.routes.push(new RouteRule(rule)));
   }
 
   /**

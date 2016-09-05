@@ -1,4 +1,6 @@
-import {Inject} from "../../ts/decorators";
+import {Inject} from "../../src/decorators";
+
+
 @Controller({
   name: 'core',
   providers: [A]

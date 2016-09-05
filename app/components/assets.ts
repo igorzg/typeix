@@ -1,4 +1,4 @@
-import {Injectable} from "../../ts/decorators";
+import {Injectable} from "../../src/decorators";
 /**
  * Created by igi on 17/01/16.
  */

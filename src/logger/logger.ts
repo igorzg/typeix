@@ -1,5 +1,5 @@
-import {Level} from "./logger/level";
-import {Log} from "./logger/log";
+import {Level} from "./level";
+import {Log} from "./log";
 import {Injectable} from "../decorators";
 /**
  * @license Mit Licence 2015
@@ -19,31 +19,56 @@ import {Injectable} from "../decorators";
 export class Logger {
   private hooks: Set<any> = new Set();
   private levels: Array<Level> = [];
-  private enabled: boolean = true;
-  private console: boolean = true;
+  private enabled: boolean = false;
   private debugLevel: number = 10;
 
   constructor() {
-
     this.levels.push(new Level("TRACE", 10, console.info));
     this.levels.push(new Level("INFO", 20, console.info));
     this.levels.push(new Level("DEBUG", 30, console.info));
     this.levels.push(new Level("WARN", 40, console.warn));
     this.levels.push(new Level("ERROR", 50, console.error));
     this.levels.push(new Level("FATAL", 60, console.error));
-
-
-    if (this.console) {
-      this.levels.forEach((item: Level) =>
-        this.addHook((log: Log) => {
-          if (log.getLevel() === item.getLevel()) {
-            item.exec(log.prettify());
-          }
-        })
-      );
-    }
   }
-
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Logger#setDebugLevel
+   *
+   * @description
+   * Set debug level
+   */
+  setDebugLevel(value: number) {
+    this.debugLevel = value;
+  }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Logger#enable
+   *
+   * @description
+   * enable logger
+   */
+  enable() {
+    this.enabled = true;
+  }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Logger#printToConsole
+   *
+   * @description
+   * Print to console logs
+   */
+  printToConsole() {
+    this.levels.forEach((item: Level) =>
+      this.addHook((log: Log) => {
+        if (log.getLevel() === item.getLevel()) {
+          item.exec(log.prettify());
+        }
+      })
+    );
+  }
   /**
    * @since 1.0.0
    * @function

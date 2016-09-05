@@ -1,8 +1,8 @@
 import {Injector} from "./injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Request} from "./request";
-import {Router} from "./components/router";
-import {Logger} from "./components/logger";
+import {Router} from "./router/router";
+import {Logger} from "./logger/logger";
 import {isString, isArray} from "./core";
 import {Metadata, COMPONENT_CONFIG_KEYS} from "./metadata";
 import {IBootstrapMetadata} from "./interfaces/ibootstrap";
@@ -39,10 +39,7 @@ function bootstrap(Class: Function, config: IBootstrapMetadata): void {
       Request,
       [
         {provide: "request", useValue: request},
-        {provide: "response", useValue: response},
-        {provide: "injector", useValue: injector},
-        Logger,
-        Router
+        {provide: "response", useValue: response}
       ]
     );
     request.on("end", () => childInjector.destroy());
@@ -52,6 +49,9 @@ function bootstrap(Class: Function, config: IBootstrapMetadata): void {
   } else {
     server.listen(config.port);
   }
+  let logger: Logger = injector.get(Logger);
+  logger.info("Bootstrap.info: Server started", config);
+  server.on("error", (e) => logger.error(e.stack));
 }
 /**
  * Bootstrap decorator

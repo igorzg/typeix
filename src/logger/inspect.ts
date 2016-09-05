@@ -1,5 +1,5 @@
 import {inspect as utilInspect} from "util";
-import {isString} from "../../core";
+import {isString} from "../core";
 // cleanups on inspect
 let colors = new Array(100).map((v, i) => new RegExp("\\[" + i + "m", "ig"));
 /**
