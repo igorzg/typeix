@@ -4,16 +4,19 @@
   "dependencies": {
     "reflect-metadata": "0.1.3",
     "tslint": "3.6.0",
-    "typescript": "2.0.2"
+    "typescript": "2.0.2",
+    "typings": "^1.3.3"
   },
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node build/src/tests/"
+    "test": "jasmine-node build/src/tests/",
+    "postinstall": "typings install"
   },
   "bin": {
-    "jasmine": "node_modules/jasmine",
-    "jasmine-node": "node_modules/jasmine-node"
+    "typings": ".bin/typings",
+    "jasmine": ".bin//jasmine",
+    "jasmine-node": ".bin/jasmine-node"
   },
   "engines": {
     "node": ">=6.0.0"
