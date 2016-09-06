@@ -1,4 +1,4 @@
-import {Module, Router} from "../core";
+import {Module, Router} from "../src/exports.ts";
 import {Assets, A, B, C} from "./components/assets";
 import {Inject} from "../src/decorators";
 import {Logger} from "../src/logger/logger";

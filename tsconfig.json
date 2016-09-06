@@ -7,30 +7,20 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
+    "rootDir": ".",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false
   },
-  "files": [
+  "include": [
     "typings/main.d.ts",
-    "src/router/router.ts",
-    "src/router/route-rule.ts",
-    "src/logger/logger.ts",
-    "src/main.d.ts",
-    "src/bootstrap.ts",
-    "src/core.ts",
-    "src/decorators.ts",
-    "src/error.ts",
-    "src/injector.ts",
-    "src/logger.ts",
-    "src/request.ts",
-    "src/router/route.ts",
-    "src/router.ts",
-    "app/bootstrap.ts"
+    "app/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "build"
   ]
 }
