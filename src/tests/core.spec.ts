@@ -1,4 +1,7 @@
-import {isString, isBoolean, isUndefined, isArray, isNull, isFunction} from "../core";
+import {
+  isString, isBoolean, isUndefined, isArray, isNull, isFunction, isDate, isRegExp, isObject,
+  isPresent
+} from "../core";
 import {isNumber} from "util";
 /**
  * Created by igorzg on 9/8/2016.
@@ -60,6 +63,50 @@ describe("core functions test", () => {
     expect(isFunction(undefined)).toBeFalsy();
     expect(isFunction(true)).toBeFalsy();
     expect(isFunction(null)).toBeFalsy();
+  });
+
+  it("Should be valid date", () => {
+    expect(isDate(new Date)).toBeTruthy();
+    expect(isDate([])).toBeFalsy();
+    expect(isDate({})).toBeFalsy();
+    expect(isDate(1)).toBeFalsy();
+    expect(isDate(NaN)).toBeFalsy();
+    expect(isDate(undefined)).toBeFalsy();
+    expect(isDate(true)).toBeFalsy();
+    expect(isDate(null)).toBeFalsy();
+  });
+
+  it("Should be valid regex", () => {
+    expect(isRegExp(new RegExp())).toBeTruthy();
+    expect(isRegExp([])).toBeFalsy();
+    expect(isRegExp({})).toBeFalsy();
+    expect(isRegExp(1)).toBeFalsy();
+    expect(isRegExp(NaN)).toBeFalsy();
+    expect(isRegExp(undefined)).toBeFalsy();
+    expect(isRegExp(true)).toBeFalsy();
+    expect(isRegExp(null)).toBeFalsy();
+  });
+
+  it("Should be valid object", () => {
+    expect(isObject(new RegExp())).toBeTruthy();
+    expect(isObject([])).toBeTruthy();
+    expect(isObject({})).toBeTruthy();
+    expect(isObject(1)).toBeFalsy();
+    expect(isObject(NaN)).toBeFalsy();
+    expect(isObject(undefined)).toBeFalsy();
+    expect(isObject(true)).toBeFalsy();
+    expect(isObject(null)).toBeFalsy();
+  });
+
+  it("Should be present", () => {
+    expect(isPresent(new RegExp())).toBeTruthy();
+    expect(isPresent([])).toBeTruthy();
+    expect(isPresent({})).toBeTruthy();
+    expect(isPresent(1)).toBeTruthy();
+    expect(isPresent(NaN)).toBeTruthy();
+    expect(isPresent(undefined)).toBeFalsy();
+    expect(isPresent(true)).toBeTruthy();
+    expect(isPresent(null)).toBeFalsy();
   });
 
 });
