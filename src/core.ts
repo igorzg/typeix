@@ -150,6 +150,30 @@ export function isObject(value): boolean {
 export function isPresent(value): boolean {
   return !isNull(value) && !isUndefined(value);
 }
+
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isTruthy
+ *
+ * @description
+ * we are doing data type conversion to see if value is considered true value
+ */
+export function isTruthy(value): boolean {
+  return !!value;
+}
+
+/**
+ * @since 0.0.1
+ * @author Igor Ivanovic
+ * @function isFalsy
+ *
+ * @description
+ * we are doing data type conversion to see if value is considered false value
+ */
+export function isFalsy(value): boolean {
+  return !value;
+}
 /**
  * @since 0.0.1
  * @author Igor Ivanovic

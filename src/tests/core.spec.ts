@@ -77,7 +77,7 @@ describe("core functions test", () => {
   });
 
   it("Should be valid regex", () => {
-    expect(isRegExp(new RegExp())).toBeTruthy();
+    expect(isRegExp(new RegExp("abc"))).toBeTruthy();
     expect(isRegExp([])).toBeFalsy();
     expect(isRegExp({})).toBeFalsy();
     expect(isRegExp(1)).toBeFalsy();
@@ -88,7 +88,7 @@ describe("core functions test", () => {
   });
 
   it("Should be valid object", () => {
-    expect(isObject(new RegExp())).toBeTruthy();
+    expect(isObject(new RegExp("abc"))).toBeTruthy();
     expect(isObject([])).toBeTruthy();
     expect(isObject({})).toBeTruthy();
     expect(isObject(1)).toBeFalsy();
@@ -99,7 +99,7 @@ describe("core functions test", () => {
   });
 
   it("Should be present", () => {
-    expect(isPresent(new RegExp())).toBeTruthy();
+    expect(isPresent(new RegExp("abc"))).toBeTruthy();
     expect(isPresent([])).toBeTruthy();
     expect(isPresent({})).toBeTruthy();
     expect(isPresent(1)).toBeTruthy();
