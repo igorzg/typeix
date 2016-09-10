@@ -4,7 +4,18 @@ const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP = /^\(([^\)]+)\)$/;
 const URL_SPLIT = /\/([^\/]+)\//g;
 const PATH_MATCH = /\//g
-
+/**
+ * @license Mit Licence 2016
+ * @since 1.0.0
+ * @interface
+ * @name IUrlTreePath
+ *
+ * @param {IUrlTreePath} child
+ * @param {string} path
+ *
+ * @description
+ * Metadata for RouteParser
+ */
 export interface IUrlTreePath {
   child?: IUrlTreePath;
   path: string;
@@ -53,9 +64,16 @@ export class RouteParser {
   parent: RouteParser;
 
   /**
-   * Create patterns
-   * @param path
-   * @returns {Array}
+   * @since 1.0.0
+   * @function
+   * @name RouteParser#toPattern
+   * @param {String} path
+   * @static
+   *
+   * @description
+   * Creates pattern based on path provided
+   * @example
+   * RouteParser.toPattern("<param_a:(\\w+)>-<param_b:([a-zA-Z]+)>-now-<param_c:\\d+>-not");
    */
   static toPattern(path: string): Array<Pattern> {
     let patterns = [];
@@ -63,7 +81,7 @@ export class RouteParser {
      * Check if path contains path char
      */
     if (PATH_MATCH.test(path)) {
-      throw new Error(`Path ${path} must be normalised`);
+      throw new Error(`Path ${path} must be normalised use RouteParser.parse to create RoutePattern`);
     }
     /**
      * Parse patterns
@@ -113,9 +131,38 @@ export class RouteParser {
   }
 
   /**
-   * Convert url paths to url three
-   * @param url
-   * @returns {string[]}
+   * @since 1.0.0
+   * @function
+   * @name RouteParser#toUrlTree
+   * @param {String} url
+   * @static
+   *
+   * @description
+   * Creates url tree which is used by RouteParser for easier pattern creation
+   *
+   * @example
+   * RouteParser.toUrlTree("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
+   * // create
+   * {
+   *   child: {
+   *     child: {
+   *      child: {
+   *         child: {
+   *          child: {
+   *             child: null,
+   *             path: "<id:\\d+>"
+   *           },
+   *           path: "user"
+   *         },
+   *         path: "<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not"
+   *       },
+   *       path: "should<now:\\W+>do-it"
+   *     },
+   *     path: "<name:\\w+>"
+   *   },
+   *   path: "can<any>one"
+   * }
+   *
    */
   static toUrlTree(url: string): any {
     return url.split(URL_SPLIT).filter(isTruthy).reduceRight((cTree: any, currentValue: any) => {
@@ -131,8 +178,17 @@ export class RouteParser {
   }
 
   /**
-   * Constructor
-   * @param tree
+   * @since 1.0.0
+   * @function
+   * @name RouteParser
+   * @param {IUrlTreePath} tree
+   * @constructor
+   *
+   * @description
+   * Creates pattern based on path provided
+   * @example
+   * let tree = RouteParser.toUrlTree("/<param_a:(\\w+)>-<param_b:([a-zA-Z]+)>-now-<param_c:\\d+>-not/bcd");
+   * let parsedRoute = new RouteParser(tree);
    */
   constructor(tree: IUrlTreePath) {
     this.path = tree.path;
@@ -144,7 +200,12 @@ export class RouteParser {
   }
 
   /**
-   * Cleanup
+   * @since 1.0.0
+   * @function
+   * @name RouteParser#destroy
+   *
+   * @description
+   * Clean up all references to do gc possible
    */
   destroy() {
     if (isPresent(this.child)) {
