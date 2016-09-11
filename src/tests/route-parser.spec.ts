@@ -50,7 +50,7 @@ describe("RouterParser", () => {
     let pattern = RouteParser.parse("/assets/<file:(.*)>");
     let url = "/assets/css/main.css";
     let params = pattern.getParams(url);
-    expect(params).toEqual({file: 'css/main.css'});
+    expect(params).toEqual({file: "css/main.css"});
     expect(pattern.createUrl(params)).toBe(url);
   });
 });

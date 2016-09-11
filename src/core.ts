@@ -13,7 +13,7 @@ export function uuid(): string {
 }
 
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function toString
  *
@@ -28,7 +28,7 @@ export function toString(value): string {
   }
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isBoolean
  *
@@ -39,7 +39,7 @@ export function isBoolean(value): boolean {
   return typeof value === "boolean";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isUndefined
  *
@@ -50,7 +50,7 @@ export function isUndefined(value): boolean {
   return typeof value === "undefined";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isString
  *
@@ -61,7 +61,7 @@ export function isString(value): boolean {
   return typeof value === "string";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isNumber
  *
@@ -73,7 +73,7 @@ export function isNumber(value): boolean {
 }
 
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isArray
  *
@@ -84,7 +84,7 @@ export function isArray(value): boolean {
   return Array.isArray(value);
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isNull
  *
@@ -95,7 +95,7 @@ export function isNull(value): boolean {
   return value === null;
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isFunction
  *
@@ -106,7 +106,7 @@ export function isFunction(value): boolean {
   return typeof value === "function";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isArray
  *
@@ -117,7 +117,7 @@ export function isDate(value): boolean {
   return Object.prototype.toString.call(value) === "[object Date]";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isRegExp
  *
@@ -128,7 +128,7 @@ export function isRegExp(value): boolean {
   return Object.prototype.toString.call(value) === "[object RegExp]";
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isObject
  *
@@ -140,7 +140,7 @@ export function isObject(value): boolean {
 }
 
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isPresent
  *
@@ -152,7 +152,7 @@ export function isPresent(value): boolean {
 }
 
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isTruthy
  *
@@ -164,7 +164,7 @@ export function isTruthy(value): boolean {
 }
 
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isFalsy
  *
@@ -175,7 +175,7 @@ export function isFalsy(value): boolean {
   return !value;
 }
 /**
- * @since 0.0.1
+ * @since 1.0.0
  * @author Igor Ivanovic
  * @function isEqual
  *

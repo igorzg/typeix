@@ -1,7 +1,6 @@
 import {IProvider} from "./iprovider";
-import {RouteRuleConfig} from "../router/route";
+import {RouteRuleConfig} from "./iroute";
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @interface
  * @name IModuleMetadata

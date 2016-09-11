@@ -1,5 +1,4 @@
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @interface
  * @name IProvider
@@ -19,7 +18,6 @@ export interface IProvider {
 }
 
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @interface
  * @name IAfterConstruct

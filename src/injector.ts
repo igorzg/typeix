@@ -4,7 +4,6 @@ import {IProvider} from "./interfaces/iprovider";
 import {IInjectKey} from "./interfaces/idecorators";
 
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name Injector

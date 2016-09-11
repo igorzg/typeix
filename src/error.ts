@@ -1,6 +1,5 @@
 import { inspect } from "util";
 /**
- * @license Mit Licence 2015
  * @since 1.0.0
  * @class
  * @name HttpException

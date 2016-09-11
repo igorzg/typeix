@@ -6,7 +6,6 @@ export const METADATA_KEYS = "design:paramtypes";
 export const DESIGN_KEYS = "design:type";
 export const COMPONENT_CONFIG_KEYS = "component:paramtypes";
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name Metadata

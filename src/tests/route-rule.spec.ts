@@ -1,5 +1,5 @@
 import {RouteRule} from "../router/route-rule";
-import {Methods} from "../router/route";
+import {Methods} from "../interfaces/iroute";
 describe("RouteRule", () => {
   it("Initialize", () => {
     let routeRule = new RouteRule({

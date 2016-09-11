@@ -1,10 +1,61 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
-import {Route, Headers, Params, RouteRuleConfig} from "./route";
+import {Route, Headers, RouteRuleConfig, ResolvedRoute} from "../interfaces/iroute";
 import {Injectable, Inject} from "../decorators";
 import {RouteRule} from "./route-rule";
+import {isTruthy} from "../core";
 /**
- * @license Mit Licence 2015
+ * @since 1.0.0
+ * @enum
+ * @name Methods
+ *
+ * @description
+ * Request methods
+ */
+export enum Methods {
+  GET,
+  HEAD,
+  DELETE,
+  TRACE,
+  OPTIONS,
+  CONNECT,
+  POST,
+  PUT,
+  PATCH
+}
+/**
+ * @since 1.0.0
+ * @function
+ * @name getMethod
+ * @param {string} method
+ *
+ * @description
+ * Get method enum from method string
+ * @throws TypeError
+ */
+export function getMethod(method: string): Methods {
+  if (method === "GET") {
+    return Methods.GET;
+  } else if (method === "HEAD") {
+    return Methods.HEAD;
+  } else if (method === "DELETE") {
+    return Methods.DELETE;
+  } else if (method === "TRACE") {
+    return Methods.TRACE;
+  } else if (method === "OPTIONS") {
+    return Methods.OPTIONS;
+  } else if (method === "CONNECT") {
+    return Methods.CONNECT;
+  } else if (method === "POST") {
+    return Methods.POST;
+  } else if (method === "PUT") {
+    return Methods.PUT;
+  } else if (method === "PATCH") {
+    return Methods.PATCH;
+  }
+  throw new TypeError(`Method ${method} is not known method by standard!`);
+}
+/**
  * @since 1.0.0
  * @class
  * @name Router
@@ -41,6 +92,21 @@ export class Router {
   /**
    * @since 1.0.0
    * @function
+   * @name Router#prefixSlash
+   * @param {string} value
+   * @static
+   * @private
+   *
+   * @description
+   * Prefixes url with starting slash
+   */
+  static prefixSlash(value: string): string {
+    return value.charAt(0) === "/" ? value : "/" + value;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Router#addRules
    * @param {Array<RouteRuleConfig>} rules
    *
@@ -55,7 +121,6 @@ export class Router {
 
   /**
    * @since 1.0.0
-
    * @function
    * @name Router#parseRequest
    * @param {String} pathName
@@ -65,11 +130,12 @@ export class Router {
    * @description
    * Parse request based on pathName and method
    */
-  async parseRequest(pathName: string, method: string, headers: Headers): Promise<Route> {
+  async parseRequest(pathName: string, method: string, headers: Headers): Promise<ResolvedRoute> {
     for (let route of this.routes) {
       let result = await route.parseRequest(pathName, method, headers);
-      if (!!result) {
-        return result;
+      if (isTruthy(result)) {
+        this.logger.info("Router.parseRequest", result);
+        return Promise.resolve(<ResolvedRoute> result);
       }
     }
     throw new HttpError(404, `Router.parseRequest: ${pathName} no route found, method: ${method}`, {
@@ -80,28 +146,30 @@ export class Router {
 
   /**
    * @since 1.0.0
-
    * @function
    * @name Router#createUrl
    * @param {String} routeName
-   * @param {Params} params
+   * @param {Object} params
    *
    * @description
    * Create url based on route and params
    */
-  async createUrl(routeName: string, params: Params): Promise<string> {
+  async createUrl(routeName: string, params: Object): Promise<string> {
     for (let route of this.routes) {
-      let result: string = await route.createUrl(routeName, params);
-      if (!!result) {
-        return Promise.resolve(result.charAt(0) === "/" ? result : "/" + result);
+      let result = await <Promise<string>> route.createUrl(routeName, params);
+      if (isTruthy(result)) {
+        this.logger.info("Router.createUrl", result);
+        return Promise.resolve(Router.prefixSlash(result));
       }
     }
-    if (params.size > 0) {
+    if (Object.keys(params).length > 0) {
       routeName += "?";
-      params.forEach((v, k) => {
-        routeName += k + "=" + encodeURIComponent(v);
+      Object.keys(params).forEach((k) => {
+        routeName += k + "=" + encodeURIComponent(params[k]);
       });
     }
-    return Promise.resolve(routeName.charAt(0) === "/" ? routeName : "/" + routeName);
+    this.logger.info("Router.createUrl", Router.prefixSlash(routeName));
+    return Promise.resolve(Router.prefixSlash(routeName));
   }
+
 }

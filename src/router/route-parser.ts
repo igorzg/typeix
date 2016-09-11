@@ -1,27 +1,12 @@
 import {isPresent, isTruthy, isObject} from "../core";
+import {IUrlTreePath} from "../interfaces/iroute";
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP = /^\(([^\)]+)\)$/;
 const URL_SPLIT = /\/([^\/]+)\//g;
 const PATH_MATCH = /\//g;
+
 /**
- * @license Mit Licence 2016
- * @since 1.0.0
- * @interface
- * @name IUrlTreePath
- *
- * @param {IUrlTreePath} child
- * @param {string} path
- *
- * @description
- * Metadata for RouteParser
- */
-export interface IUrlTreePath {
-  child?: IUrlTreePath;
-  path: string;
-}
-/**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name PatternChunk
@@ -105,7 +90,6 @@ export class PatternChunk {
   }
 }
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name Pattern
@@ -206,7 +190,6 @@ export class Pattern {
   }
 }
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name RouteParser

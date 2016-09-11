@@ -7,7 +7,6 @@ import {isString, isArray} from "./core";
 import {Metadata} from "./metadata";
 import {IModuleMetadata} from "./interfaces/imodule";
 /**
- * @license Mit Licence 2016
  * @since 1.0.0
  * @function
  * @name bootstrap

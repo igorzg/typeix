@@ -1,5 +1,5 @@
 export * from "./bootstrap";
 export * from "./decorators";
-export * from "./router/route";
+export * from "./interfaces/iroute";
 export * from "./router/router";
 export * from "./logger/logger";
