@@ -369,7 +369,7 @@ export class RouteParser {
   createUrl(params: Object): string {
     let head = this.getHead();
     let url = "";
-    while (head) {
+    while (isPresent(head)) {
       url += "/" + head.pattern.normalizePath(params);
       head = head.child;
     }

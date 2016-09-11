@@ -1,5 +1,5 @@
 import {RouteParser} from "../router/route-parser";
-import {inspect} from "../logger/inspect";
+
 describe("RouterParser", () => {
   it("Initialize", () => {
     let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
@@ -37,6 +37,20 @@ describe("RouterParser", () => {
       name: "igor",
       any: "1454zfhg=?`=\'(    ()=("
     });
+    expect(pattern.createUrl(params)).toBe(url);
+  });
+
+  it("Should test patterns2", () => {
+    let pattern = RouteParser.parse("/assets/<file:(.*)>");
+    expect(pattern.isValid("")).toBeFalsy();
+    expect(pattern.isValid("/assets/css/main.css")).toBeTruthy();
+  });
+
+  it("Should get correct parameters", () => {
+    let pattern = RouteParser.parse("/assets/<file:(.*)>");
+    let url = "/assets/css/main.css";
+    let params = pattern.getParams(url);
+    expect(params).toEqual({file: 'css/main.css'});
     expect(pattern.createUrl(params)).toBe(url);
   });
 });
