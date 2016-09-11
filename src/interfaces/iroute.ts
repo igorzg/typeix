@@ -35,7 +35,8 @@ export interface IUrlTreePath {
  * @description
  * Request headers
  */
-export interface Headers {}
+export interface Headers {
+}
 /**
  * @since 1.0.0
  * @interface
@@ -48,6 +49,17 @@ export interface Route {
   parseRequest(pathName: string, method: string, headers: Headers): Promise<ResolvedRoute|boolean>;
   createUrl(routeName: string, params: Object): Promise<string|boolean>;
 }
+/**
+ * @since 1.0.0
+ * @type
+ * @name TRoute
+ *
+ * @description
+ * TRoute declaration for type constructor
+ */
+export declare type TRoute = {
+  new (): Route;
+};
 /**
  * @since 1.0.0
  * @interface

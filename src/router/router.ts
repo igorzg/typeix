@@ -1,9 +1,10 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
-import {Route, Headers, RouteRuleConfig, ResolvedRoute} from "../interfaces/iroute";
+import {Route, Headers, RouteRuleConfig, ResolvedRoute, TRoute} from "../interfaces/iroute";
 import {Injectable, Inject} from "../decorators";
-import {RouteRule} from "./route-rule";
 import {isTruthy} from "../core";
+import {Injector} from "../injector";
+import {RouteRule} from "./route-rule";
 /**
  * @since 1.0.0
  * @enum
@@ -76,6 +77,7 @@ export function getMethod(method: string): Methods {
  *   }
  * }
  */
+
 @Injectable()
 export class Router {
   /**
@@ -83,6 +85,11 @@ export class Router {
    */
   @Inject(Logger)
   private logger: Logger;
+  /**
+   * Inject injector
+   */
+  @Inject(Injector)
+  private injector: Injector;
   /**
    * Array of routes definition
    * @type {Array}
@@ -116,7 +123,28 @@ export class Router {
    */
   addRules(rules: Array<RouteRuleConfig>): void {
     this.logger.info("Router.addRules", rules);
-    rules.forEach(rule => this.routes.push(new RouteRule(rule)));
+    rules.forEach(config => this.routes.push(this.addRule(RouteRule, config)));
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Router#addRule
+   * @param {Function} Class
+   * @param {RouteRuleConfig} config
+   *
+   * @description
+   * Add rule to router
+   */
+   addRule(Class: TRoute, config: RouteRuleConfig): Route {
+    let injector = Injector.createAndResolveChild(
+      this.injector,
+      Class,
+      [
+        {provide: "config", useValue: config}
+      ]
+    );
+    return injector.get(Class);
   }
 
   /**

@@ -1,6 +1,8 @@
 import {Route, Headers, RouteRuleConfig, ResolvedRoute} from "../interfaces/iroute";
 import {RouteParser} from "./route-parser";
 import {getMethod} from "./router";
+import {Injectable, Inject} from "../decorators";
+import {IAfterConstruct} from "../interfaces/iprovider";
 
 /**
  * @since 1.0.0
@@ -13,23 +15,24 @@ import {getMethod} from "./router";
  * @description
  * Route rule provider is used by router to parse request and create route url
  */
-export class RouteRule implements Route {
+@Injectable()
+export class RouteRule implements Route, IAfterConstruct {
 
-  private routeParser: RouteParser;
+  @Inject("config")
   private config: RouteRuleConfig;
-
+  private routeParser: RouteParser;
   /**
    * @since 1.0.0
    * @function
-   * @name RouteRule#constructor
-   * @param config
+   * @name RouteRule#afterConstruct
    * @private
+   *
+   * @description
+   * After construct apply config data
    */
-  constructor(config: RouteRuleConfig) {
-    this.routeParser = RouteParser.parse(config.url);
-    this.config = config;
+  afterConstruct(): void {
+    this.routeParser = RouteParser.parse(this.config.url);
   }
-
   /**
    * @since 1.0.0
    * @function

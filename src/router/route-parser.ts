@@ -386,23 +386,6 @@ export class RouteParser {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteParser#destroy
-   *
-   * @description
-   * Clean up all references to do gc possible
-   */
-  destroy() {
-    if (isPresent(this.child)) {
-      this.child.destroy();
-      this.child = null;
-    }
-    this.parent = null;
-    this.pattern = null;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
    * @name RouteParser#getHead
    * @return {RouteParser}
    * @private
