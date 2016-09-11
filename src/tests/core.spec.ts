@@ -3,11 +3,8 @@ import {
   isPresent
 } from "../core";
 import {isNumber} from "util";
-/**
- * Created by igorzg on 9/8/2016.
- */
 
-describe("core functions test", () => {
+describe("Core functions", () => {
   it("Should be valid string", () => {
     expect(isString("value")).toBeTruthy();
     expect(isString(null)).toBeFalsy();

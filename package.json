@@ -10,7 +10,7 @@
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node build/src/tests/",
+    "test": "jasmine-node build/src/tests/ --verbose",
     "postinstall": "typings install"
   },
   "bin": {
