@@ -14,18 +14,29 @@ describe("RouteRule", () => {
     Promise
       .all([
         route.parseRequest("/home/123", "GET", {}),
+        route.parseRequest("/home/123", "POST", {}),
+        route.parseRequest("/home/123", "CONNECT", {}),
         route.createUrl("core/index", {id: 123})
       ])
       .then(data => {
         let result = [
           {
-            method: 0,
+            method: Methods.GET,
             params: {
               id: "123"
             },
             path: "/home/123",
             route: "core/index"
           },
+          {
+            method: Methods.POST,
+            params: {
+              id: "123"
+            },
+            path: "/home/123",
+            route: "core/index"
+          },
+          false,
           "/home/123"
         ];
         expect(data).toEqual(result);
