@@ -203,6 +203,8 @@ export function isEqual(a, b): boolean {
       return true;
     } else if (a.constructor.name !== b.constructor.name) {
       return false;
+    } else if (a.length === 0 && b.length === 0) {
+      return true;
     }
 
     try {
@@ -215,16 +217,20 @@ export function isEqual(a, b): boolean {
     }
   } else if (isObject(a) && isObject(b)) {
     let equal: Array<boolean> = [];
+    let aLen = Object.keys(a).length;
+    let bLen = Object.keys(b).length;
     // check references first
 
     if (a === b) {
       return true;
     } else if (a.constructor.name !== b.constructor.name) {
       return false;
+    } else if (aLen === 0 && bLen === 0) {
+      return true;
     }
 
     try {
-      if (Object.keys(a).length === Object.keys(b).length) {
+      if (aLen === bLen) {
         Object.keys(a).forEach(key => equal.push(isEqual(a[key], b[key])));
       }
     } catch (e) {

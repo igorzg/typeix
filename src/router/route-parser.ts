@@ -1,10 +1,10 @@
-import {isPresent, isTruthy, isObject} from "../core";
+import {isPresent, isTruthy, isObject, isFalsy} from "../core";
 import {IUrlTreePath} from "../interfaces/iroute";
+import {Router} from "./router";
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP = /^\(([^\)]+)\)$/;
-const URL_SPLIT = /\/([^\/]+)\//g;
-const PATH_MATCH = /\//g;
+const URL_SPLIT = /\/([^\/]+)\//;
 
 /**
  * @since 1.0.0
@@ -41,6 +41,7 @@ export class PatternChunk {
   getRegex() {
     return this.regex;
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -223,12 +224,6 @@ export class RouteParser {
     let patterns = [];
     let pattern = null;
     /**
-     * Check if path contains path char
-     */
-    if (PATH_MATCH.test(path)) {
-      throw new Error(`Path ${path} must be normalised use RouteParser.parse to create RoutePattern`);
-    }
-    /**
      * Parse patterns
      */
     if (PATTERN_MATCH.test(path)) {
@@ -280,17 +275,25 @@ export class RouteParser {
    *
    */
   static parse(url: string): RouteParser {
-    let tree: any = url.split(URL_SPLIT).filter(isTruthy).reduceRight((cTree: any, currentValue: any) => {
-      let three: any = {
-        child: null,
-        path: currentValue
-      };
-      if (isPresent(cTree)) {
-        three.child = isObject(cTree) ? cTree : {child: null, path: cTree};
-      }
-      return three;
+    if (isFalsy(url) || url.charAt(0) !== "/") {
+      throw new Error("Url must start with \/");
+    } else if (URL_SPLIT.test(url)) {
+      let tree: any = url.split(URL_SPLIT).filter(isTruthy).reduceRight((cTree: any, currentValue: any) => {
+        let obj: any = {
+          child: null,
+          path: currentValue
+        };
+        if (isPresent(cTree)) {
+          obj.child = isObject(cTree) ? cTree : {child: null, path: cTree};
+        }
+        return obj;
+      });
+      return new RouteParser(tree);
+    }
+    return new RouteParser({
+      child: null,
+      path: url
     });
-    return new RouteParser(tree);
   }
 
   /**
@@ -353,7 +356,7 @@ export class RouteParser {
     let head = this.getHead();
     let url = "";
     while (isPresent(head)) {
-      url += "/" + head.pattern.normalizePath(params);
+      url += Router.prefixSlash(head.pattern.normalizePath(params));
       head = head.child;
     }
     return url;

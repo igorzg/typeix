@@ -1,7 +1,7 @@
 import {Methods, Router} from "../router/router";
 import {Injector} from "../injector";
 import {Logger} from "../logger/logger";
-import {assert} from "chai";
+import {assert, expect} from "chai";
 import {isEqual} from "../core";
 
 describe("Router", () => {
@@ -30,6 +30,7 @@ describe("Router", () => {
       router.parseRequest("/", "POST", {}),
       router.parseRequest("/home", "GET", {}),
       router.createUrl("controller/index", {}),
+      router.createUrl("controller/home", {}),
       router.createUrl("controller/indexs", {})
     ]).then((data) => {
       let result = [
@@ -44,7 +45,10 @@ describe("Router", () => {
           params: {},
           path: "/home",
           route: "controller/home"
-        }
+        },
+        "/",
+        "/home",
+        "/controller/indexs"
       ];
       assert.isTrue(isEqual(data, result));
     });

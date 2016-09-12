@@ -28,6 +28,14 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412"));
   });
 
+  it("Should test patterns on /", () => {
+    let pattern = RouteParser.parse("/");
+    assert.isTrue(pattern.isValid("/"));
+    assert.isFalse(pattern.isValid(""));
+    assert.throw(() => RouteParser.parse(""), "Url must start with \/");
+    assert.throw(() => RouteParser.parse("abc/"), "Url must start with \/");
+  });
+
   it("Should get correct parameters on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>", () => {
     let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>" +
       "-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
@@ -47,6 +55,8 @@ describe("RouterParser", () => {
 
   it("Should test pattern for /assets/<file:(.*)>", () => {
     let pattern = RouteParser.parse("/assets/<file:(.*)>");
+    let url = "/assets/css/main.css";
+    assert.isTrue(pattern.isValid(url));
     assert.isFalse(pattern.isValid(""));
     assert.isTrue(pattern.isValid("/assets/css/main.css"));
   });
@@ -54,6 +64,7 @@ describe("RouterParser", () => {
   it("Should get correct parameters on /assets/<file:(.*)>", () => {
     let pattern = RouteParser.parse("/assets/<file:(.*)>");
     let url = "/assets/css/main.css";
+    assert.isTrue(pattern.isValid(url));
     let params = pattern.getParams(url);
     assert.isTrue(isEqual(params, {file: "css/main.css"}));
     expect(pattern.createUrl(params)).to.be.eq(url);
