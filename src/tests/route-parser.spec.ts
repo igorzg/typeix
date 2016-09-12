@@ -9,7 +9,7 @@ describe("RouterParser", () => {
     assert.isTrue(pattern instanceof RouteParser);
   });
 
-  it("Should test patterns on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>", () => {
+  it("Should test patterns on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>", () => {
     let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>" +
       "-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
     assert.isFalse(pattern.isValid(""));
@@ -27,6 +27,38 @@ describe("RouterParser", () => {
     assert.isFalse(pattern.isValid("/canbeone/igor/should--be-able-do-it/whata123-smile-now-2306-not/user/1412"));
     assert.isTrue(pattern.isValid("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412"));
   });
+
+  it("Should test patterns on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>", () => {
+    let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>");
+    assert.isFalse(pattern.isValid(""));
+    assert.isTrue(pattern.isValid("/canbeone/igor/should#+do-it/whata"));
+    assert.isTrue(pattern.isValid("/canbeone/cn/should#+do-it/all"));
+    assert.isTrue(pattern.isValid("/canbeone/ws/should#+do-it/good"));
+  });
+
+  it("Should test patterns on /home/<id:(\\d+)>", () => {
+    let pattern = RouteParser.parse("/home/<id:(\\d+)>");
+    assert.isFalse(pattern.isValid(""));
+    assert.isTrue(pattern.isValid("/home/123"));
+    assert.isFalse(pattern.isValid("/home/123/"));
+    assert.isFalse(pattern.isValid("/home/cn/all"));
+    assert.isFalse(pattern.isValid("/home/abc"));
+    assert.isFalse(pattern.isValid("/home/abc/"));
+    assert.isTrue(pattern.isValid("/home/1"));
+  });
+
+  it("Should test patterns on /home/<name:(\\w+)>", () => {
+    let pattern = RouteParser.parse("/home/<name:(\\w+)>");
+    assert.isFalse(pattern.isValid(""));
+    assert.isTrue(pattern.isValid("/home/123"));
+    assert.isTrue(pattern.isValid("/home/works"));
+    assert.isFalse(pattern.isValid("/home/123/"));
+    assert.isFalse(pattern.isValid("/home/cn/all"));
+    assert.isTrue(pattern.isValid("/home/abc"));
+    assert.isFalse(pattern.isValid("/home/abc/"));
+    assert.isTrue(pattern.isValid("/home/1"));
+  });
+
 
   it("Should test patterns on /", () => {
     let pattern = RouteParser.parse("/");
