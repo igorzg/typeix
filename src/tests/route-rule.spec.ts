@@ -1,8 +1,11 @@
 import {RouteRule} from "../router/route-rule";
 import {Methods} from "../router/router";
 import {Injector} from "../injector";
+import {assert, expect} from "chai";
+import {isEqual} from "../core";
+
 describe("RouteRule", () => {
-  it("Initialize", (done) => {
+  it("Initialize", () => {
     let config = {
       methods: [Methods.GET, Methods.POST],
       route: "core/index",
@@ -10,8 +13,8 @@ describe("RouteRule", () => {
     };
     let injector = Injector.createAndResolve(RouteRule, [{provide: "config", useValue: config}]);
     let route = injector.get(RouteRule);
-    expect(route).not.toBeNull();
-    Promise
+    assert.isNotNull(route);
+    return Promise
       .all([
         route.parseRequest("/home/123", "GET", {}),
         route.parseRequest("/home/123", "POST", {}),
@@ -39,8 +42,7 @@ describe("RouteRule", () => {
           false,
           "/home/123"
         ];
-        expect(data).toEqual(result);
-        done();
+        assert.isTrue(isEqual(data, result));
       });
   });
 });

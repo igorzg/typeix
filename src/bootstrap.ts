@@ -10,26 +10,25 @@ import {IModuleMetadata} from "./interfaces/imodule";
  * @since 1.0.0
  * @function
  * @name bootstrap
- * @param {Object} Class bootstrap class
+ * @param {Function} Class bootstrap class
+ * @param {Number} port bootstrap on port
+ * @param {String} hostname bootstrap on hostname
  * @returns {Injector}
  *
  * @description
  * Use bootstrap function to bootstrap an application.
  *
  * @example
- * import {bootstrap, Router} from "typeix/core"
+ * import {Module} from "typeix/core"
  *
- * \@Module({
- *    port: 9000
- * })
+ * \@Module()
  * class App{
  *    constructor(router: Router) {
  *
  *    }
  * }
  */
-export function bootstrap(Class: Function): Injector {
-  let config = Metadata.getComponentConfig(Class);
+export function bootstrap(Class: Function, port: number, hostname?: string): Injector {
   let injector = Injector.createAndResolve(Class, []);
   let server = createServer();
   server.on("request", (request: IncomingMessage, response: ServerResponse) => {
@@ -43,13 +42,13 @@ export function bootstrap(Class: Function): Injector {
     );
     request.on("end", () => childInjector.destroy());
   });
-  if (isString(config.hostname)) {
-    server.listen(config.port, config.hostname);
+  if (isString(hostname)) {
+    server.listen(port, hostname);
   } else {
-    server.listen(config.port);
+    server.listen(port);
   }
   let logger: Logger = injector.get(Logger);
-  logger.info("Module.info: Server started", config);
+  logger.info("Module.info: Server started", {port, hostname});
   server.on("error", (e) => logger.error(e.stack));
   return injector;
 }

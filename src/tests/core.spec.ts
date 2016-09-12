@@ -3,107 +3,108 @@ import {
   isPresent
 } from "../core";
 import {isNumber} from "util";
+import {assert} from "chai";
 
 describe("Core functions", () => {
   it("Should be valid string", () => {
-    expect(isString("value")).toBeTruthy();
-    expect(isString(null)).toBeFalsy();
+    assert.isTrue(isString("value"));
+    assert.isFalse(isString(null));
   });
 
   it("Should be valid boolean", () => {
-    expect(isBoolean(true)).toBeTruthy();
-    expect(isBoolean(null)).toBeFalsy();
+    assert.isTrue(isBoolean(true));
+    assert.isFalse(isBoolean(null));
   });
 
   it("Should be valid undefined", () => {
-    expect(isUndefined(undefined)).toBeTruthy();
-    expect(isUndefined(true)).toBeFalsy();
-    expect(isUndefined(null)).toBeFalsy();
+    assert.isTrue(isUndefined(undefined));
+    assert.isFalse(isUndefined(true));
+    assert.isFalse(isUndefined(null));
   });
 
 
   it("Should be valid number", () => {
-    expect(isNumber(1)).toBeTruthy();
-    expect(isNumber(NaN)).toBeTruthy();
-    expect(isNumber(undefined)).toBeFalsy();
-    expect(isNumber(true)).toBeFalsy();
-    expect(isNumber(null)).toBeFalsy();
+    assert.isTrue(isNumber(1));
+    assert.isTrue(isNumber(NaN));
+    assert.isFalse(isNumber(undefined));
+    assert.isFalse(isNumber(true));
+    assert.isFalse(isNumber(null));
   });
 
   it("Should be valid array", () => {
-    expect(isArray([])).toBeTruthy();
-    expect(isArray({})).toBeFalsy();
-    expect(isArray(1)).toBeFalsy();
-    expect(isArray(NaN)).toBeFalsy();
-    expect(isArray(undefined)).toBeFalsy();
-    expect(isArray(true)).toBeFalsy();
-    expect(isArray(null)).toBeFalsy();
+    assert.isTrue(isArray([]));
+    assert.isFalse(isArray({}));
+    assert.isFalse(isArray(1));
+    assert.isFalse(isArray(NaN));
+    assert.isFalse(isArray(undefined));
+    assert.isFalse(isArray(true));
+    assert.isFalse(isArray(null));
   });
 
   it("Should be valid null", () => {
-    expect(isNull([])).toBeFalsy();
-    expect(isNull({})).toBeFalsy();
-    expect(isNull(1)).toBeFalsy();
-    expect(isNull(NaN)).toBeFalsy();
-    expect(isNull(undefined)).toBeFalsy();
-    expect(isNull(true)).toBeFalsy();
-    expect(isNull(null)).toBeTruthy();
+    assert.isFalse(isNull([]));
+    assert.isFalse(isNull({}));
+    assert.isFalse(isNull(1));
+    assert.isFalse(isNull(NaN));
+    assert.isFalse(isNull(undefined));
+    assert.isFalse(isNull(true));
+    assert.isTrue(isNull(null));
   });
 
 
   it("Should be valid function", () => {
-    expect(isFunction(Array)).toBeTruthy();
-    expect(isFunction([])).toBeFalsy();
-    expect(isFunction({})).toBeFalsy();
-    expect(isFunction(1)).toBeFalsy();
-    expect(isFunction(NaN)).toBeFalsy();
-    expect(isFunction(undefined)).toBeFalsy();
-    expect(isFunction(true)).toBeFalsy();
-    expect(isFunction(null)).toBeFalsy();
+    assert.isTrue(isFunction(Array));
+    assert.isFalse(isFunction([]));
+    assert.isFalse(isFunction({}));
+    assert.isFalse(isFunction(1));
+    assert.isFalse(isFunction(NaN));
+    assert.isFalse(isFunction(undefined));
+    assert.isFalse(isFunction(true));
+    assert.isFalse(isFunction(null));
   });
 
   it("Should be valid date", () => {
-    expect(isDate(new Date)).toBeTruthy();
-    expect(isDate([])).toBeFalsy();
-    expect(isDate({})).toBeFalsy();
-    expect(isDate(1)).toBeFalsy();
-    expect(isDate(NaN)).toBeFalsy();
-    expect(isDate(undefined)).toBeFalsy();
-    expect(isDate(true)).toBeFalsy();
-    expect(isDate(null)).toBeFalsy();
+    assert.isTrue(isDate(new Date));
+    assert.isFalse(isDate([]));
+    assert.isFalse(isDate({}));
+    assert.isFalse(isDate(1));
+    assert.isFalse(isDate(NaN));
+    assert.isFalse(isDate(undefined));
+    assert.isFalse(isDate(true));
+    assert.isFalse(isDate(null));
   });
 
   it("Should be valid regex", () => {
-    expect(isRegExp(new RegExp("abc"))).toBeTruthy();
-    expect(isRegExp([])).toBeFalsy();
-    expect(isRegExp({})).toBeFalsy();
-    expect(isRegExp(1)).toBeFalsy();
-    expect(isRegExp(NaN)).toBeFalsy();
-    expect(isRegExp(undefined)).toBeFalsy();
-    expect(isRegExp(true)).toBeFalsy();
-    expect(isRegExp(null)).toBeFalsy();
+    assert.isTrue(isRegExp(new RegExp("abc")));
+    assert.isFalse(isRegExp([]));
+    assert.isFalse(isRegExp({}));
+    assert.isFalse(isRegExp(1));
+    assert.isFalse(isRegExp(NaN));
+    assert.isFalse(isRegExp(undefined));
+    assert.isFalse(isRegExp(true));
+    assert.isFalse(isRegExp(null));
   });
 
   it("Should be valid object", () => {
-    expect(isObject(new RegExp("abc"))).toBeTruthy();
-    expect(isObject([])).toBeTruthy();
-    expect(isObject({})).toBeTruthy();
-    expect(isObject(1)).toBeFalsy();
-    expect(isObject(NaN)).toBeFalsy();
-    expect(isObject(undefined)).toBeFalsy();
-    expect(isObject(true)).toBeFalsy();
-    expect(isObject(null)).toBeFalsy();
+    assert.isTrue(isObject(new RegExp("abc")));
+    assert.isTrue(isObject([]));
+    assert.isTrue(isObject({}));
+    assert.isFalse(isObject(1));
+    assert.isFalse(isObject(NaN));
+    assert.isFalse(isObject(undefined));
+    assert.isFalse(isObject(true));
+    assert.isFalse(isObject(null));
   });
 
   it("Should be present", () => {
-    expect(isPresent(new RegExp("abc"))).toBeTruthy();
-    expect(isPresent([])).toBeTruthy();
-    expect(isPresent({})).toBeTruthy();
-    expect(isPresent(1)).toBeTruthy();
-    expect(isPresent(NaN)).toBeTruthy();
-    expect(isPresent(undefined)).toBeFalsy();
-    expect(isPresent(true)).toBeTruthy();
-    expect(isPresent(null)).toBeFalsy();
+    assert.isTrue(isPresent(new RegExp("abc")));
+    assert.isTrue(isPresent([]));
+    assert.isTrue(isPresent({}));
+    assert.isTrue(isPresent(1));
+    assert.isTrue(isPresent(NaN));
+    assert.isFalse(isPresent(undefined));
+    assert.isTrue(isPresent(true));
+    assert.isFalse(isPresent(null));
   });
 
 });

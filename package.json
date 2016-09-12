@@ -10,13 +10,12 @@
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node build/src/tests/ --verbose",
+    "test": "mocha build/src/tests/ --debug --full-trace",
     "postinstall": "typings install"
   },
   "bin": {
     "typings": ".bin/typings",
-    "jasmine": ".bin//jasmine",
-    "jasmine-node": ".bin/jasmine-node"
+    "mocha": ".bin/mocha"
   },
   "engines": {
     "node": ">=6.0.0"
@@ -33,7 +32,7 @@
   "author": "igor.zg1987@gmail.com",
   "license": "MIT",
   "devDependencies": {
-    "jasmine": "^2.5.0",
-    "jasmine-node": "^1.14.5"
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2"
   }
 }

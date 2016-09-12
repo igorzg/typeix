@@ -2,3 +2,4 @@
 .idea/
 /build
 /typings/
+/npm-debug.log

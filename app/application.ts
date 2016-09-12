@@ -4,7 +4,6 @@ import {Inject} from "../src/decorators";
 import {Logger} from "../src/logger/logger";
 
 @Module({
-  port: 9000,
   providers: [A, B, Assets, C]
 })
 export class Application {
