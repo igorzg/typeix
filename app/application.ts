@@ -1,7 +1,9 @@
-import {Module, Router} from "../src/exports.ts";
+
 import {Assets, A, B, C} from "./components/assets";
 import {Inject} from "../src/decorators";
 import {Logger} from "../src/logger/logger";
+import {Module} from "../src/bootstrap";
+import {Router} from "../src/router/router";
 
 @Module({
   providers: [A, B, Assets, C]
