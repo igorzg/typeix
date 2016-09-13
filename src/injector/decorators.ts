@@ -1,7 +1,7 @@
-import {IProvider} from "./interfaces/iprovider";
-import {isUndefined, isFunction, isPresent, isArray} from "./core";
+import {IProvider} from "../interfaces/iprovider";
+import {isUndefined, isFunction, isPresent, isArray} from "../core";
 import {Metadata, INJECT_KEYS} from "./metadata";
-import {IInjectParam, IInjectKey, IComponentMetaData} from "./interfaces/idecorators";
+import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
 
 /**
  * @since 1.0.0

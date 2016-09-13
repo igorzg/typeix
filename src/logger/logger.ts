@@ -1,6 +1,6 @@
 import {Level} from "./level";
 import {Log} from "./log";
-import {Injectable} from "../decorators";
+import {Injectable} from "../injector/decorators";
 /**
  * @license Mit Licence 2015
  * @since 1.0.0

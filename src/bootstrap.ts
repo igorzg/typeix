@@ -1,10 +1,10 @@
-import {Injector} from "./injector";
+import {Injector} from "./injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Request} from "./request";
 import {Router} from "./router/router";
 import {Logger} from "./logger/logger";
 import {isString, isArray} from "./core";
-import {Metadata} from "./metadata";
+import {Metadata} from "./injector/metadata";
 import {IModuleMetadata} from "./interfaces/imodule";
 /**
  * @since 1.0.0

@@ -1,9 +1,9 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
 import {Route, Headers, RouteRuleConfig, ResolvedRoute, TRoute} from "../interfaces/iroute";
-import {Injectable, Inject} from "../decorators";
+import {Injectable, Inject} from "../injector/decorators";
 import {isTruthy} from "../core";
-import {Injector} from "../injector";
+import {Injector} from "../injector/injector";
 import {RouteRule} from "./route-rule";
 /**
  * @since 1.0.0

@@ -1,4 +1,4 @@
-import {Inject} from "../../src/decorators";
+import {Inject} from "../../src/injector/decorators";
 
 //
 // @Controller({

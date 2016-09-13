@@ -1,5 +1,5 @@
 import {Methods, Router} from "../router/router";
-import {Injector} from "../injector";
+import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {assert, expect} from "chai";
 import {isEqual} from "../core";

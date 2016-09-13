@@ -1,4 +1,4 @@
-import {Injectable} from "../../src/decorators";
+import {Injectable} from "../../src/injector/decorators";
 /**
  * Created by igi on 17/01/16.
  */

@@ -1,7 +1,7 @@
-import {isFunction, toString, isPresent, uuid, isArray} from "./core";
+import {isFunction, toString, isPresent, uuid, isArray} from "../core";
 import {Metadata} from "./metadata";
-import {IProvider} from "./interfaces/iprovider";
-import {IInjectKey} from "./interfaces/idecorators";
+import {IProvider} from "../interfaces/iprovider";
+import {IInjectKey} from "../interfaces/idecorators";
 
 /**
  * @since 1.0.0

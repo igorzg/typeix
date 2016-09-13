@@ -1,26 +1,33 @@
 import "reflect-metadata";
-import {isPresent, isFunction, isObject, isString, toString, isArray} from "./core";
-import {IProvider} from "./interfaces/iprovider";
+import {isPresent, isFunction, isObject, isString, toString, isArray} from "../core";
+import {IProvider} from "../interfaces/iprovider";
 export const INJECT_KEYS = "inject:paramtypes";
 export const METADATA_KEYS = "design:paramtypes";
 export const DESIGN_KEYS = "design:type";
 export const COMPONENT_CONFIG_KEYS = "component:paramtypes";
+
 /**
  * @since 1.0.0
+ * @constructor
  * @function
  * @name Metadata
  *
  * @description
- * Metadata is used by injector
- *
+ * Metadata is responsible for getting or setting metadata definitions for some Class
+ * It's crucial for injector
  */
 export class Metadata {
   /**
-   * Define metadata
-   * @param token
-   * @param name
-   * @param value
-   * @returns {any}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#defineMetadata
+   * @param {Function} token
+   * @param {string} name
+   * @return {any} value
+   *
+   * @description
+   * Define metadata to some class
    */
   static defineMetadata(token: Function, name: string, value: any): boolean {
     if (isPresent(value)) {
@@ -31,47 +38,74 @@ export class Metadata {
   }
 
   /**
-   * Check if has metadata
-   * @param token
-   * @param name
-   * @returns {any}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#hasMetadata
+   * @param {Function} token
+   * @param {string} name
+   *
+   * @description
+   * Check if some class has metadata by key
    */
   static hasMetadata(token: Function, name: string): boolean {
     return Reflect.hasMetadata(name, token);
   }
 
   /**
-   * Return metadata from class or token
-   * @param token
-   * @param name
-   * @param defaultValue
-   * @returns {Array}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getMetadata
+   * @param {Function} token
+   * @param {String} name
+   * @param {any} defaultValue
+   *
+   * @description
+   * Get class metadata if not present return defaultValue
    */
   static getMetadata(token: Function, name: string, defaultValue = []) {
     return Metadata.hasMetadata(token, name) ? Reflect.getMetadata(name, token) : defaultValue;
   }
 
   /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getComponentConfig
+   * @param {Function} Class
+   *
+   * @description
    * Get component config
-   * @param Class
-   * @returns {Array}
    */
   static getComponentConfig(Class: Function): any {
     return Metadata.getMetadata(Class, COMPONENT_CONFIG_KEYS);
   }
 
   /**
-   * Set component config
-   * @param Class
-   * @param config
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#setComponentConfig
+   * @param {Function} Class
+   * @param {any} config
+   *
+   * @description
+   * Sets component config
    */
   static setComponentConfig(Class: Function, config: any): void {
     Metadata.defineMetadata(Class, COMPONENT_CONFIG_KEYS, config);
   }
+
   /**
-   * Return constructor providers
-   * @param Class
-   * @returns {any}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getConstructorProviders
+   * @param {Function} Class
+   *
+   * @description
+   * Return constructor providers in order to be delivered new instance to current injectable class
    */
   static getConstructorProviders(Class: Function): Array<IProvider> {
     if (isFunction(Class)) {
@@ -84,18 +118,28 @@ export class Metadata {
   }
 
   /**
-   * Return prototype keys which has to be injected on each constructor
-   * @param Class
-   * @returns {Array}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getConstructorPrototypeKeys
+   * @param {Function} Class
+   *
+   * @description
+   * Get keys metadata in order to know what Injector should do with them
    */
   static getConstructorPrototypeKeys(Class: Function) {
     return Metadata.getMetadata(Class.prototype, INJECT_KEYS);
   }
 
   /**
-   * Return constructor metadata
-   * @param Class
-   * @returns {Array}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getConstructorInjectKeys
+   * @param {Function} Class
+   *
+   * @description
+   * Get all metadata on Class constructor so Injector can decide what to do with them
    */
   static getConstructorInjectKeys(Class: Function): Array<any> {
     let providers = Metadata.getMetadata(Class, METADATA_KEYS);
@@ -107,10 +151,15 @@ export class Metadata {
   }
 
   /**
-   * Check if provider exists
-   * @param providers
-   * @param Class
-   * @returns {boolean}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#hasProvider
+   * @param {Array} providers
+   * @param {Function} Class
+   *
+   * @description
+   * Check if some list of providers are containing provider Class
    */
   static hasProvider(providers: Array<any>, Class: Function): boolean {
     return providers.some(item => {
@@ -122,18 +171,29 @@ export class Metadata {
   }
 
   /**
-   * Merge providers
-   * @param a
-   * @param b
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#mergeProviders
+   * @param {Array<IProvider>} a
+   * @param {Array<IProvider>} b
+   *
+   * @description
+   * Merge two provider definitions, this is used by Injector internally to know what to deliver at what time
    */
   static mergeProviders(a: Array<IProvider>, b: Array<IProvider>) {
     return a.concat(b.filter(i => a.indexOf(i) === -1));
   }
 
   /**
-   * Verify projectors
-   * @param providers
-   * @returns {any}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#verifyProviders
+   * @param {Array<any>} providers
+   *
+   * @description
+   * Verify all providers in list
    */
   static verifyProviders(providers: Array<any>): Array<IProvider> {
     if (isArray(providers)) {
@@ -143,9 +203,14 @@ export class Metadata {
   }
 
   /**
-   * Verify provider metadata
-   * @param value
-   * @returns {any}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#verifyProvider
+   * @param {Any} value
+   *
+   * @description
+   * Verify provider to be sure that metadata configuration is provided correctly so it can be used by Injector
    */
   static verifyProvider(value: any): IProvider {
     if (isFunction(value)) {

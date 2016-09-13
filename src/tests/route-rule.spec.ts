@@ -1,6 +1,6 @@
 import {RouteRule} from "../router/route-rule";
 import {Methods} from "../router/router";
-import {Injector} from "../injector";
+import {Injector} from "../injector/injector";
 import {assert, expect} from "chai";
 import {isEqual} from "../core";
 

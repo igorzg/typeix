@@ -1,9 +1,9 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router} from "./router/router";
 import {uuid} from "./core";
-import {Inject, Injectable} from "./decorators";
+import {Inject, Injectable} from "./injector/decorators";
 import {Logger} from "./logger/logger";
-import {Injector} from "./injector";
+import {Injector} from "./injector/injector";
 import {IAfterConstruct} from "./interfaces/iprovider";
 
 @Injectable()
