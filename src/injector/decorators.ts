@@ -2,6 +2,9 @@ import {IProvider} from "../interfaces/iprovider";
 import {isUndefined, isFunction, isPresent, isArray} from "../core";
 import {Metadata, INJECT_KEYS} from "./metadata";
 import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
+import {IModuleMetadata} from "../interfaces/imodule";
+import {Logger} from "../logger/logger";
+import {Router} from "../router/router";
 
 /**
  * @since 1.0.0
@@ -95,3 +98,43 @@ export var Provider = (config: Array<IProvider|Function>) => {
  * }
  */
 export var Injectable = () => Provider([]);
+/**
+ * Module decorator
+ * @decorator
+ * @function
+ * @name Module
+ *
+ * @param {IModuleMetadata} config
+ * @returns {function(any): any}
+ *
+ * @description
+ * Define module in your application
+ *
+ * @example
+ * import {Module, Router} from "node-ee";
+ *
+ * \@Module({
+ *  providers:[Router]
+ * })
+ * class Application{
+ *    constructor(router: Router) {
+ *
+ *    }
+ * }
+ */
+export var Module = (config: IModuleMetadata) => (Class) => {
+  if (!isArray(config.providers)) {
+    config.providers = [];
+  }
+  // add logger to start of providers
+  if (!Metadata.hasProvider(config.providers, Logger)) {
+    config.providers.unshift(Logger);
+  }
+  // add router to default config
+  if (!Metadata.hasProvider(config.providers, Router)) {
+    config.providers.push(Router);
+  }
+  config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
+  Metadata.setComponentConfig(Class, config);
+  return Class;
+};

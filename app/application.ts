@@ -1,8 +1,7 @@
 
 import {Assets, A, B, C} from "./components/assets";
-import {Inject} from "../src/injector/decorators";
+import {Inject, Module} from "../src/injector/decorators";
 import {Logger} from "../src/logger/logger";
-import {Module} from "../src/bootstrap";
 import {Router} from "../src/router/router";
 
 @Module({
