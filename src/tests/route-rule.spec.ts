@@ -5,7 +5,7 @@ import {assert, expect} from "chai";
 import {isEqual} from "../core";
 
 describe("RouteRule", () => {
-  it("Initialize", () => {
+  it("Parse route and create url", () => {
     let config = {
       methods: [Methods.GET, Methods.POST],
       route: "core/index",

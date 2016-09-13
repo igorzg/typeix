@@ -5,7 +5,7 @@ import {assert, expect} from "chai";
 import {isEqual} from "../core";
 
 describe("Router", () => {
-  it("Parse and create", () => {
+  it("Parse request and create url", () => {
     let rootInjector = new Injector();
     let injector = Injector.createAndResolve(Router, [
       {provide: Injector, useValue: rootInjector},
@@ -14,14 +14,19 @@ describe("Router", () => {
     let router: Router = injector.get(Router);
     router.addRules([
       {
-        url: "/",
+        methods: [Methods.GET, Methods.POST],
         route: "controller/index",
-        methods: [Methods.GET, Methods.POST]
+        url: "/"
       },
       {
-        url: "/home",
+        methods: [Methods.GET, Methods.POST],
         route: "controller/home",
-        methods: [Methods.GET, Methods.POST]
+        url: "/home"
+      },
+      {
+        methods: [Methods.GET],
+        route: "controller/view",
+        url: "/home/<id:(\\d+)>"
       }
     ]);
 
@@ -29,6 +34,8 @@ describe("Router", () => {
     return Promise.all([
       router.parseRequest("/", "POST", {}),
       router.parseRequest("/home", "GET", {}),
+      router.parseRequest("/home/123", "GET", {}),
+      router.createUrl("controller/view", {id: 123}),
       router.createUrl("controller/index", {}),
       router.createUrl("controller/home", {}),
       router.createUrl("controller/indexs", {})
@@ -46,6 +53,15 @@ describe("Router", () => {
           path: "/home",
           route: "controller/home"
         },
+        {
+          method: Methods.GET,
+          params: {
+            id: "123"
+          },
+          path: "/home/123",
+          route: "controller/view"
+        },
+        "/home/123",
         "/",
         "/home",
         "/controller/indexs"
