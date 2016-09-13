@@ -1,4 +1,4 @@
-import {bootstrap} from "../src/bootstrap";
+import {bootstrap} from "../src/server/bootstrap";
 import {Application} from "./application";
 /**
  * Module module, we do bootstrap in separate file so we can write env easier

@@ -1,8 +1,9 @@
-import {Injector} from "./injector/injector";
+import {Injector} from "../injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Request} from "./request";
-import {Logger} from "./logger/logger";
-import {isString} from "./core";
+import {Logger} from "../logger/logger";
+import {isString} from "../core";
+import {EventEmitter} from "events";
 /**
  * @since 1.0.0
  * @function
@@ -24,7 +25,8 @@ export function bootstrap(Class: Function, port: number, hostname?: string): Inj
       Request,
       [
         {provide: "request", useValue: request},
-        {provide: "response", useValue: response}
+        {provide: "response", useValue: response},
+        EventEmitter
       ]
     );
     request.on("end", () => childInjector.destroy());
