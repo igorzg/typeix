@@ -4,10 +4,23 @@ import {Metadata, INJECT_KEYS} from "./metadata";
 import {IInjectParam, IInjectKey, IComponentMetaData} from "./interfaces/idecorators";
 
 /**
- * Inject token from injector
- * @param value
- * @returns {(Class:any, key?:any, paramIndex?:any)=>any}
- * @constructor
+ * @since 1.0.0
+ * @decorator
+ * @function
+ * @name Inject
+ *
+ * @description
+ * Inject is used to define metadata which will be injected at class construct time by Injector
+ *
+ * @example
+ * import {Provider, Inject} from "node-ee";
+ * import {MyService} form "./services/my-service";
+ *
+ * \@Provider([MyService])
+ * class AssetLoader{
+ *    \@Inject(MyService)
+ *    private myService;
+ * }
  */
 export var Inject = (value: Function|string) => {
   return (Class: any, key?: any, paramIndex?: any): any => {
@@ -26,10 +39,26 @@ export var Inject = (value: Function|string) => {
     return Class;
   };
 }
+
 /**
- * Provider decorator
- * @returns {function(any): any}
- * @constructor
+ * @since 1.0.0
+ * @decorator
+ * @function
+ * @name Provider
+ *
+ * @description
+ * Provider decorator is used to define injectable and injections for class itself
+ *
+ * @example
+ * import {Provider} from "node-ee";
+ * import {MyService} form "./services/my-service";
+ *
+ * \@Provider([MyService])
+ * class AssetLoader{
+ *    constructor(myService: MyService) {
+ *
+ *    }
+ * }
  */
 export var Provider = (config: Array<IProvider|Function>) => {
   return (Class) => {
@@ -45,22 +74,24 @@ export var Provider = (config: Array<IProvider|Function>) => {
     return Class;
   };
 }
+
 /**
- * Injectable is a empty provider
- * @constructor
+ * @since 1.0.0
+ * @decorator
+ * @function
+ * @name Injectable
+ *
+ * @description
+ * Injectable decorator is used to define injectable class in order that Injector can recognise it
+ *
+ * @example
+ * import {Injectable} from "node-ee";
+ *
+ * \@Injectable()
+ * class AssetLoader{
+ *    constructor() {
+ *
+ *    }
+ * }
  */
 export var Injectable = () => Provider([]);
-/**
- * Component decorator
- * @returns {function(any): any}
- * @constructor
- */
-export var Component = (config?: IComponentMetaData) => {
-  return (Class) => {
-    if (isArray(config.providers)) {
-      config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
-    }
-    Metadata.setComponentConfig(Class, config);
-    return Class;
-  };
-}

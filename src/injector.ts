@@ -21,11 +21,34 @@ export class Injector {
   private _children: Array<Injector> = [];
 
   /**
-   * Create and resolve child
-   * @param parent
-   * @param Class
-   * @param providers
-   * @returns {Injector}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Injector#createAndResolveChild
+   * @param {Injector} parent
+   * @param {Function} Class
+   * @param {Array<IProvider|Function>} providers
+   * @return {Injector} instance
+   *
+   * @description
+   * Static method which creates child injector on current injector and creates instance of Injectable class
+   *
+   * @example
+   * \@Injectable()
+   * class MyInjectableClass{
+   *    \@Inject("config")
+   *    private config: Object;
+   * }
+   *
+   * let parent = new Injector();
+   * let injector = Injector.createAndResolveChild(
+   *    parent,
+   *    MyInjectableClass,
+   *    [
+   *      {provide: "config", useValue: {id: 1, message: "This is custom provider for injector"}}
+   *    ]
+   * );
+   * let myInstance = injector.get(MyInjectableClass);
    */
   static createAndResolveChild(parent: Injector, Class: Function, providers: Array<IProvider|Function>): Injector {
     let child = new Injector(parent);
@@ -35,10 +58,31 @@ export class Injector {
   }
 
   /**
-   * Create and resolve
-   * @param Class
-   * @param providers
-   * @returns {Injector}
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Injector#createAndResolve
+   * @param {Function} Class
+   * @param {Array<IProvider|Function>} providers
+   * @return {Injector} instance
+   *
+   * @description
+   * Static method which creates injector and instance of Injectable class
+   *
+   * @example
+   * \@Injectable()
+   * class MyInjectableClass{
+   *    \@Inject("config")
+   *    private config: Object;
+   * }
+   *
+   * let injector = Injector.createAndResolve(
+   *    MyInjectableClass,
+   *    [
+   *      {provide: "config", useValue: {id: 1, message: "This is custom provider for injector"}}
+   *    ]
+   * );
+   * let myInstance = injector.get(MyInjectableClass);
    */
   static createAndResolve(Class: Function, providers: Array<IProvider|Function>): Injector {
     let injector = new Injector();
@@ -47,17 +91,28 @@ export class Injector {
   }
 
   /**
+   * @since 1.0.0
+   * @constructor
+   * @function
+   * @name Injector#constructor
+   * @param {Injector} parent
+   *
+   * @description
    * Injector constructor
-   * @param parent
    */
   constructor(private parent?: Injector) {
   }
 
   /**
-   * Craete and resolve provider
-   * @param provider
-   * @param providers
-   * @returns {any}
+   * @since 1.0.0
+   * @function
+   * @name Injector#createAndResolve
+   * @param {IProvider} provider
+   * @param {Array<IProvider>} providers
+   *
+   * @description
+   * Creates instance of verified provider and creates instances of current providers and assign it to current injector instance
+   * This method is used internally in most cases you should use static method Injector.createAndResolve or Injector.createAndResolveChild
    */
   createAndResolve(provider: IProvider, providers: Array<IProvider>): any {
     // merge _providers
@@ -92,7 +147,12 @@ export class Injector {
 
 
   /**
-   * Destroy Injector
+   * @since 1.0.0
+   * @function
+   * @name Injector#destroy
+   *
+   * @description
+   * Do cleanup on current injector and all children so we are ready for gc this is used internally by framework
    */
   destroy() {
     if (this.parent instanceof Injector) {
@@ -106,19 +166,27 @@ export class Injector {
 
 
   /**
-   * Check if has initialized provider
-   * @param key
-   * @returns {boolean}
+   * @since 1.0.0
+   * @function
+   * @name Injector#has
+   * @param {any} key
+   *
+   * @description
+   * Check if Injectable class has instance on current injector
    */
   has(key: any): boolean {
     return this._providers.has(key);
   }
 
   /**
-   * Query initialized provider
-   * @param provider
-   * @param Class
-   * @returns {any}
+   * @since 1.0.0
+   * @function
+   * @name Injector#get
+   * @param {any} provider
+   * @param {IProvider} Class
+   *
+   * @description
+   * Gets current Injectable instance throws exception if Injectable class is not created
    */
   get(provider: any, Class?: IProvider): any {
     if (!this.has(provider) && this.parent instanceof Injector) {
@@ -135,25 +203,42 @@ export class Injector {
   }
 
   /**
-   * Set initialized provider
-   * @param key
-   * @param value
+   * @since 1.0.0
+   * @function
+   * @name Injector#set
+   * @param {any} key
+   * @param {Object} value
+   *
+   * @description
+   * Sets Injectable instance to current injector instance
    */
   set(key: any, value: Object): void {
     this._providers.set(key, value);
   }
 
   /**
-   * Add injector to parent
-   * @param injector
+   * @since 1.0.0
+   * @function
+   * @name Injector#setChild
+   * @param {Injector} injector
+   * @private
+   *
+   * @description
+   * Append child Injector
    */
   private setChild(injector: Injector): void {
     this._children.push(injector);
   }
 
   /**
-   * Remove injector from parent
-   * @param injector
+   * @since 1.0.0
+   * @function
+   * @name Injector#setChild
+   * @param {Injector} injector
+   * @private
+   *
+   * @description
+   * Remove child injector
    */
   private removeChild(injector: Injector): void {
     this._children.splice(this._children.indexOf(injector), 1);

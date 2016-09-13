@@ -16,17 +16,7 @@ import {IModuleMetadata} from "./interfaces/imodule";
  * @returns {Injector}
  *
  * @description
- * Use bootstrap function to bootstrap an application.
- *
- * @example
- * import {Module} from "typeix/core"
- *
- * \@Module()
- * class App{
- *    constructor(router: Router) {
- *
- *    }
- * }
+ * Use bootstrap function to bootstrap an Module.
  */
 export function bootstrap(Class: Function, port: number, hostname?: string): Injector {
   let injector = Injector.createAndResolve(Class, []);
@@ -54,9 +44,27 @@ export function bootstrap(Class: Function, port: number, hostname?: string): Inj
 }
 /**
  * Module decorator
- * @param config
+ * @decorator
+ * @function
+ * @name Module
+ *
+ * @param {IModuleMetadata} config
  * @returns {function(any): any}
- * @constructor
+ *
+ * @description
+ * Define module in your application
+ *
+ * @example
+ * import {Module, Router} from "node-ee";
+ *
+ * \@Module({
+ *  providers:[Router]
+ * })
+ * class Application{
+ *    constructor(router: Router) {
+ *
+ *    }
+ * }
  */
 export var Module = (config: IModuleMetadata) => (Class) => {
   if (!isArray(config.providers)) {
