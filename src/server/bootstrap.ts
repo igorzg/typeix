@@ -18,6 +18,7 @@ import {EventEmitter} from "events";
  */
 export function bootstrap(Class: Function, port: number, hostname?: string): Injector {
   let injector = Injector.createAndResolve(Class, []);
+  let logger: Logger = injector.get(Logger);
   let server = createServer();
   server.on("request", (request: IncomingMessage, response: ServerResponse) => {
     let childInjector = Injector.createAndResolveChild(
@@ -26,17 +27,41 @@ export function bootstrap(Class: Function, port: number, hostname?: string): Inj
       [
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
+        {provide: "isCustomError", useValue: false},
+        {provide: "isForwarded", useValue: false},
+        {provide: "isForwarder", useValue: false},
+        {provide: "statusCode", useValue: 200},
+        {provide: "data", useValue: []},
         EventEmitter
       ]
     );
+    /**
+     * On end destroy injector
+     */
     request.on("end", () => childInjector.destroy());
+    /**
+     * Get request instance
+     * @type {any}
+     */
+    let pRequest: Request = childInjector.get(Request);
+    /**
+     * Process request
+     */
+    pRequest
+      .process()
+      .catch(error =>
+        logger.error("Request.error", {
+          stack: error.stack,
+          url: request.url,
+          error
+        })
+      );
   });
   if (isString(hostname)) {
     server.listen(port, hostname);
   } else {
     server.listen(port);
   }
-  let logger: Logger = injector.get(Logger);
   logger.info("Module.info: Server started", {port, hostname});
   server.on("error", (e) => logger.error(e.stack));
   return injector;

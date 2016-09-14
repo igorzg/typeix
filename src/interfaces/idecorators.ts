@@ -19,12 +19,14 @@ export interface IInjectParam {
  * @name IInjectKey
  * @param {Object} value
  * @param {Object} key
+ * @param {Boolean} isMutable
  *
  * @description
  * Injection param is used internally by framework as metadata type
  */
 export interface IInjectKey {
   value: any;
+  isMutable: boolean;
   key: any;
 }
 /**

@@ -80,6 +80,7 @@ export function getMethod(method: string): Methods {
 
 @Injectable()
 export class Router {
+
   /**
    * Inject logger
    */
@@ -136,7 +137,7 @@ export class Router {
    * @description
    * Add rule to router
    */
-   addRule(Class: TRoute, config: RouteRuleConfig): Route {
+  addRule(Class: TRoute, config: RouteRuleConfig): Route {
     let injector = Injector.createAndResolveChild(
       this.injector,
       Class,

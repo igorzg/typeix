@@ -129,11 +129,12 @@ export class Injector {
     let args = keys.map(arg => this.get(arg, provider));
     let instance = Reflect.construct(provider.useClass, args);
     let protoKeys = Metadata.getConstructorPrototypeKeys(provider.useClass);
-    if (isArray(protoKeys) && providers.length > 0) {
+    if (isArray(protoKeys)) {
       protoKeys.forEach((item: IInjectKey) => {
+        let value = this.get(item.value);
         Reflect.defineProperty(instance, item.key, {
-          value: this.get(item.value),
-          writable: false
+          value: value,
+          writable: item.isMutable
         });
       });
     }

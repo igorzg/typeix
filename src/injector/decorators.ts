@@ -25,7 +25,7 @@ import {Router} from "../router/router";
  *    private myService;
  * }
  */
-export var Inject = (value: Function|string) => {
+export var Inject = (value: Function|string, isMutable?: boolean) => {
   return (Class: any, key?: any, paramIndex?: any): any => {
     let metadata: Array<IInjectParam|IInjectKey> = [];
     if (Metadata.hasMetadata(Class, INJECT_KEYS)) {
@@ -33,6 +33,7 @@ export var Inject = (value: Function|string) => {
     }
     metadata.push(isUndefined(paramIndex) ? {
       value,
+      isMutable: !!isMutable,
       key
     } : {
       value,
@@ -126,13 +127,13 @@ export var Module = (config: IModuleMetadata) => (Class) => {
   if (!isArray(config.providers)) {
     config.providers = [];
   }
+  // add router to default config
+  if (!Metadata.hasProvider(config.providers, Router)) {
+    config.providers.unshift(Router);
+  }
   // add logger to start of providers
   if (!Metadata.hasProvider(config.providers, Logger)) {
     config.providers.unshift(Logger);
-  }
-  // add router to default config
-  if (!Metadata.hasProvider(config.providers, Router)) {
-    config.providers.push(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
   Metadata.setComponentConfig(Class, config);

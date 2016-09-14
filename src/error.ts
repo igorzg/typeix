@@ -1,4 +1,4 @@
-import { inspect } from "util";
+import {clean, inspect}  from "./logger/inspect";
 /**
  * @since 1.0.0
  * @class
@@ -11,13 +11,17 @@ import { inspect } from "util";
  * HttpException use it in controller actions
  */
 export class HttpError extends Error {
-	constructor(code, message, data) {
-		super(message);
-		this.stack += "\n\nDATA: " + inspect(data, {colors: true, depth: 5});
-		this.stack += "\n\nCODE: " + inspect(code, {colors: true, depth: 5});
-	}
+  constructor(private code, message, data) {
+    super(message);
+    this.stack += "\n\nDATA: " + inspect(data, 5);
+    this.stack += "\n\nCODE: " + inspect(code, 5);
+  }
 
-	toString() {
-		return this.stack;
-	}
+  getCode(): number {
+    return this.code;
+  }
+
+  toString() {
+    return this.stack;
+  }
 }

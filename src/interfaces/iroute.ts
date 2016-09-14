@@ -35,8 +35,7 @@ export interface IUrlTreePath {
  * @description
  * Request headers
  */
-export interface Headers {
-}
+export interface Headers {}
 /**
  * @since 1.0.0
  * @interface

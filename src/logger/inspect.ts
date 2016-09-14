@@ -1,7 +1,12 @@
 import {inspect as utilInspect} from "util";
 import {isString} from "../core";
 // cleanups on inspect
-let colors = new Array(100).map((v, i) => new RegExp("\\[" + i + "m", "ig"));
+let colors = new Array(100);
+let i = 0;
+while (i < 100) {
+  colors.push(new RegExp("\\[" + i + "m", "ig"));
+  ++i;
+}
 /**
  * @since 1.0.0
  * @function
