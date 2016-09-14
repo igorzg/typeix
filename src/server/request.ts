@@ -247,7 +247,12 @@ export class Request implements IAfterConstruct {
         // render error
         return this.render(clean(error.toString()));
       })
-      .catch((error: HttpError) => this.render(error.stack))
+      .catch((error: HttpError) => {
+        // set status code
+        this.statusCode = error.getCode();
+        // clean log output
+        return this.render(clean(error.toString()));
+      })
       .catch((error: HttpError) => this.logger.error(error.message, {
         id: this.id,
         method: this.request.method,
