@@ -11,10 +11,12 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha build/src/tests/ --debug --full-trace",
+    "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
     "postinstall": "typings install"
   },
   "bin": {
     "typings": ".bin/typings",
+    "typedoc": ".bin/typedoc",
     "mocha": ".bin/mocha"
   },
   "engines": {
@@ -33,6 +35,8 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.0.2"
+    "mocha": "^3.0.2",
+    "typedoc": "^0.3.12",
+    "typedoc-markdown-theme": "0.0.4"
   }
 }
