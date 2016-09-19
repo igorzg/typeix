@@ -3,8 +3,10 @@ import {Assets, A, B, C} from "./components/assets";
 import {Inject, Module} from "../src/injector/decorators";
 import {Logger} from "../src/logger/logger";
 import {Router, Methods} from "../src/router/router";
+import {CoreController} from "./controllers/core";
 
 @Module({
+  controllers: [CoreController],
   providers: [A, B, Assets, C]
 })
 export class Application {

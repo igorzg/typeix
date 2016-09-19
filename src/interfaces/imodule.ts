@@ -12,5 +12,6 @@ import {RouteRuleConfig} from "./iroute";
  */
 export interface IModuleMetadata {
   routes?: Array<RouteRuleConfig>;
+  controllers: Array<IProvider|Function>;
   providers?: Array<IProvider|Function>;
 }

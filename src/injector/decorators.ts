@@ -5,6 +5,7 @@ import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
 import {IModuleMetadata} from "../interfaces/imodule";
 import {Logger} from "../logger/logger";
 import {Router} from "../router/router";
+import {IControllerMetadata} from "../interfaces/icontroller";
 
 /**
  * @since 1.0.0
@@ -139,3 +140,24 @@ export var Module = (config: IModuleMetadata) => (Class) => {
   Metadata.setComponentConfig(Class, config);
   return Class;
 };
+/**
+ * Controller
+ * @decorator
+ * @function
+ * @name Controller
+ *
+ * @param {IModuleMetadata} config
+ * @returns {function(any): any}
+ *
+ * @description
+ * Define controller of application
+ */
+export var Controller = (config: IControllerMetadata) => (Class) => {
+  if (!isArray(config.providers)) {
+    config.providers = [];
+  }
+  config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
+  Metadata.setComponentConfig(Class, config);
+  return Class;
+};
+

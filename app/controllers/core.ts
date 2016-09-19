@@ -1,37 +1,25 @@
-import {Inject} from "../../src/injector/decorators";
+import {Inject, Controller} from "../../src/injector/decorators";
+import {A} from "../components/assets";
 
-//
-// @Controller({
-//   name: 'core',
-//   providers: [A]
-// })
-// class CoreController {
-//
-//   @Inject(A) awe;
-//
-//   @BeforeAll
-//   async blac(@Inject(A) c) {
-//     let a = await b();
-//     let c = await d();
-//
-//
-//     let z = a + c;
-//
-//     return [a, b, c];
-//   }
-//
-//   @Before('index')
-//   blablablabla() {
-//     this.a
-//
-//     return a;
-//   }
-//
-//   @Action('index')
-//   blabla(value, @Inject("a") generic, @Param("c") c): string {
-//
-//     return value;
-//
-//   }
-//
-// }
+@Controller({
+  name: "core"
+})
+export class CoreController {
+
+  @Inject(A) awe;
+
+  // @BeforeAll
+  async beforeIndex(@Inject(A) c) {
+    let a = await 1;
+
+    return [a, c];
+  }
+
+  // @Action('index')
+  actionIndex(value, @Inject("a") c): string {
+
+    return value;
+
+  }
+
+}
