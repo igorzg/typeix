@@ -13,7 +13,7 @@
     "test": "mocha build/src/tests/ --debug --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
     "postinstall": "typings install",
-    "demo": "tsc && node build/app/bootstrap.js"
+    "demo": "tsc && node build/demo-app/bootstrap.js"
   },
   "bin": {
     "typings": ".bin/typings",

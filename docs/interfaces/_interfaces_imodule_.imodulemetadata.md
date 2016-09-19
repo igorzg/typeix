@@ -7,14 +7,20 @@ Bootstrap class config metadata
 ## Index
 
 ### Properties
+* [controllers](_interfaces_imodule_.imodulemetadata.md#controllers)
 * [providers](_interfaces_imodule_.imodulemetadata.md#providers)
 * [routes](_interfaces_imodule_.imodulemetadata.md#routes)
 
 ## Properties
 
-### Optional providers: Array<[IProvider](_interfaces_iprovider_.iprovider.md) | Function>
+### controllers: Array<[IProvider](_interfaces_iprovider_.iprovider.md) | Function>
 
 * Defined in [interfaces/imodule.ts:15](https://github.com/igorzg/typeix/blob/master/src/interfaces/imodule.ts#L15)
+
+
+### Optional providers: Array<[IProvider](_interfaces_iprovider_.iprovider.md) | Function>
+
+* Defined in [interfaces/imodule.ts:16](https://github.com/igorzg/typeix/blob/master/src/interfaces/imodule.ts#L16)
 
 
 ### Optional routes: Array<[RouteRuleConfig](_interfaces_iroute_.routeruleconfig.md)>

@@ -4,16 +4,46 @@
 ## Index
 
 ### Functions
+* [Action](_injector_decorators_.md#action)
+* [Controller](_injector_decorators_.md#controller)
 * [Inject](_injector_decorators_.md#inject)
 * [Injectable](_injector_decorators_.md#injectable)
-* [Module](_injector_decorators_.md#module)
+* [Produces](_injector_decorators_.md#produces)
 * [Provider](_injector_decorators_.md#provider)
 
 ## Functions
 
+### Action(name: string): (Anonymous function)
+Action decorator  
+* Defined in [injector/decorators.ts:133](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L133)
+
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ---- |
+| name | string|  |
+
+#### Returns: (Anonymous function)
+
+### Controller(config: [IControllerMetadata](../interfaces/_interfaces_icontroller_.icontrollermetadata.md)): (Anonymous function)
+Controller  
+* Defined in [injector/decorators.ts:113](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L113)
+
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ---- |
+| config | [IControllerMetadata](../interfaces/_interfaces_icontroller_.icontrollermetadata.md)|  |
+
+#### Returns: (Anonymous function)
+
+
+
 ### Inject(value: Function | string, isMutable?: boolean): (Anonymous function)
   
-* Defined in [injector/decorators.ts:28](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L28)
+* Defined in [injector/decorators.ts:26](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L26)
 
 
 #### Parameters
@@ -27,28 +57,26 @@
 
 ### Injectable(): (Anonymous function)
   
-* Defined in [injector/decorators.ts:101](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L101)
+* Defined in [injector/decorators.ts:99](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L99)
 
 #### Returns: (Anonymous function)
 
-### Module(config: [IModuleMetadata](../interfaces/_interfaces_imodule_.imodulemetadata.md)): (Anonymous function)
-Module decorator  
-* Defined in [injector/decorators.ts:126](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L126)
+### Produces(name: string): (Anonymous function)
+Produces response type  
+* Defined in [injector/decorators.ts:150](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L150)
 
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ---- |
-| config | [IModuleMetadata](../interfaces/_interfaces_imodule_.imodulemetadata.md)|  |
+| name | string|  |
 
 #### Returns: (Anonymous function)
 
-
-
 ### Provider(config: Array<[IProvider](../interfaces/_interfaces_iprovider_.iprovider.md) | Function>): (Anonymous function)
   
-* Defined in [injector/decorators.ts:67](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L67)
+* Defined in [injector/decorators.ts:65](https://github.com/igorzg/typeix/blob/master/src/injector/decorators.ts#L65)
 
 
 #### Parameters

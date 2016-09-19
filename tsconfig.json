@@ -17,7 +17,7 @@
   },
   "include": [
     "typings/index.d.ts",
-    "app/**/*.ts",
+    "demo-app/**/*.ts",
     "src/**/*.ts"
   ],
   "exclude": [
