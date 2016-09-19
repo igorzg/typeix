@@ -1,34 +1,30 @@
 import {Injectable} from "../../src/injector/decorators";
+import {readFile} from "fs";
+import {normalize} from "path";
+import {isPresent} from "../../src/core";
 /**
- * Created by igi on 17/01/16.
+ * Asset loader service
+ * @constructor
+ * @function
+ * @name Assets
+ *
+ * @description
+ * Load assets from disk
  */
-
 @Injectable()
-export class A{
-    name: string = "aClass";
-}
-
-@Injectable()
-export class Assets{
-    asset: string = "aAsset";
-    constructor(c: A) {
-        console.log("Assets.arg", arguments);
-    }
-}
-
-
-
-@Injectable()
-export class B{
-    bName: string = "bname";
-    constructor(a: A) {
-        console.log("B.arg", arguments);
-    }
-}
-
-@Injectable()
-export class C {
-    constructor(assets: Assets) {
-        console.log("C.arg", arguments);
-    }
+export class Assets {
+  /**
+   * Load asset from disk
+   * @param name
+   * @return {Promise<Buffer>}
+   */
+  async load(name: string): Promise<Buffer> {
+    return await <Promise<Buffer>> new Promise(
+      (resolve, reject) =>
+        readFile(
+          normalize(__dirname + "/../public/" + name),
+          (err, data) => isPresent(err) ? reject(err) : resolve(data)
+        )
+    );
+  }
 }

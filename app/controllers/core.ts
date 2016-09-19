@@ -1,25 +1,72 @@
-import {Inject, Controller} from "../../src/injector/decorators";
-import {A} from "../components/assets";
+import {Inject, Controller, Action, Produces} from "../../src/injector/decorators";
+import {Assets} from "../components/assets";
 
+/**
+ * Controller example
+ * @constructor
+ * @function
+ * @name CoreController
+ *
+ * @description
+ * Define controller, assign action and inject your services.
+ * Each request create new instance of controller, your Injected type is injected by top level injector if is not defined
+ * as local instance as providers to this controllers
+ */
 @Controller({
-  name: "core"
+  name: "core",
+  providers: [] // type of local instances within new request since controller is instanciated on each request
 })
 export class CoreController {
 
-  @Inject(A) awe;
+  /**
+   * @param {Assets} assetLoader
+   * @description
+   * Custom asset loader service
+   */
+  @Inject(Assets)
+  assetLoader: Assets;
 
-  // @BeforeAll
-  async beforeIndex(@Inject(A) c) {
-    let a = await 1;
-
-    return [a, c];
+  /**
+   * @function
+   * @name fileLoadAction
+   *
+   * @description
+   * This action loads file from disk
+   * \@Produces("image/x-icon") -> content type header
+   */
+  @Action("favicon")
+  @Produces("image/x-icon")
+  faviconLoader(): Promise<Buffer> {
+    return this.fileLoadAction("favicon.ico");
   }
-
-  // @Action('index')
-  actionIndex(value, @Inject("a") c): string {
-
-    return value;
-
+  /**
+   * @function
+   * @name fileLoadAction
+   *
+   * @description
+   * This action loads file from disk
+   *
+   */
+  @Action("assets")
+  fileLoadAction(file: string): Promise<Buffer> {
+    return this.assetLoader.load(file);
   }
-
+  /**
+   * @function
+   * @name actionIndex
+   *
+   * @description
+   * There is no naming convention of function names only what is required to define action is \@Action metadata
+   *
+   * @example
+   * \@Action("index")
+   *  iIgnoreNamingConvention(): string {
+   *    return "Only important fact is a \@Action param";
+   * }
+   *
+   */
+  @Action("index")
+  actionIndex(): string {
+    return "My action";
+  }
 }

@@ -7,16 +7,16 @@ import {EventEmitter} from "events";
 /**
  * @since 1.0.0
  * @function
- * @name bootstrap
- * @param {Function} Class bootstrap class
- * @param {Number} port bootstrap on port
- * @param {String} hostname bootstrap on hostname
+ * @name httpServer
+ * @param {Function} Class httpServer class
+ * @param {Number} port httpServer on port
+ * @param {String} hostname httpServer on hostname
  * @returns {Injector}
  *
  * @description
- * Use bootstrap function to bootstrap an Module.
+ * Use httpServer function to httpServer an Module.
  */
-export function bootstrap(Class: Function, port: number, hostname?: string): Injector {
+export function httpServer(Class: Function, port: number, hostname?: string): Injector {
   let injector = Injector.createAndResolve(Class, []);
   let logger: Logger = injector.get(Logger);
   let server = createServer();

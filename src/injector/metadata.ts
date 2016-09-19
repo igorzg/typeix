@@ -4,6 +4,7 @@ import {IProvider} from "../interfaces/iprovider";
 export const INJECT_KEYS = "inject:paramtypes";
 export const METADATA_KEYS = "design:paramtypes";
 export const DESIGN_KEYS = "design:type";
+export const DESIGN_RETURN = "design:returntype";
 export const COMPONENT_CONFIG_KEYS = "component:paramtypes";
 
 /**

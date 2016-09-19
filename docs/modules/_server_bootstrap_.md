@@ -12,7 +12,7 @@
  since 1.0.0 function  name bootstrap description 
 Use bootstrap function to bootstrap an Module.
   
-* Defined in [server/bootstrap.ts:19](https://github.com/igorzg/typeix/blob/master/src/server/bootstrap.ts#L19)
+* Defined in [server/http.ts:19](https://github.com/igorzg/typeix/blob/master/src/server/http.ts#L19)
 
 
 #### Parameters

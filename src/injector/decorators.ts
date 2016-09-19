@@ -161,3 +161,36 @@ export var Controller = (config: IControllerMetadata) => (Class) => {
   return Class;
 };
 
+/**
+ * Action decorator
+ * @decorator
+ * @function
+ * @name Action
+ *
+ * @param {String} name
+ *
+ * @description
+ * Define name of action to class
+ */
+export var Action = (name: string) => (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+
+  console.log(name);
+};
+
+
+/**
+ * Produces response type
+ * @decorator
+ * @function
+ * @name Produces
+ *
+ * @param {String} name
+ *
+ * @description
+ * Produces content type
+ */
+export var Produces = (name: string) => (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+
+  console.log(name);
+};
+
