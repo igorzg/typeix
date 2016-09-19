@@ -60,7 +60,17 @@ export class Application {
     this.router.addRules([
       {
         methods: [Methods.GET],
-        route: "home/index",
+        route: "core/favicon",
+        url: "/favicon.ico"
+      },
+      {
+        methods: [Methods.GET],
+        route: "core/assets",
+        url: "/assets/<file:(.*)>"
+      },
+      {
+        methods: [Methods.GET],
+        route: "core/index",
         url: "/"
       }
     ]);
