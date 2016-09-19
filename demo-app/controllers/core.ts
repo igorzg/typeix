@@ -1,4 +1,4 @@
-import {Inject, Controller} from "../../src/injector/decorators";
+import {Inject, Controller, Action, Produces} from "../../src/injector/decorators";
 import {Assets} from "../components/assets";
 
 /**
@@ -34,11 +34,12 @@ export class CoreController {
    * This action loads file from disk
    * \@Produces("image/x-icon") -> content type header
    */
- //@Action("favicon")
-  //@Produces("image/x-icon")
+  @Action("favicon")
+  @Produces("image/x-icon")
   faviconLoader(): Promise<Buffer> {
     return this.fileLoadAction("favicon.ico");
   }
+
   /**
    * @function
    * @name fileLoadAction
@@ -47,10 +48,11 @@ export class CoreController {
    * This action loads file from disk
    *
    */
-  //@Action("assets")
+  @Action("assets")
   fileLoadAction(file: string): Promise<Buffer> {
     return this.assetLoader.load(file);
   }
+
   /**
    * @function
    * @name actionIndex
@@ -65,7 +67,7 @@ export class CoreController {
    * }
    *
    */
-  //@Action("index")
+  @Action("index")
   actionIndex(): string {
     return "My action";
   }
