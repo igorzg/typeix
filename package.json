@@ -12,11 +12,13 @@
   "scripts": {
     "test": "mocha build/src/tests/ --debug --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
-    "postinstall": "typings install"
+    "postinstall": "typings install",
+    "demo": "tsc && node build/app/bootstrap.js"
   },
   "bin": {
     "typings": ".bin/typings",
     "typedoc": ".bin/typedoc",
+    "tsc": ".bin/tsc",
     "mocha": ".bin/mocha"
   },
   "engines": {

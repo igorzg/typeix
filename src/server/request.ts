@@ -230,7 +230,7 @@ export class Request implements IAfterConstruct {
       .catch((error: HttpError) => {
         // force HttpError to be thrown
         if (!(error instanceof HttpError)) {
-          let _error = error;
+          let _error: HttpError = error;
           error = new HttpError(500, _error.message, {});
           error.stack = _error.stack;
         }

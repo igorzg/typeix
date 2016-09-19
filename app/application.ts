@@ -1,8 +1,9 @@
 import {Assets} from "./components/assets";
-import {Inject, Module} from "../src/injector/decorators";
+import {Inject} from "../src/injector/decorators";
 import {Logger} from "../src/logger/logger";
 import {Router, Methods} from "../src/router/router";
 import {CoreController} from "./controllers/core";
+import {Module} from "../src/decorators/module";
 
 /**
  * Application entry point
