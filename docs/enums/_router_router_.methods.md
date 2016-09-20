@@ -21,46 +21,46 @@ Request methods
 
 ### CONNECT: 
 
-* Defined in [router/router.ts:22](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L22)
+* Defined in [router/router.ts:23](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L23)
 
 
 ### DELETE: 
 
-* Defined in [router/router.ts:19](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L19)
+* Defined in [router/router.ts:20](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L20)
 
 
 ### GET: 
 
-* Defined in [router/router.ts:17](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L17)
+* Defined in [router/router.ts:18](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L18)
 
 
 ### HEAD: 
 
-* Defined in [router/router.ts:18](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L18)
+* Defined in [router/router.ts:19](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L19)
 
 
 ### OPTIONS: 
 
-* Defined in [router/router.ts:21](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L21)
+* Defined in [router/router.ts:22](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L22)
 
 
 ### PATCH: 
 
-* Defined in [router/router.ts:25](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L25)
+* Defined in [router/router.ts:26](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L26)
 
 
 ### POST: 
 
-* Defined in [router/router.ts:23](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L23)
+* Defined in [router/router.ts:24](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L24)
 
 
 ### PUT: 
 
-* Defined in [router/router.ts:24](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L24)
+* Defined in [router/router.ts:25](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L25)
 
 
 ### TRACE: 
 
-* Defined in [router/router.ts:20](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L20)
+* Defined in [router/router.ts:21](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L21)
 
 

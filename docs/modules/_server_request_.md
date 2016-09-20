@@ -14,6 +14,6 @@
 ### COOKIE_PARSE_REGEX: RegExp
 Cookie parse regex type {RegExp}
 
-* Defined in [server/request.ts:18](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L18)
+* Defined in [server/request.ts:19](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L19)
 
 

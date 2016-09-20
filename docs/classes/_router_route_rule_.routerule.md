@@ -24,12 +24,12 @@ Route rule provider is used by router to parse request and create route url
 
 ### Private config: [RouteRuleConfig](../interfaces/_interfaces_iroute_.routeruleconfig.md)
 
-* Defined in [router/route-rule.ts:22](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L22)
+* Defined in [router/route-rule.ts:23](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L23)
 
 
 ### Private routeParser: [RouteParser](_router_route_parser_.routeparser.md)
 
-* Defined in [router/route-rule.ts:23](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L23)
+* Defined in [router/route-rule.ts:24](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L24)
 
 
 ## Methods
@@ -39,7 +39,7 @@ Route rule provider is used by router to parse request and create route url
 After construct apply config data
   
 * Implementation of [IAfterConstruct](../interfaces/_interfaces_iprovider_.iafterconstruct.md).[afterConstruct](../interfaces/_interfaces_iprovider_.iafterconstruct.md#afterconstruct)
-* Defined in [router/route-rule.ts:33](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L33)
+* Defined in [router/route-rule.ts:34](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L34)
 
 #### Returns: void
 
@@ -49,7 +49,7 @@ After construct apply config data
 It try's to create url
   
 * Implementation of [Route](../interfaces/_interfaces_iroute_.route.md).[createUrl](../interfaces/_interfaces_iroute_.route.md#createurl)
-* Defined in [router/route-rule.ts:77](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L77)
+* Defined in [router/route-rule.ts:78](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L78)
 
 
 #### Parameters
@@ -67,7 +67,7 @@ It try's to create url
 Parse request is used internally by Router to be able to parse request
   
 * Implementation of [Route](../interfaces/_interfaces_iroute_.route.md).[parseRequest](../interfaces/_interfaces_iroute_.route.md#parserequest)
-* Defined in [router/route-rule.ts:51](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L51)
+* Defined in [router/route-rule.ts:52](https://github.com/igorzg/typeix/blob/master/src/router/route-rule.ts#L52)
 
 
 #### Parameters

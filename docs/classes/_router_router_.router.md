@@ -33,18 +33,18 @@ export class Application {
 
 ### Private injector: [Injector](_injector_injector_.injector.md)
 Inject injector
-* Defined in [router/router.ts:93](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L93)
+* Defined in [router/router.ts:94](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L94)
 
 
 ### Private logger: [Logger](_logger_logger_.logger.md)
 Inject logger
-* Defined in [router/router.ts:88](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L88)
+* Defined in [router/router.ts:89](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L89)
 
 
 ### Private routes: Array<[Route](../interfaces/_interfaces_iroute_.route.md)>
 Array of routes definition type {Array}
 
-* Defined in [router/router.ts:98](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L98)
+* Defined in [router/router.ts:99](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L99)
 
 
 ## Methods
@@ -53,7 +53,7 @@ Array of routes definition type {Array}
  since 1.0.0 function  name Router#addRule description 
 Add rule to router
   
-* Defined in [router/router.ts:140](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L140)
+* Defined in [router/router.ts:141](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L141)
 
 
 #### Parameters
@@ -70,7 +70,7 @@ Add rule to router
 Add route to routes list.
 All routes must be inherited from Route interface.
   
-* Defined in [router/router.ts:125](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L125)
+* Defined in [router/router.ts:126](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L126)
 
 
 #### Parameters
@@ -85,7 +85,7 @@ All routes must be inherited from Route interface.
  since 1.0.0 function  name Router#createUrl description 
 Create url based on route and params
   
-* Defined in [router/router.ts:186](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L186)
+* Defined in [router/router.ts:187](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L187)
 
 
 #### Parameters
@@ -101,7 +101,7 @@ Create url based on route and params
  since 1.0.0 function  name Router#parseRequest description 
 Parse request based on pathName and method
   
-* Defined in [router/router.ts:162](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L162)
+* Defined in [router/router.ts:163](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L163)
 
 
 #### Parameters
@@ -118,7 +118,7 @@ Parse request based on pathName and method
  since 1.0.0 function  name Router#prefixSlash static  description 
 Prefixes url with starting slash
   
-* Defined in [router/router.ts:111](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L111)
+* Defined in [router/router.ts:112](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L112)
 
 
 #### Parameters

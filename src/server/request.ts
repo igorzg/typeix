@@ -1,7 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
 import {uuid, isString} from "../core";
-import {Inject, Injectable} from "../injector/decorators";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct} from "../interfaces/iprovider";
@@ -11,6 +10,8 @@ import {Url} from "url";
 import {ResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
 import {clean} from "../logger/inspect";
+import {Injectable} from "../decorators/injectable";
+import {Inject} from "../decorators/inject";
 /**
  * Cookie parse regex
  * @type {RegExp}

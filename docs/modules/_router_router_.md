@@ -18,7 +18,7 @@
  since 1.0.0 function  name getMethod description 
 Get method enum from method string throws TypeError
   
-* Defined in [router/router.ts:37](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L37)
+* Defined in [router/router.ts:38](https://github.com/igorzg/typeix/blob/master/src/router/router.ts#L38)
 
 
 #### Parameters

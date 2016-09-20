@@ -5,10 +5,15 @@
 
 ### External modules
 * ["core"](modules/_core_.md)
+* ["decorators/action"](modules/_decorators_action_.md)
+* ["decorators/controller"](modules/_decorators_controller_.md)
+* ["decorators/inject"](modules/_decorators_inject_.md)
+* ["decorators/injectable"](modules/_decorators_injectable_.md)
 * ["decorators/module"](modules/_decorators_module_.md)
+* ["decorators/produces"](modules/_decorators_produces_.md)
+* ["decorators/provider"](modules/_decorators_provider_.md)
 * ["error"](modules/_error_.md)
 * ["exports"](modules/_exports_.md)
-* ["injector/decorators"](modules/_injector_decorators_.md)
 * ["injector/injector"](modules/_injector_injector_.md)
 * ["injector/metadata"](modules/_injector_metadata_.md)
 * ["interfaces/icontroller"](modules/_interfaces_icontroller_.md)

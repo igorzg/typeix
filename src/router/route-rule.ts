@@ -1,8 +1,9 @@
 import {Route, Headers, RouteRuleConfig, ResolvedRoute} from "../interfaces/iroute";
 import {RouteParser} from "./route-parser";
 import {getMethod} from "./router";
-import {Injectable, Inject} from "../injector/decorators";
 import {IAfterConstruct} from "../interfaces/iprovider";
+import {Injectable} from "../decorators/injectable";
+import {Inject} from "../decorators/inject";
 
 /**
  * @since 1.0.0

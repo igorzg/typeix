@@ -36,91 +36,91 @@ This component is used internally by framework
  param  description 
 Data received by client on POST, PATCH, PUT requests
 
-* Defined in [server/request.ts:79](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L79)
+* Defined in [server/request.ts:80](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L80)
 
 
 ### Private eventEmitter: EventEmitter
  param  description 
 Responsible for handling events
 
-* Defined in [server/request.ts:120](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L120)
+* Defined in [server/request.ts:121](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L121)
 
 
 ### Private id: string
  param  description 
 UUID identifier of request
 
-* Defined in [server/request.ts:127](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L127)
+* Defined in [server/request.ts:128](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L128)
 
 
 ### Private injector: [Injector](_injector_injector_.injector.md)
  param  description 
 Injector which created request
 
-* Defined in [server/request.ts:96](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L96)
+* Defined in [server/request.ts:97](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L97)
 
 
 ### Private isCustomError: boolean
  param  description 
 Value provided by injector which handles custom error responses
 
-* Defined in [server/request.ts:55](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L55)
+* Defined in [server/request.ts:56](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L56)
 
 
 ### Private isForwarded: boolean
  param  description 
 Information internally used by request itself on forwarded requests
 
-* Defined in [server/request.ts:63](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L63)
+* Defined in [server/request.ts:64](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L64)
 
 
 ### Private isForwarder: boolean
  param  description 
 Information internally used by request itself on forwarded requests
 
-* Defined in [server/request.ts:71](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L71)
+* Defined in [server/request.ts:72](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L72)
 
 
 ### Private logger: [Logger](_logger_logger_.logger.md)
  param  description 
 Provided by injector
 
-* Defined in [server/request.ts:104](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L104)
+* Defined in [server/request.ts:105](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L105)
 
 
 ### Private request: IncomingMessage
  param  description 
 Value provided by injector which handles request input
 
-* Defined in [server/request.ts:39](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L39)
+* Defined in [server/request.ts:40](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L40)
 
 
 ### Private response: ServerResponse
  param  description 
 Value provided by injector which handles response output
 
-* Defined in [server/request.ts:47](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L47)
+* Defined in [server/request.ts:48](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L48)
 
 
 ### Private router: [Router](_router_router_.router.md)
  param  description 
 Provided by injector
 
-* Defined in [server/request.ts:112](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L112)
+* Defined in [server/request.ts:113](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L113)
 
 
 ### Private statusCode: number
  param  description 
 Request status code default 200
 
-* Defined in [server/request.ts:88](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L88)
+* Defined in [server/request.ts:89](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L89)
 
 
 ### Private url: Url
  param  description 
 Parsed request url
 
-* Defined in [server/request.ts:133](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L133)
+* Defined in [server/request.ts:134](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L134)
 
 
 ## Methods
@@ -130,7 +130,7 @@ Parsed request url
 This function is called by injector after constructor is initialized
   
 * Implementation of [IAfterConstruct](../interfaces/_interfaces_iprovider_.iafterconstruct.md).[afterConstruct](../interfaces/_interfaces_iprovider_.iafterconstruct.md#afterconstruct)
-* Defined in [server/request.ts:156](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L156)
+* Defined in [server/request.ts:157](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L157)
 
 #### Returns: void
 
@@ -138,7 +138,7 @@ This function is called by injector after constructor is initialized
  since 1.0.0 function  name Request#destroy description 
 Destroy all references to free memory
   
-* Defined in [server/request.ts:143](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L143)
+* Defined in [server/request.ts:144](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L144)
 
 #### Returns: void
 
@@ -146,7 +146,7 @@ Destroy all references to free memory
  since 1.0.0 function  name Request#process description 
 Process request logic
   
-* Defined in [server/request.ts:201](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L201)
+* Defined in [server/request.ts:202](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L202)
 
 #### Returns: Promise
 
@@ -154,7 +154,7 @@ Process request logic
  since 1.0.0 function  name Request#render description 
 This method sends data to client
   
-* Defined in [server/request.ts:173](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L173)
+* Defined in [server/request.ts:174](https://github.com/igorzg/typeix/blob/master/src/server/request.ts#L174)
 
 
 #### Parameters
