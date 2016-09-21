@@ -1,4 +1,4 @@
-import {isArray} from "../core";
+import {isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 
@@ -19,6 +19,9 @@ export var Controller = (config: IControllerMetadata) => (Class) => {
     config.providers = [];
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
+  if (!isClass(Class)) {
+    throw new TypeError(`@Controller is allowed only on class`);
+  }
   Metadata.setComponentConfig(Class, config);
   return Class;
 };

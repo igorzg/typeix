@@ -9,7 +9,7 @@
     "outDir": "build",
     "rootDir": ".",
     "sourceMap": true,
-    "inlineSources": true,
+    "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,

@@ -1,4 +1,4 @@
-import {isUndefined} from "../core";
+import {isUndefined, isPresent} from "../core";
 import {Metadata, INJECT_KEYS} from "../injector/metadata";
 import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
 
@@ -26,6 +26,10 @@ export var Inject = (value: Function|string, isMutable?: boolean) => {
     let metadata: Array<IInjectParam|IInjectKey> = [];
     if (Metadata.hasMetadata(Class, INJECT_KEYS)) {
       metadata = Metadata.getMetadata(Class, INJECT_KEYS);
+    }
+    if (Metadata.isDescriptor(paramIndex)) {
+      throw new TypeError(`@Inject is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex.value}
+      @Inject is allowed only as param type!`);
     }
     metadata.push(isUndefined(paramIndex) ? {
       value,

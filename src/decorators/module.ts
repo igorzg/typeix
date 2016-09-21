@@ -1,7 +1,7 @@
 import {Logger} from "../logger/logger";
 import {Router} from "../router/router";
 import {IModuleMetadata} from "../interfaces/imodule";
-import {isArray} from "../core";
+import {isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
 /**
  * Module decorator
@@ -28,6 +28,9 @@ import {Metadata} from "../injector/metadata";
  * }
  */
 export var Module = (config: IModuleMetadata) => (Class) => {
+  if (!isClass(Class)) {
+    throw new TypeError(`@Controller is allowed only on class`);
+  }
   if (!isArray(config.providers)) {
     config.providers = [];
   }

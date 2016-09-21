@@ -37,8 +37,8 @@ export class CoreController {
    * This action loads file from disk
    * \@Produces("image/x-icon") -> content type header
    */
-  @Action("favicon")
   @Produces("image/x-icon")
+  @Action("favicon")
   faviconLoader(): Promise<Buffer> {
     return this.fileLoadAction("favicon.ico");
   }

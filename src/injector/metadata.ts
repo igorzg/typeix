@@ -2,6 +2,7 @@ import "reflect-metadata";
 import {isPresent, isFunction, isObject, isString, toString, isArray} from "../core";
 import {IProvider} from "../interfaces/iprovider";
 export const INJECT_KEYS = "inject:paramtypes";
+export const FUNCTION_KEYS = "function:paramtypes";
 export const METADATA_KEYS = "design:paramtypes";
 export const DESIGN_KEYS = "design:type";
 export const DESIGN_RETURN = "design:returntype";
@@ -18,6 +19,46 @@ export const COMPONENT_CONFIG_KEYS = "component:paramtypes";
  * It's crucial for injector
  */
 export class Metadata {
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getName
+   * @param {Object} Class
+   * @param {string} prefix
+   *
+   * @description
+   * Get class name
+   */
+  static getName(Class: any, prefix?: string): string {
+    let message = "";
+    if (prefix) {
+      message += prefix;
+    }
+    if (isPresent(Class)) {
+      if (isPresent(Class.name)) {
+        message += Class.name;
+      } else if (isPresent(Class.constructor) && isPresent(Class.constructor.name)) {
+        message += Class.constructor.name;
+      }
+    }
+    return message;
+  };
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#isDescriptor
+   * @param {Object} value
+   *
+   * @description
+   * Check if current object is descriptor object
+   */
+  static isDescriptor(value: Object): boolean {
+    return isPresent(value) && ["writable", "configurable", "value", "enumerable"].every(key => value.hasOwnProperty(key));
+  };
+
   /**
    * @since 1.0.0
    * @static

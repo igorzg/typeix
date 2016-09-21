@@ -1,5 +1,5 @@
 import {IProvider} from "../interfaces/iprovider";
-import {isFunction, isPresent, isArray} from "../core";
+import {isPresent, isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
 /**
  * @since 1.0.0
@@ -23,7 +23,7 @@ import {Metadata} from "../injector/metadata";
  */
 export var Provider = (config: Array<IProvider|Function>) => {
   return (Class) => {
-    if (!isFunction(Class)) {
+    if (!isClass(Class)) {
       throw new TypeError(`Provider is only allowed on class definition! 
       Error found on ${Class.toString()}`);
     } else if (isPresent(config) && !isArray(config)) {

@@ -174,6 +174,18 @@ export function isTruthy(value): boolean {
 export function isFalsy(value): boolean {
   return !value;
 }
+
+/**
+ * @since 1.0.0
+ * @author Igor Ivanovic
+ * @function isClass
+ *
+ * @description
+ * Check if type is class
+ */
+export function isClass(value): boolean {
+  return isFunction(value) && /^\s*class\s+/.test(value.toString());
+}
 /**
  * @since 1.0.0
  * @author Igor Ivanovic
