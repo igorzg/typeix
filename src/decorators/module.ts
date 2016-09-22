@@ -29,7 +29,9 @@ import {Metadata} from "../injector/metadata";
  */
 export var Module = (config: IModuleMetadata) => (Class) => {
   if (!isClass(Class)) {
-    throw new TypeError(`@Controller is allowed only on class`);
+    throw new TypeError(`@Module is allowed only on class`);
+  } else if (config.controllers.length === 0) {
+    throw new TypeError(`@Module must have defined at least one controller`);
   }
   if (!isArray(config.providers)) {
     config.providers = [];

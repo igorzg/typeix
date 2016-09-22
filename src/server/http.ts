@@ -4,6 +4,8 @@ import {Request} from "./request";
 import {Logger} from "../logger/logger";
 import {isString} from "../core";
 import {EventEmitter} from "events";
+import {Metadata} from "../injector/metadata";
+import {IModuleMetadata} from "../interfaces/imodule";
 /**
  * @since 1.0.0
  * @function
@@ -19,12 +21,14 @@ import {EventEmitter} from "events";
 export function httpServer(Class: Function, port: number, hostname?: string): Injector {
   let injector = Injector.createAndResolve(Class, []);
   let logger: Logger = injector.get(Logger);
+  let metadata: IModuleMetadata = Metadata.getComponentConfig(Class);
   let server = createServer();
   server.on("request", (request: IncomingMessage, response: ServerResponse) => {
     let childInjector = Injector.createAndResolveChild(
       injector,
       Request,
       [
+        {provide: "controllers", useValue: metadata.controllers},
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "isCustomError", useValue: false},
