@@ -2,7 +2,7 @@ import {Injector} from "../injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Request} from "./request";
 import {Logger} from "../logger/logger";
-import {isString} from "../core";
+import {isString, isPresent} from "../core";
 import {EventEmitter} from "events";
 import {Metadata} from "../injector/metadata";
 import {IModuleMetadata} from "../interfaces/imodule";
@@ -28,6 +28,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): In
       injector,
       Request,
       [
+        {provide: "modules", useValue: isPresent(metadata.modules) ? metadata.modules : []},
         {provide: "controllers", useValue: metadata.controllers},
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},

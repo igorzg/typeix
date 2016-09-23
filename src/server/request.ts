@@ -1,9 +1,9 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString} from "../core";
+import {uuid, isString, isPresent} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
-import {IAfterConstruct} from "../interfaces/iprovider";
+import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 import {parse} from "url";
 import {Url} from "url";
@@ -12,6 +12,9 @@ import {HttpError} from "../error";
 import {clean} from "../logger/inspect";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
+import {IModuleMetadata} from "../interfaces/imodule";
+import {Metadata} from "../injector/metadata";
+import {IControllerMetadata} from "../interfaces/icontroller";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -79,6 +82,21 @@ export class Request implements IAfterConstruct {
   @Inject("data")
   private data: Array<Buffer>;
 
+  /**
+   * @param {Array<IModuleMetadata>} modules
+   * @description
+   * Lost of modules imported on current module
+   */
+  @Inject("modules")
+  private modules: Array<IModuleMetadata>;
+
+  /**
+   * @param {Array<IProvider|Function>} controllers
+   * @description
+   * List of controllers assigned to current module
+   */
+  @Inject("controllers")
+  private controllers: Array<IProvider|Function>;
 
   /**
    * @param {Number} statusCode
@@ -194,6 +212,52 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#handleController
+   * @private
+   * @description
+   * Handle controller instance
+   */
+  handleController(name: String, action: String, resolvedRoute: ResolvedRoute) {
+    let controllerProvider: IProvider = this.controllers
+      .map(item => Metadata.verifyProvider(item))
+      .find((Class: IProvider) => {
+        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        return metadata.name === name;
+      });
+    if (!isPresent(controllerProvider)) {
+      throw new HttpError(500, `You must define controller within current route`, {
+        name,
+        action,
+        resolvedRoute
+      });
+    }
+
+    let injector = new Injector(this.injector);
+    injector.createAndResolve(controllerProvider, []);
+    let controller = injector.get(controllerProvider.provide);
+    let value = 1;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#handleModule
+   * @private
+   * @description
+   * Handle module instance
+   */
+  handleModule(module: String, name: String, action: String, resolvedRoute: ResolvedRoute) {
+    throw new HttpError(500, `Modules are not implemented in current version :)`, {
+      module,
+      name,
+      action,
+      resolvedRoute
+    });
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#process
    * @private
    * @description
@@ -226,7 +290,15 @@ export class Request implements IAfterConstruct {
         return resolvedRoute;
       })
       .then((resolvedRoute: ResolvedRoute) => {
-        return this.render(resolvedRoute.route + resolvedRoute.method);
+        let [module, controller, action] = resolvedRoute.route.split("/");
+        if (!isPresent(action)) {
+          return this.handleController(module, controller, resolvedRoute);
+        } else if (isPresent(action)) {
+          return this.handleModule(module, controller, action, resolvedRoute);
+        }
+        throw new HttpError(500, `Route definition is invalid, route must contain controller/action or module/controller/action pattern`, {
+          resolvedRoute
+        });
       })
       .catch((error: HttpError) => {
         // force HttpError to be thrown

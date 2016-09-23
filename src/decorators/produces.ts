@@ -1,5 +1,5 @@
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
-import {isPresent, isEqual} from "../core";
+import {isEqual} from "../core";
 /**
  * Produces response type
  * @decorator
