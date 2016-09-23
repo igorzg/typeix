@@ -13,7 +13,7 @@ import {clean} from "../logger/inspect";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {IModuleMetadata} from "../interfaces/imodule";
-import {Metadata} from "../injector/metadata";
+import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 /**
  * Cookie parse regex
@@ -217,7 +217,7 @@ export class Request implements IAfterConstruct {
    * @description
    * Handle controller instance
    */
-  handleController(name: String, action: String, resolvedRoute: ResolvedRoute) {
+  async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
     let controllerProvider: IProvider = this.controllers
       .map(item => Metadata.verifyProvider(item))
       .find((Class: IProvider) => {
@@ -227,15 +227,30 @@ export class Request implements IAfterConstruct {
     if (!isPresent(controllerProvider)) {
       throw new HttpError(500, `You must define controller within current route`, {
         name,
-        action,
+        actionName,
         resolvedRoute
       });
     }
-
+    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
+    let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
     let injector = new Injector(this.injector);
-    injector.createAndResolve(controllerProvider, []);
-    let controller = injector.get(controllerProvider.provide);
-    let value = 1;
+    injector.createAndResolve(
+      controllerProvider,
+      providers
+    );
+    let instance = injector.get(controllerProvider.provide);
+    let mappings =  Metadata.getMetadata(instance, FUNCTION_KEYS);
+    let mappedAction: any = mappings.find(item => item.type === "Action" && item.value === actionName);
+    if (!isPresent(mappedAction)) {
+      throw new HttpError(500, `Action is not defined on controller ${Metadata.getName(instance)}`, {
+        instance,
+        name,
+        actionName,
+        resolvedRoute
+      });
+    }
+    let action = instance[mappedAction.key];
+    return Promise.resolve(await action.call(instance)).then(resolved => this.render(resolved));
   }
 
   /**
