@@ -28,6 +28,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): In
       injector,
       Request,
       [
+        {provide: "contentType", useValue: "text/html"},
         {provide: "modules", useValue: isPresent(metadata.modules) ? metadata.modules : []},
         {provide: "controllers", useValue: metadata.controllers},
         {provide: "request", useValue: request},

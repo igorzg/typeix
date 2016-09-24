@@ -139,6 +139,15 @@ export class Request implements IAfterConstruct {
   private eventEmitter: EventEmitter;
 
   /**
+   * @param {String} contentType
+   * @description
+   * Content type
+   */
+  @Inject("contentType", true)
+  private contentType: String;
+
+
+  /**
    * @param {string} id
    * @description
    * UUID identifier of request
@@ -194,7 +203,7 @@ export class Request implements IAfterConstruct {
       id: this.id
     });
     if (isString(response) || (response instanceof Buffer)) {
-      this.response.writeHead(this.statusCode, {"Content-Type": "text/html"});
+      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
       this.response.write(response);
       this.response.end();
       return response;
@@ -208,7 +217,6 @@ export class Request implements IAfterConstruct {
       response
     });
   }
-
   /**
    * @since 1.0.0
    * @function
@@ -218,6 +226,7 @@ export class Request implements IAfterConstruct {
    * Handle controller instance
    */
   async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
+    // find controller
     let controllerProvider: IProvider = this.controllers
       .map(item => Metadata.verifyProvider(item))
       .find((Class: IProvider) => {
@@ -231,6 +240,7 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       });
     }
+    // get controller metadata
     let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
     let injector = new Injector(this.injector);
@@ -238,6 +248,7 @@ export class Request implements IAfterConstruct {
       controllerProvider,
       providers
     );
+    // create controller instance
     let instance = injector.get(controllerProvider.provide);
     let mappings =  Metadata.getMetadata(instance, FUNCTION_KEYS);
     let mappedAction: any = mappings.find(item => item.type === "Action" && item.value === actionName);
@@ -249,8 +260,15 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       });
     }
-    let action = instance[mappedAction.key];
-    return Promise.resolve(await action.call(instance)).then(resolved => this.render(resolved));
+    // get action
+    let action = instance[mappedAction.key].bind(instance);
+    // content type
+    let contentType = mappings.find(item => item.type === "Produces" && item.key === mappedAction.key);
+    if (isPresent(contentType)) {
+      this.contentType = contentType;
+    }
+    // resolve action call
+    return Promise.resolve(await action()).then(resolved => this.render(resolved));
   }
 
   /**
