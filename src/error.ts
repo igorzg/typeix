@@ -1,4 +1,4 @@
-import {clean, inspect}  from "./logger/inspect";
+import {inspect}  from "./logger/inspect";
 /**
  * @since 1.0.0
  * @class

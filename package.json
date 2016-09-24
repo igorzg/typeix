@@ -1,32 +1,33 @@
 {
-  "name": "tax-rs",
-  "version": "1.0.0",
+  "name": "node-enterprise",
+  "version": "1.0.0-alpha-5",
   "dependencies": {
-    "reflect-metadata": "0.1.3",
-    "tslint": "3.6.0",
-    "typescript": "2.0.2",
-    "typings": "^1.3.3"
+    "reflect-metadata": "0.1.3"
   },
   "description": "Typescript API for RESTful Services for (Node.js)",
-  "main": "index.js",
+  "main": "build/src/index.js",
   "scripts": {
     "test": "mocha build/src/tests/ --debug --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
     "postinstall": "typings install",
     "demo": "tsc && node build/demo-app/bootstrap.js"
   },
-  "bin": {
-    "typings": ".bin/typings",
-    "typedoc": ".bin/typedoc",
-    "tsc": ".bin/tsc",
-    "mocha": ".bin/mocha"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/igorzg/typeix.git"
   },
+  "bugs": {
+    "url": "https://github.com/igorzg/typeix/issues",
+    "email": "igor.zg1987@gmail.com"
+  },
+  "homepage": "https://github.com/igorzg/typeix",
   "engines": {
     "node": ">=6.0.0"
   },
   "keywords": [
-    "tax-rs",
-    "jax-rs",
+    "typeix",
+    "enterprise",
+    "development",
     "javascript",
     "rest",
     "api",
@@ -36,6 +37,9 @@
   "author": "igor.zg1987@gmail.com",
   "license": "MIT",
   "devDependencies": {
+    "tslint": "3.6.0",
+    "typescript": "2.0.2",
+    "typings": "^1.3.3",
     "chai": "^3.5.0",
     "mocha": "^3.0.2",
     "typedoc": "^0.3.12",

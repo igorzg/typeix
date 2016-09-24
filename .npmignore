@@ -1,0 +1,8 @@
+/.idea/
+/typings/
+/src/
+/docs/
+/demo-app/
+/build/demo-app/
+/tsd.json
+/typedoc.json
