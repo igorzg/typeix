@@ -21,7 +21,7 @@ export class Assets {
     return await <Promise<Buffer>> new Promise(
       (resolve, reject) =>
         readFile(
-          normalize(__dirname + "/../../../demo-app/public/" + name),
+          normalize(__dirname + "/../../public/" + name),
           (err, data) => isPresent(err) ? reject(err) : resolve(data)
         )
     );
