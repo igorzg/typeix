@@ -7,8 +7,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
-    "rootDir": "src",
-    "typeRoots": ["typings"],
     "sourceMap": true,
     "inlineSources": false,
     "emitDecoratorMetadata": true,
@@ -18,7 +16,7 @@
   },
   "include": [
     "typings/index.d.ts",
-    "src/**/*.ts"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules"

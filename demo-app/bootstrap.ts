@@ -1,5 +1,5 @@
 import {Application} from "./application";
-import {httpServer} from "../src/server/http";
+import {httpServer} from "node-enterprise";
 /**
  * Bootstraps server
  *

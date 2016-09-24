@@ -1,16 +1,16 @@
 {
   "name": "node-enterprise",
-  "version": "1.0.0-alpha-5",
+  "version": "1.0.0-alpha-7",
   "dependencies": {
     "reflect-metadata": "0.1.3"
   },
   "description": "Typescript API for RESTful Services for (Node.js)",
-  "main": "build/src/index.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "mocha build/src/tests/ --debug --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
     "postinstall": "typings install",
-    "demo": "tsc && node build/demo-app/bootstrap.js"
+    "compile": "tsc -p tscofnig.json"
   },
   "repository": {
     "type": "git",

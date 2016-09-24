@@ -1,10 +1,6 @@
+import {Module, Logger, Inject, IAfterConstruct, Router, Methods} from "node-enterprise";
 import {Assets} from "./components/assets";
-import {Logger} from "../src/logger/logger";
-import {Router, Methods} from "../src/router/router";
 import {CoreController} from "./controllers/core";
-import {Module} from "../src/decorators/module";
-import {Inject} from "../src/decorators/inject";
-
 /**
  * Application entry point
  * @constructor
@@ -18,7 +14,7 @@ import {Inject} from "../src/decorators/inject";
   controllers: [CoreController],
   providers: [Assets]
 })
-export class Application {
+export class Application implements IAfterConstruct{
 
   /**
    * @param {Assets} assetLoader

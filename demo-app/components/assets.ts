@@ -1,7 +1,6 @@
 import {readFile} from "fs";
 import {normalize} from "path";
-import {isPresent} from "../../src/core";
-import {Injectable} from "../../src/decorators/injectable";
+import {isPresent, Injectable} from "node-enterprise";
 /**
  * Asset loader service
  * @constructor

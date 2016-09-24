@@ -1,9 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject} from "../../src/decorators/inject";
-import {Produces} from "../../src/decorators/produces";
-import {Action} from "../../src/decorators/action";
-import {Controller} from "../../src/decorators/controller";
-
+import {Inject, Produces, Action, Controller} from "node-enterprise";
 /**
  * Controller example
  * @constructor

@@ -1,6 +1,5 @@
-/node_modules
-/demo-app/node_modules
-.idea/
-/build
-/typings/
-/npm-debug.log
+node_modules
+.idea
+build
+typings
+npm-debug.log
