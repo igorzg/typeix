@@ -1,5 +1,5 @@
 # Demo application
-This runnable example how application will be developed with typix
+This is runnable example, preview of application development with typeix
 
 ### Running demo:
 * Checkout repo
