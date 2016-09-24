@@ -1,8 +1,12 @@
 {
   "name": "demo-app",
   "version": "0.0.1",
+  "scripts": {
+    "postinstall": "typings install",
+    "compile": "tsc -p tscofnig.json"
+  },
   "dependencies": {
     "node-enterprise": "^1.0.0-alpha-7",
-    "postinstall": "typings install"
+    "typings": "^1.4.0"
   }
 }
