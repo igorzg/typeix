@@ -7,6 +7,7 @@
 * [_isNumber](_core_.md#_isnumber)
 * [isArray](_core_.md#isarray)
 * [isBoolean](_core_.md#isboolean)
+* [isClass](_core_.md#isclass)
 * [isDate](_core_.md#isdate)
 * [isEqual](_core_.md#isequal)
 * [isFalsy](_core_.md#isfalsy)
@@ -26,7 +27,7 @@
 
 ### Private _isNumber(value: any): boolean
 Internal is number  
-* Defined in [core.ts:258](https://github.com/igorzg/typeix/blob/master/src/core.ts#L258)
+* Defined in [core.ts:270](https://github.com/igorzg/typeix/blob/master/src/core.ts#L270)
 
 
 #### Parameters
@@ -69,6 +70,22 @@ Check if value is boolean
 
 #### Returns: boolean
 
+### isClass(value: any): boolean
+ since 1.0.0 author Igor Ivanovic function isClass
+ description 
+Check if type is class
+  
+* Defined in [core.ts:186](https://github.com/igorzg/typeix/blob/master/src/core.ts#L186)
+
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ---- |
+| value | any|  |
+
+#### Returns: boolean
+
 ### isDate(value: any): boolean
  since 1.0.0 author Igor Ivanovic function isArray
  description 
@@ -90,7 +107,7 @@ Check if value is array
  description 
 Check if two objects are equal
   
-* Defined in [core.ts:185](https://github.com/igorzg/typeix/blob/master/src/core.ts#L185)
+* Defined in [core.ts:197](https://github.com/igorzg/typeix/blob/master/src/core.ts#L197)
 
 
 #### Parameters

@@ -14,8 +14,10 @@ It's crucial for injector
 * [getConstructorPrototypeKeys](_injector_metadata_.metadata.md#getconstructorprototypekeys)
 * [getConstructorProviders](_injector_metadata_.metadata.md#getconstructorproviders)
 * [getMetadata](_injector_metadata_.metadata.md#getmetadata)
+* [getName](_injector_metadata_.metadata.md#getname)
 * [hasMetadata](_injector_metadata_.metadata.md#hasmetadata)
 * [hasProvider](_injector_metadata_.metadata.md#hasprovider)
+* [isDescriptor](_injector_metadata_.metadata.md#isdescriptor)
 * [mergeProviders](_injector_metadata_.metadata.md#mergeproviders)
 * [setComponentConfig](_injector_metadata_.metadata.md#setcomponentconfig)
 * [verifyProvider](_injector_metadata_.metadata.md#verifyprovider)
@@ -27,7 +29,7 @@ It's crucial for injector
  since 1.0.0 static  function  name Metadata#defineMetadata description 
 Define metadata to some class
   
-* Defined in [injector/metadata.ts:33](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L33)
+* Defined in [injector/metadata.ts:74](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L74)
 
 
 #### Parameters
@@ -46,7 +48,7 @@ value
  since 1.0.0 static  function  name Metadata#getComponentConfig description 
 Get component config
   
-* Defined in [injector/metadata.ts:82](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L82)
+* Defined in [injector/metadata.ts:123](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L123)
 
 
 #### Parameters
@@ -61,7 +63,7 @@ Get component config
  since 1.0.0 static  function  name Metadata#getConstructorInjectKeys description 
 Get all metadata on Class constructor so Injector can decide what to do with them
   
-* Defined in [injector/metadata.ts:145](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L145)
+* Defined in [injector/metadata.ts:186](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L186)
 
 
 #### Parameters
@@ -76,7 +78,7 @@ Get all metadata on Class constructor so Injector can decide what to do with the
  since 1.0.0 static  function  name Metadata#getConstructorPrototypeKeys description 
 Get keys metadata in order to know what Injector should do with them
   
-* Defined in [injector/metadata.ts:131](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L131)
+* Defined in [injector/metadata.ts:172](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L172)
 
 
 #### Parameters
@@ -91,7 +93,7 @@ Get keys metadata in order to know what Injector should do with them
  since 1.0.0 static  function  name Metadata#getConstructorProviders description 
 Return constructor providers in order to be delivered new instance to current injectable class
   
-* Defined in [injector/metadata.ts:111](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L111)
+* Defined in [injector/metadata.ts:152](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L152)
 
 
 #### Parameters
@@ -106,7 +108,7 @@ Return constructor providers in order to be delivered new instance to current in
  since 1.0.0 static  function  name Metadata#getMetadata description 
 Get class metadata if not present return defaultValue
   
-* Defined in [injector/metadata.ts:68](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L68)
+* Defined in [injector/metadata.ts:109](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L109)
 
 
 #### Parameters
@@ -119,11 +121,27 @@ Get class metadata if not present return defaultValue
 
 #### Returns: any
 
+### Static getName(Class: any, prefix?: string): string
+ since 1.0.0 static  function  name Metadata#getName description 
+Get class name
+  
+* Defined in [injector/metadata.ts:33](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L33)
+
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ---- |
+| Class | any|  |
+| prefix? | string|  |
+
+#### Returns: string
+
 ### Static hasMetadata(token: Function, name: string): boolean
  since 1.0.0 static  function  name Metadata#hasMetadata description 
 Check if some class has metadata by key
   
-* Defined in [injector/metadata.ts:52](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L52)
+* Defined in [injector/metadata.ts:93](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L93)
 
 
 #### Parameters
@@ -139,7 +157,7 @@ Check if some class has metadata by key
  since 1.0.0 static  function  name Metadata#hasProvider description 
 Check if some list of providers are containing provider Class
   
-* Defined in [injector/metadata.ts:165](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L165)
+* Defined in [injector/metadata.ts:206](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L206)
 
 
 #### Parameters
@@ -151,11 +169,26 @@ Check if some list of providers are containing provider Class
 
 #### Returns: boolean
 
+### Static isDescriptor(value: Object): boolean
+ since 1.0.0 static  function  name Metadata#isDescriptor description 
+Check if current object is descriptor object
+  
+* Defined in [injector/metadata.ts:58](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L58)
+
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ---- |
+| value | Object|  |
+
+#### Returns: boolean
+
 ### Static mergeProviders(a: Array<[IProvider](../interfaces/_interfaces_iprovider_.iprovider.md)>, b: Array<[IProvider](../interfaces/_interfaces_iprovider_.iprovider.md)>): Array<[IProvider](../interfaces/_interfaces_iprovider_.iprovider.md)>
  since 1.0.0 static  function  name Metadata#mergeProviders description 
 Merge two provider definitions, this is used by Injector internally to know what to deliver at what time
   
-* Defined in [injector/metadata.ts:185](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L185)
+* Defined in [injector/metadata.ts:226](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L226)
 
 
 #### Parameters
@@ -171,7 +204,7 @@ Merge two provider definitions, this is used by Injector internally to know what
  since 1.0.0 static  function  name Metadata#setComponentConfig description 
 Sets component config
   
-* Defined in [injector/metadata.ts:97](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L97)
+* Defined in [injector/metadata.ts:138](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L138)
 
 
 #### Parameters
@@ -187,7 +220,7 @@ Sets component config
  since 1.0.0 static  function  name Metadata#verifyProvider description 
 Verify provider to be sure that metadata configuration is provided correctly so it can be used by Injector
   
-* Defined in [injector/metadata.ts:216](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L216)
+* Defined in [injector/metadata.ts:257](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L257)
 
 
 #### Parameters
@@ -202,7 +235,7 @@ Verify provider to be sure that metadata configuration is provided correctly so 
  since 1.0.0 static  function  name Metadata#verifyProviders description 
 Verify all providers in list
   
-* Defined in [injector/metadata.ts:199](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L199)
+* Defined in [injector/metadata.ts:240](https://github.com/igorzg/typeix/blob/master/src/injector/metadata.ts#L240)
 
 
 #### Parameters

@@ -8,16 +8,16 @@
 
 ## Functions
 
-### Action(name: string): (Anonymous function)
+### Action(value: string): Function
 Action decorator  
-* Defined in [decorators/action.ts:12](https://github.com/igorzg/typeix/blob/master/src/decorators/action.ts#L12)
+* Defined in [decorators/action.ts:14](https://github.com/igorzg/typeix/blob/master/src/decorators/action.ts#L14)
 
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ---- |
-| name | string|  |
+| value | string|  |
 
-#### Returns: (Anonymous function)
+#### Returns: Function
 

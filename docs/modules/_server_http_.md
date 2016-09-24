@@ -12,7 +12,7 @@
  since 1.0.0 function  name httpServer description 
 Use httpServer function to httpServer an Module.
   
-* Defined in [server/http.ts:19](https://github.com/igorzg/typeix/blob/master/src/server/http.ts#L19)
+* Defined in [server/http.ts:21](https://github.com/igorzg/typeix/blob/master/src/server/http.ts#L21)
 
 
 #### Parameters
