@@ -2,7 +2,7 @@
   "name": "demo-app",
   "version": "0.0.1",
   "dependencies": {
-    "node-enterprise": "^1.0.0-alpha-4",
+    "node-enterprise": "^1.0.0-alpha-7",
     "postinstall": "typings install"
   }
 }
