@@ -1,4 +1,7 @@
 # Demo application
 This runnable example how application will be developed with typix
 
-* Development version.
+### Running demo:
+* Checkout repo
+* npm install
+* npm run demo

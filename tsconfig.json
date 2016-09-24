@@ -8,7 +8,6 @@
     "moduleResolution": "node",
     "outDir": "build",
     "rootDir": "src",
-    "typeRoots": ["typings"],
     "sourceMap": true,
     "inlineSources": false,
     "emitDecoratorMetadata": true,

@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "scripts": {
     "postinstall": "typings install",
-    "compile": "tsc -p tscofnig.json"
+    "compile": "tsc -p tsconfig.json",
+    "demo": "npm run compile && node build/bootstrap.js"
   },
   "dependencies": {
-    "node-enterprise": "^1.0.0-alpha-7",
+    "node-enterprise": "^1.0.0-alpha-8",
+    "typescript": "^2.0.3",
     "typings": "^1.4.0"
   }
 }
