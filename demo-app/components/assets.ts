@@ -1,6 +1,6 @@
 import {readFile} from "fs";
 import {normalize} from "path";
-import {isPresent, Injectable} from "node-enterprise";
+import {isPresent, Injectable} from "typeix";
 /**
  * Asset loader service
  * @constructor

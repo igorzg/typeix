@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Produces, Action, Controller} from "node-enterprise";
+import {Inject, Produces, Action, Controller} from "typeix";
 /**
  * Controller example
  * @constructor

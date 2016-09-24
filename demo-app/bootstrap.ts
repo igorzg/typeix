@@ -1,5 +1,5 @@
 import {Application} from "./application";
-import {httpServer} from "node-enterprise";
+import {httpServer} from "typeix";
 /**
  * Bootstraps server
  *

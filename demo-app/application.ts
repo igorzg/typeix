@@ -1,4 +1,4 @@
-import {Module, Logger, Inject, IAfterConstruct, Router, Methods} from "node-enterprise";
+import {Module, Logger, Inject, IAfterConstruct, Router, Methods} from "typeix";
 import {Assets} from "./components/assets";
 import {CoreController} from "./controllers/core";
 /**
