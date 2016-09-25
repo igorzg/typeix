@@ -7,7 +7,7 @@
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "build/index.js",
   "scripts": {
-    "test": "mocha build/src/tests/ --debug --full-trace",
+    "test": "mocha build/tests/ --debug --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations typings/ src/",
     "postinstall": "typings install",
     "compile": "tsc -p tsconfig.json"
