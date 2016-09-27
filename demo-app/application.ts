@@ -12,7 +12,7 @@ import {CoreController} from "./controllers/core";
  */
 @Module({
   controllers: [CoreController],
-  providers: [Assets]
+  providers: [Logger, Router, Assets]
 })
 export class Application implements IAfterConstruct{
 
