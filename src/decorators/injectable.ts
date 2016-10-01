@@ -9,7 +9,7 @@ import {Provider} from "./provider";
  * Injectable decorator is used to define injectable class in order that Injector can recognise it
  *
  * @example
- * import {Injectable} from "node-ee";
+ * import {Injectable} from "typeix";
  *
  * \@Injectable()
  * class AssetLoader{

@@ -7,6 +7,7 @@ export {
   Inject,
   Injectable,
   Module,
+  Param,
   Produces,
   Provider
 } from "./decorators/index";
@@ -49,8 +50,9 @@ export {
  * Export http server
  */
 export {
-  httpServer
-} from "./server/http";
+  httpServer,
+  RequestReflection
+} from "./server/index";
 /**
  * Export all from core
  */

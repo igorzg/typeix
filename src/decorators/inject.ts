@@ -12,7 +12,7 @@ import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
  * Inject is used to define metadata which will be injected at class construct time by Injector
  *
  * @example
- * import {Provider, Inject} from "node-ee";
+ * import {Provider, Inject} from "typeix";
  * import {MyService} form "./services/my-service";
  *
  * \@Provider([MyService])

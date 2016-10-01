@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Produces, Action, Controller} from "typeix";
+import {Inject, Produces, Action, Controller, Param, RequestReflection} from "typeix";
 /**
  * Controller example
  * @constructor
@@ -24,7 +24,13 @@ export class CoreController {
    */
   @Inject(Assets)
   assetLoader: Assets;
-
+  /**
+   * @param {RequestReflection} request
+   * @description
+   * Request reflection
+   */
+  @Inject(RequestReflection)
+  request: RequestReflection;
   /**
    * @function
    * @name fileLoadAction
@@ -48,7 +54,8 @@ export class CoreController {
    *
    */
   @Action("assets")
-  fileLoadAction(file: string): Promise<Buffer> {
+  fileLoadAction(@Param("file") file: string): Promise<Buffer> {
+    this.request.setContentType("image/x-icon");
     return this.assetLoader.load(file);
   }
 

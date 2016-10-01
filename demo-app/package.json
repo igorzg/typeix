@@ -7,7 +7,7 @@
     "demo": "npm run compile && node build/bootstrap.js"
   },
   "dependencies": {
-    "typeix": "^1.0.0-alpha-3",
+    "typeix": "^1.0.0-alpha-4",
     "typescript": "^2.0.3",
     "typings": "^1.4.0"
   }

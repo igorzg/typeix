@@ -11,7 +11,7 @@ import {Metadata} from "../injector/metadata";
  * Provider decorator is used to define injectable and injections for class itself
  *
  * @example
- * import {Provider} from "node-ee";
+ * import {Provider} from "typeix";
  * import {MyService} form "./services/my-service";
  *
  * \@Provider([MyService])

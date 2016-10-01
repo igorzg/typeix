@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent} from "../core";
+import {uuid, isString, isPresent, toString} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -20,6 +20,7 @@ import {IControllerMetadata} from "../interfaces/icontroller";
  * @type {RegExp}
  */
 const COOKIE_PARSE_REGEX = /(\w+[^=]+)=([^;]+)/g;
+
 /**
  * @since 1.0.0
  * @class
@@ -176,6 +177,19 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#setContentType
+   * @param {String} value
+   *
+   * @description
+   * Set response content type
+   */
+  setContentType(value: string) {
+    this.contentType = value;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#afterConstruct
    * @private
    * @description
@@ -186,105 +200,6 @@ export class Request implements IAfterConstruct {
     this.logger.trace("Request.args", {
       id: this.id,
       url: this.url
-    });
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#render
-   * @param {Buffer|String} response
-   * @private
-   * @description
-   * This method sends data to client
-   */
-  render(response: string | Buffer): string | Buffer {
-    this.logger.info("Request.render", {
-      id: this.id
-    });
-    if (isString(response) || (response instanceof Buffer)) {
-      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
-      this.response.write(response);
-      this.response.end();
-      return response;
-    }
-    this.logger.error("Invalid response type", {
-      id: this.id,
-      response: response,
-      type: typeof response
-    });
-    throw new HttpError(500, "ResponseType must be string or buffer", {
-      response
-    });
-  }
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#handleController
-   * @private
-   * @description
-   * Handle controller instance
-   */
-  async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
-    // find controller
-    let controllerProvider: IProvider = this.controllers
-      .map(item => Metadata.verifyProvider(item))
-      .find((Class: IProvider) => {
-        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === name;
-      });
-    if (!isPresent(controllerProvider)) {
-      throw new HttpError(500, `You must define controller within current route`, {
-        name,
-        actionName,
-        resolvedRoute
-      });
-    }
-    // get controller metadata
-    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
-    let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
-    let injector = new Injector(this.injector);
-    injector.createAndResolve(
-      controllerProvider,
-      providers
-    );
-    // create controller instance
-    let instance = injector.get(controllerProvider.provide);
-    let mappings =  Metadata.getMetadata(instance, FUNCTION_KEYS);
-    let mappedAction: any = mappings.find(item => item.type === "Action" && item.value === actionName);
-    if (!isPresent(mappedAction)) {
-      throw new HttpError(500, `Action is not defined on controller ${Metadata.getName(instance)}`, {
-        instance,
-        name,
-        actionName,
-        resolvedRoute
-      });
-    }
-    // get action
-    let action = instance[mappedAction.key].bind(instance);
-    // content type
-    let contentType = mappings.find(item => item.type === "Produces" && item.key === mappedAction.key);
-    if (isPresent(contentType)) {
-      this.contentType = contentType;
-    }
-    // resolve action call
-    return Promise.resolve(await action()).then(resolved => this.render(resolved));
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#handleModule
-   * @private
-   * @description
-   * Handle module instance
-   */
-  handleModule(module: String, name: String, action: String, resolvedRoute: ResolvedRoute) {
-    throw new HttpError(500, `Modules are not implemented in current version :)`, {
-      module,
-      name,
-      action,
-      resolvedRoute
     });
   }
 
@@ -366,5 +281,165 @@ export class Request implements IAfterConstruct {
         url: this.request.url,
         error
       }));
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#render
+   * @param {Buffer|String} response
+   * @private
+   * @description
+   * This method sends data to client
+   */
+  render(response: string | Buffer): string | Buffer {
+    this.logger.info("Request.render", {
+      id: this.id
+    });
+    if (isString(response) || (response instanceof Buffer)) {
+      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+      this.response.write(response);
+      this.response.end();
+      return response;
+    }
+    this.logger.error("Invalid response type", {
+      id: this.id,
+      response: response,
+      type: typeof response
+    });
+    throw new HttpError(500, "ResponseType must be string or buffer", {
+      response
+    });
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#handleController
+   * @private
+   * @description
+   * Handle controller instance
+   */
+  async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
+    // find controller
+    let controllerProvider: IProvider = this.controllers
+      .map(item => Metadata.verifyProvider(item))
+      .find((Class: IProvider) => {
+        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        return metadata.name === name;
+      });
+    if (!isPresent(controllerProvider)) {
+      throw new HttpError(500, `You must define controller within current route`, {
+        name,
+        actionName,
+        resolvedRoute
+      });
+    }
+    // get controller metadata
+    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
+    let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
+    // add request reflection to controller
+    providers.push(Metadata.verifyProvider(RequestReflection));
+    // limit controller api, no access to request api
+    providers.push({
+      provide: "request",
+      useValue: {}
+    });
+    // limit controller api, no access to response api
+    providers.push({
+      provide: "response",
+      useValue: {}
+    });
+    // create controller injector
+    let injector = new Injector(this.injector);
+    // initialize controller
+    injector.createAndResolve(
+      controllerProvider,
+      Metadata.verifyProviders(providers)
+    );
+    // get controller instance
+    let instance = injector.get(controllerProvider.provide);
+    let mappings = Metadata.getMetadata(instance, FUNCTION_KEYS);
+    let mappedAction: any = mappings.find(item => item.type === "Action" && item.value === actionName);
+    if (!isPresent(mappedAction)) {
+      throw new HttpError(500, `Action is not defined on controller ${Metadata.getName(instance)}`, {
+        instance,
+        name,
+        actionName,
+        resolvedRoute
+      });
+    }
+    // get action
+    let action = instance[mappedAction.key].bind(instance);
+    // content type
+    let contentType = mappings.find(item => item.type === "Produces" && item.key === mappedAction.key);
+    if (isPresent(contentType)) {
+      this.contentType = contentType;
+    }
+    // resolve action params
+    let actionParams = [];
+    let params = mappings.filter(item => item.type === "Param" && item.key === mappedAction.key);
+    if (isPresent(params)) {
+      params.forEach(param => {
+        if (
+          (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
+        ) {
+          throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
+        }
+        actionParams.push(resolvedRoute.params[param.value]);
+      });
+
+    }
+    // resolve action call
+    return Promise.resolve(await action.apply(instance, actionParams)).then(resolved => this.render(resolved));
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#handleModule
+   * @private
+   * @description
+   * Handle module instance
+   */
+  handleModule(module: String, name: String, action: String, resolvedRoute: ResolvedRoute) {
+    throw new HttpError(500, `Modules are not implemented in current version :)`, {
+      module,
+      name,
+      action,
+      resolvedRoute
+    });
+  }
+}
+
+/**
+ * @since 1.0.0
+ * @class
+ * @name RequestReflection
+ * @constructor
+ * @description
+ * Get request reflection to limit public api
+ *
+ * @private
+ */
+@Injectable()
+export class RequestReflection {
+  /**
+   * Inject request
+   */
+  @Inject(Request)
+  private request: Request;
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#setContentType
+   * @param {String} value
+   *
+   * @description
+   * Set response content type
+   */
+  setContentType(value: string) {
+    this.request.setContentType(value);
   }
 }
