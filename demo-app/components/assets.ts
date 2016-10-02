@@ -13,6 +13,14 @@ import {isPresent, Injectable} from "typeix";
 @Injectable()
 export class Assets {
   /**
+   * Get public path
+   * @return {String}
+   */
+  static publicPath(name: string): string {
+    return normalize(__dirname + "/../../public/" + name);
+  }
+
+  /**
    * Load asset from disk
    * @param name
    * @return {Promise<Buffer>}
@@ -21,7 +29,7 @@ export class Assets {
     return await <Promise<Buffer>> new Promise(
       (resolve, reject) =>
         readFile(
-          normalize(__dirname + "/../../public/" + name),
+          Assets.publicPath(name),
           (err, data) => isPresent(err) ? reject(err) : resolve(data)
         )
     );

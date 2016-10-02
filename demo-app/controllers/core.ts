@@ -1,5 +1,6 @@
 import {Assets} from "../components/assets";
 import {Inject, Produces, Action, Controller, Param, RequestReflection} from "typeix";
+import {lookup} from "mime";
 /**
  * Controller example
  * @constructor
@@ -55,7 +56,8 @@ export class CoreController {
    */
   @Action("assets")
   fileLoadAction(@Param("file") file: string): Promise<Buffer> {
-    this.request.setContentType("image/x-icon");
+    let type = lookup(Assets.publicPath(file));
+    this.request.setContentType(type);
     return this.assetLoader.load(file);
   }
 
