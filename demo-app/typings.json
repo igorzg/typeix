@@ -6,7 +6,6 @@
   },
   "globalDependencies": {
     "chai": "registry:dt/chai#3.4.0+20160601211834",
-    "mime": "registry:dt/mime#0.0.0+20160906151955",
     "mocha": "registry:dt/mocha#2.2.5+20160720003353"
   }
 }
