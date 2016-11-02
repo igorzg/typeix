@@ -8,4 +8,3 @@ This is runnable example, preview of application development with typeix
 
 ###
 * Typeix has dependency injection inspired by Angular 2
-* Version 1.0.0-alpha-2
