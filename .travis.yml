@@ -1,0 +1,15 @@
+language: node_js
+
+node_js:
+  - "6.0.0"
+
+env:
+  global:
+    - SAUCE_USERNAME=igorzg
+    - SAUCE_ACCESS_KEY=2b2136fe-063d-4485-9262-e6f57903bbb0
+
+install:
+  - npm install
+
+script:
+  - npm run test
