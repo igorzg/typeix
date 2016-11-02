@@ -1,5 +1,5 @@
 {
-  "version": "2.0.2",
+  "version": "2.0.3",
   "compileOnSave": true,
   "compilerOptions": {
     "declaration": true,
@@ -13,7 +13,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "include": [
     "typings/index.d.ts",

@@ -232,7 +232,7 @@ export class Request implements IAfterConstruct {
         });
 
         if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1 && !this.isForwarded) {
-          this.request.on("data", item => this.data.push(item));
+          this.request.on("data", item => this.data.push(<Buffer> item));
           return new Promise(resolve => this.request.on("end", resolve.bind({}, resolvedRoute)));
         }
         return resolvedRoute;
