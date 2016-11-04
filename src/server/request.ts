@@ -334,16 +334,14 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       });
     }
-    // get controller metadata
-    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
-    let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
     // set request reflection
-    let requestReflection = Injector.createAndResolve(RequestReflection, [
+    let requestReflectionInjector = Injector.createAndResolveChild(this.injector, RequestReflection, [
       {provide: Request, useValue: this},
       {provide: "resolvedRoute", useValue: resolvedRoute}
     ]);
-    // add request reflection to controller
-    providers.unshift({provide: RequestReflection, useValue: requestReflection.get(RequestReflection)});
+    // get controller metadata
+    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
+    let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
     // limit controller api, no access to request api
     providers.push({
       provide: "request",
@@ -355,7 +353,7 @@ export class Request implements IAfterConstruct {
       useValue: {}
     });
     // create controller injector
-    let injector = new Injector(this.injector);
+    let injector = new Injector(requestReflectionInjector);
     // initialize controller
     injector.createAndResolve(
       controllerProvider,
