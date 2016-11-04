@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass} from "../core";
+import {uuid, isString, isPresent, toString, isClass, isArray} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -14,6 +14,7 @@ import {Inject} from "../decorators/inject";
 import {IModuleMetadata} from "../interfaces/imodule";
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
+import {IConnection} from "../interfaces/iconnection";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -183,7 +184,47 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#getIncomingMessage
+   * @private
+   *
+   * @description
+   * Get IncomingMessage object
+   */
+  getIncomingMessage(): IncomingMessage {
+    return this.request;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#getServerResponse
+   * @private
+   *
+   * @description
+   * Get ServerResponse object
+   */
+  getServerResponse(): ServerResponse {
+    return this.response;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#getUUID
+   * @private
+   *
+   * @description
+   * Return uuid created with this request
+   */
+  getUUID(): string {
+    return this.id;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#setContentType
+   * @private
    * @param {String} value
    *
    * @description
@@ -542,17 +583,143 @@ export class Request implements IAfterConstruct {
  */
 @Injectable()
 export class RequestReflection {
+
   /**
-   * Inject request
+   * @param Request
+   * @description
+   * Current internal Request instance
    */
   @Inject(Request)
   private request: Request;
 
   /**
-   * Get resolved route
+   * @param ResolvedRoute
+   * @description
+   * Current internal resolved route
    */
   @Inject("resolvedRoute")
   private resolvedRoute: ResolvedRoute;
+  /**
+   * @param cookies
+   * @description
+   * Cookies object are stored to this object first time thy are parsed
+   */
+  private cookies: {[key: string]: string};
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getConnection
+   *
+   * @description
+   * Get connection data
+   */
+  getConnection(): IConnection {
+    let request = this.request.getIncomingMessage();
+    return {
+      uuid: this.request.getUUID(),
+      method: request.method,
+      url: request.url,
+      httpVersion: request.httpVersion,
+      httpVersionMajor: request.httpVersionMajor,
+      httpVersionMinor: request.httpVersionMinor,
+      remoteAddress: request.connection.remoteAddress,
+      remoteFamily: request.connection.remoteFamily,
+      remotePort: request.connection.remotePort,
+      localAddress: request.connection.localAddress,
+      localPort: request.connection.localPort,
+    };
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getCookies
+   *
+   * @description
+   * Return parsed cookies
+   */
+  getCookies(): {[key: string]: string} {
+
+    if (isPresent(this.cookies)) {
+      return this.cookies;
+    }
+    // get cookie string
+    let cookie: string = this.getRequestHeader("Cookie");
+
+    if (isPresent(cookie)) {
+
+      this.cookies = {};
+
+      // parse cookies
+      cookie.match(COOKIE_PARSE_REGEX)
+      .map(item => item.split(COOKIE_PARSE_REGEX).slice(1, -1))
+      .map(item => {
+        return {
+          key: item.shift(),
+          value: item.shift()
+        };
+      })
+      .forEach(item => {
+        this.cookies[item.key] = item.value;
+      });
+
+      return this.cookies;
+    }
+
+    return {};
+  }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getCookie
+   *
+   * @description
+   * Return request headers
+   */
+  getCookie(name: string): string {
+    let cookies = this.getCookies();
+    return cookies[name];
+  }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getRequestHeaders
+   *
+   * @description
+   * Return request headers
+   */
+  getRequestHeaders(): any {
+    return this.request.getIncomingMessage().headers;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getRequestHeader
+   *
+   * @description
+   * Return request header by name
+   */
+  getRequestHeader(name: string): any {
+    let requestHeaders = this.getRequestHeaders();
+    let headers = isPresent(requestHeaders) ? requestHeaders : {};
+    return headers[name.toLocaleLowerCase()];
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#setResponseHeader
+   * @param {String} name
+   * @param {String} value
+   *
+   * @description
+   * Set response header
+   */
+  setResponseHeader(name: string, value: string | string[]): void {
+    this.request.getServerResponse().setHeader(name, value);
+  }
 
   /**
    * @since 1.0.0

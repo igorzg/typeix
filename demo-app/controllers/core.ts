@@ -78,6 +78,6 @@ export class CoreController {
   @Action("index")
   @OnError(500, "My custom message")
   actionIndex(): string {
-    return "My action " + this.request.getMethod();
+    return "My action " + this.request.getCookie("Authorization");
   }
 }
