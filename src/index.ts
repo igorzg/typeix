@@ -9,7 +9,8 @@ export {
   Module,
   Param,
   Produces,
-  Provider
+  Provider,
+  OnError
 } from "./decorators/index";
 /**
  * Export logger

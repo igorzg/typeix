@@ -15,6 +15,7 @@ export interface IProvider {
   useValue?: any;
   useClass?: Function;
   useFactory?: Function;
+  deps?: Array<IProvider>;
 }
 
 /**

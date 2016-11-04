@@ -6,3 +6,4 @@ export {Module} from "./module";
 export {Produces} from "./produces";
 export {Provider} from "./provider";
 export {Param} from "./param";
+export {OnError} from "./on-error";
