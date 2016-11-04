@@ -77,6 +77,6 @@ export class CoreController {
    */
   @Action("index")
   actionIndex(): string {
-    return "My action";
+    return "My action " + this.request.getMethod();
   }
 }

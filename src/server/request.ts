@@ -343,7 +343,7 @@ export class Request implements IAfterConstruct {
       {provide: "resolvedRoute", useValue: resolvedRoute}
     ]);
     // add request reflection to controller
-    providers.unshift({provide: RequestReflection, useValue: requestReflection});
+    providers.unshift({provide: RequestReflection, useValue: requestReflection.get(RequestReflection)});
     // limit controller api, no access to request api
     providers.push({
       provide: "request",
