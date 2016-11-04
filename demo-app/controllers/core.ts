@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Produces, Action, Controller, Param, RequestReflection} from "typeix";
+import {Inject, Produces, Action, Controller, Param, RequestReflection, OnError} from "typeix";
 import {lookup} from "mime";
 /**
  * Controller example
@@ -76,6 +76,7 @@ export class CoreController {
    *
    */
   @Action("index")
+  @OnError(500, "My custom message")
   actionIndex(): string {
     return "My action " + this.request.getMethod();
   }

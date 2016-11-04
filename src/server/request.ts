@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString} from "../core";
+import {uuid, isString, isPresent, toString, isClass} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -310,6 +310,12 @@ export class Request implements IAfterConstruct {
         return this.render(clean(error.toString()));
       })
       .catch((error: HttpError) => {
+
+        if (!(error instanceof HttpError)) {
+          let _error: HttpError = error;
+          error = new HttpError(500, _error.message, {});
+          error.stack = _error.stack;
+        }
         // log error message
         this.logger.error(error.message, {
           id: this.id,
@@ -382,6 +388,12 @@ export class Request implements IAfterConstruct {
         actionName,
         resolvedRoute
       });
+    } else if (!isClass(controllerProvider.provide)) {
+      throw new HttpError(500, `Controller must be a class type`, {
+        name,
+        actionName,
+        resolvedRoute
+      });
     }
     return controllerProvider;
   }
@@ -396,7 +408,7 @@ export class Request implements IAfterConstruct {
    */
   getMappedAction(controllerProvider: IProvider, actionName: String, resolvedRoute: ResolvedRoute): any {
     // get mappings from controller
-    let mappings = Metadata.getMetadata(controllerProvider.provide, FUNCTION_KEYS);
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
     let mappedAction = mappings.find(item => item.type === "Action" && item.value === actionName);
 
     // check if action is present
@@ -421,8 +433,22 @@ export class Request implements IAfterConstruct {
    */
   getParamByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: String): any {
     // get mappings from controller
-    let mappings = Metadata.getMetadata(controllerProvider.provide, FUNCTION_KEYS);
-    return mappings.find(item => item.type === paramName && item.value === mappedAction.key);
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
+    return mappings.find(item => item.type === paramName && item.key === mappedAction.key);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#getParamsByMappedAction
+   * @private
+   * @description
+   * Get list of params
+   */
+  getParamsByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: String): Array<any> {
+    // get mappings from controller
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
+    return mappings.filter(item => item.type === paramName && item.key === mappedAction.key);
   }
 
   /**
@@ -470,7 +496,7 @@ export class Request implements IAfterConstruct {
     }
     // resolve action params
     let actionParams = [];
-    let params = this.getParamByMappedAction(controllerProvider, mappedAction, "Param");
+    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction, "Param");
     if (isPresent(params)) {
       params.forEach(param => {
         if (
