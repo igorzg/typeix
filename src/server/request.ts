@@ -5,8 +5,7 @@ import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
-import {parse} from "url";
-import {Url} from "url";
+import {parse, Url} from "url";
 import {ResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
 import {clean} from "../logger/inspect";
@@ -338,8 +337,13 @@ export class Request implements IAfterConstruct {
     // get controller metadata
     let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
+    // set request reflection
+    let requestReflection = Injector.createAndResolve(RequestReflection, [
+      {provide: Request, useValue: this},
+      {provide: "resolvedRoute", useValue: resolvedRoute}
+    ]);
     // add request reflection to controller
-    providers.push(Metadata.verifyProvider(RequestReflection));
+    providers.unshift({provide: RequestReflection, useValue: requestReflection});
     // limit controller api, no access to request api
     providers.push({
       provide: "request",
@@ -431,6 +435,12 @@ export class RequestReflection {
   private request: Request;
 
   /**
+   * Get resolved route
+   */
+  @Inject("resolvedRoute")
+  private resolvedRoute: ResolvedRoute;
+
+  /**
    * @since 1.0.0
    * @function
    * @name RequestReflection#setContentType
@@ -441,5 +451,55 @@ export class RequestReflection {
    */
   setContentType(value: string) {
     this.request.setContentType(value);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getParams
+   *
+   * @description
+   * Get all request parameters
+   */
+  getParams(): Object {
+    return isPresent(this.resolvedRoute.params) ? this.resolvedRoute.params : {};
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getParam
+   * @param {string} name
+   *
+   * @description
+   * Get resolve route param
+   */
+  getParam(name: string): string {
+    let params = this.getParams();
+    return params[name];
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getMethod
+   *
+   * @description
+   * Return resolved route method
+   */
+  getMethod(): Methods {
+    return this.resolvedRoute.method;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getRoute
+   *
+   * @description
+   * Return resolved route name
+   */
+  getRoute(): string {
+    return this.resolvedRoute.route;
   }
 }
