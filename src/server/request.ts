@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass, isArray} from "../core";
+import {uuid, isString, isPresent, toString, isClass, isArray, isNumber, isDate, isTruthy} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -653,22 +653,23 @@ export class RequestReflection {
 
       // parse cookies
       cookie.match(COOKIE_PARSE_REGEX)
-      .map(item => item.split(COOKIE_PARSE_REGEX).slice(1, -1))
-      .map(item => {
-        return {
-          key: item.shift(),
-          value: item.shift()
-        };
-      })
-      .forEach(item => {
-        this.cookies[item.key] = item.value;
-      });
+        .map(item => item.split(COOKIE_PARSE_REGEX).slice(1, -1))
+        .map(item => {
+          return {
+            key: item.shift(),
+            value: item.shift()
+          };
+        })
+        .forEach(item => {
+          this.cookies[item.key] = item.value;
+        });
 
       return this.cookies;
     }
 
     return {};
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -681,6 +682,49 @@ export class RequestReflection {
     let cookies = this.getCookies();
     return cookies[name];
   }
+
+  /**
+   * @since 0.0.1
+   * @function
+   * @name RequestReflection#setResponseCookie
+   * @param {String} key cookie name
+   * @param {String} value cookie value
+   * @param {String|Object|Number} expires expire date
+   * @param {String} path cookie path
+   * @param {String} domain cookie domain
+   * @param {Boolean} isHttpOnly is http only
+   * @description
+   * Sets an cookie header
+   */
+  setCookie(key: string, value: string, expires?: number | Date | string, path?: string, domain?: string, isHttpOnly?: boolean) {
+
+    let cookie = key + "=" + value;
+
+    if (isPresent(expires) && isNumber(expires)) {
+      let date: Date = new Date();
+      date.setTime(date.getTime() + (<number> expires));
+      cookie += "; Expires=";
+      cookie += date.toUTCString();
+    } else if (isPresent(expires) && isString(expires)) {
+      cookie += "; Expires=" + expires;
+    } else if (isPresent(expires) && isDate(expires)) {
+      cookie += "; Expires=";
+      cookie += (<Date> expires).toUTCString();
+    }
+
+    if (isPresent(path)) {
+      cookie += "; Path=" + path;
+    }
+    if (isPresent(domain)) {
+      cookie += "; Domain=" + domain;
+    }
+    if (isTruthy(isHttpOnly)) {
+      cookie += "; HttpOnly";
+    }
+    this.setResponseHeader("Set-cookie", cookie);
+
+  }
+
   /**
    * @since 1.0.0
    * @function
