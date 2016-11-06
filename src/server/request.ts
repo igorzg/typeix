@@ -184,6 +184,19 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#getEventEmitter
+   * @private
+   *
+   * @description
+   * Get request event emitter
+   */
+  getEventEmitter(): EventEmitter {
+    return this.eventEmitter;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#getIncomingMessage
    * @private
    *
@@ -606,6 +619,17 @@ export class RequestReflection {
    */
   private cookies: {[key: string]: string};
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#onDestroy
+   *
+   * @description
+   * Add destroy event to public api
+   */
+  onDestroy(callback: Function): void {
+    this.request.getEventEmitter().once("destroy", callback);
+  }
   /**
    * @since 1.0.0
    * @function
