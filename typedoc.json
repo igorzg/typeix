@@ -3,7 +3,7 @@
   "mode": "modules",
   "out": "docs/",
   "exclude": "**/*.spec.ts",
-  "theme": "node_modules/typedoc-markdown-theme/bin",
+  "theme": "minimal",
   "externalPattern": "**/*.d.ts",
   "excludeExternals": true,
   "ignoreCompilerErrors": "true",
