@@ -42,9 +42,9 @@ export function httpServer(Class: Function, port: number, hostname?: string): In
       ]
     );
     /**
-     * On end destroy injector
+     * On finish destroy injector
      */
-    request.on("end", () => childInjector.destroy());
+    response.on("finish", () => childInjector.destroy());
     /**
      * Get request instance
      * @type {any}
