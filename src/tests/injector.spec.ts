@@ -11,6 +11,6 @@ describe("Injector", () => {
       {provide: Logger, useClass: Logger}
     ]);
     let router: Router = injector.get(Router);
-    assert.isTrue(router instanceof Router);
+    assert.isNotNull(router);
   });
 });

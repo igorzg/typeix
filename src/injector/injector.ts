@@ -1,8 +1,77 @@
-import {isFunction, toString, isPresent, uuid, isArray} from "../core";
+import {isFunction, toString, isPresent, uuid, isArray, isTruthy} from "../core";
 import {Metadata} from "./metadata";
 import {IProvider} from "../interfaces/iprovider";
 import {IInjectKey} from "../interfaces/idecorators";
 
+/**
+ * @since 1.0.0
+ * @function
+ * @name ProviderList
+ *
+ * @description
+ * Provider list holder for easier debugging
+ */
+class ProviderList {
+  private _list = {};
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#set
+   * @param {Object} key
+   * @param {Object} value
+   *
+   * @description
+   * Simulate set as on Map object
+   */
+  set(key: any, value: Object): void {
+    if (!this.has(key)) {
+      Object.defineProperty(this._list, key, {
+        configurable: false,
+        value: value,
+        writable: false
+      });
+    }
+  }
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#get
+   * @param {Object} key
+   *
+   * @description
+   * Simulate get as on Map object
+   */
+  get(key: any): any {
+    return this._list[key];
+  }
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#clear
+   *
+   * @description
+   * Simulate clear as on Map object
+   */
+  clear() {
+    this._list = {};
+  }
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#has
+   * @param {Object} key
+   *
+   * @description
+   * Simulate has as on Map object
+   */
+  has(key: any): boolean {
+    return isTruthy(this._list[key]);
+  }
+}
 /**
  * @since 1.0.0
  * @function
@@ -17,7 +86,7 @@ import {IInjectKey} from "../interfaces/idecorators";
 export class Injector {
   // injector indentifier
   private _uid: string = uuid();
-  private _providers: Map<any, any> = new Map();
+  private _providers: ProviderList = new ProviderList();
   private _children: Array<Injector> = [];
 
   /**
@@ -190,10 +259,10 @@ export class Injector {
    * Gets current Injectable instance throws exception if Injectable class is not created
    */
   get(provider: any, Class?: IProvider): any {
-    if (!this.has(provider) && this.parent instanceof Injector) {
-      return this.parent.get(provider, Class);
-    } else if (this.has(provider)) {
+    if (this.has(provider)) {
       return this._providers.get(provider);
+    } else if (this.parent instanceof Injector) {
+      return this.parent.get(provider, Class);
     }
     if (isPresent(Class)) {
       throw new Error(`No provider for ${
