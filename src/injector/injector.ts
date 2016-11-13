@@ -1,4 +1,4 @@
-import {isFunction, toString, isPresent, uuid, isArray, isTruthy} from "../core";
+import {isFunction, toString, isPresent, uuid, isArray} from "../core";
 import {Metadata} from "./metadata";
 import {IProvider} from "../interfaces/iprovider";
 import {IInjectKey} from "../interfaces/idecorators";
@@ -69,7 +69,7 @@ class ProviderList {
    * Simulate has as on Map object
    */
   has(key: any): boolean {
-    return isTruthy(this._list[key]);
+    return this._list.hasOwnProperty(key);
   }
 }
 /**
