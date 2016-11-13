@@ -171,9 +171,11 @@ export class Pattern {
    */
   getParams(path: string): Object {
     let data = {};
-    path.match(this.regex).slice(1).forEach((value, index) => {
-      data[this.getChunkKey(index)] = value;
-    });
+    if (this.path !== "*") {
+      path.match(this.regex).slice(1).forEach((value, index) => {
+        data[this.getChunkKey(index)] = value;
+      });
+    }
     return data;
   }
 
@@ -254,6 +256,8 @@ export class RouteParser {
         );
         return source;
       });
+    } else if (path === "*") {
+      pattern = "([\\s\\S]+)";
     } else {
       pattern = path;
     }
@@ -275,8 +279,8 @@ export class RouteParser {
    *
    */
   static parse(url: string): RouteParser {
-    if (isFalsy(url) || url.charAt(0) !== "/") {
-      throw new Error("Url must start with \/");
+    if (isFalsy(url) || ["/", "*"].indexOf(url.charAt(0)) === -1) {
+      throw new Error("Url must start with \/ or it has to be * which match all patterns");
     } else if (URL_SPLIT.test(url)) {
       let tree: any = url.split(URL_SPLIT).filter(isTruthy).reduceRight((cTree: any, currentValue: any) => {
         let obj: any = {
@@ -332,7 +336,7 @@ export class RouteParser {
   isValid(url: string): boolean {
     let chunks = url.split(URL_SPLIT).filter(isTruthy);
     let tail = this.getTail();
-    while (chunks.length) {
+    while (isTruthy(chunks.length) && isTruthy(tail)) {
       let chunk = chunks.pop();
       if (!tail.pattern.isValid(chunk)) {
         return false;

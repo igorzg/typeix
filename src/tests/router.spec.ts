@@ -14,6 +14,11 @@ describe("Router", () => {
     let router: Router = injector.get(Router);
     router.addRules([
       {
+        methods: [Methods.OPTIONS],
+        route: "controller/test",
+        url: "*"
+      },
+      {
         methods: [Methods.GET, Methods.POST],
         route: "controller/index",
         url: "/"
@@ -33,6 +38,7 @@ describe("Router", () => {
 
     return Promise.all([
       router.parseRequest("/", "POST", {}),
+      router.parseRequest("/authenticate", "OPTIONS", {}),
       router.parseRequest("/home", "GET", {}),
       router.parseRequest("/home/123", "GET", {}),
       router.createUrl("controller/view", {id: 123}),
@@ -46,6 +52,12 @@ describe("Router", () => {
           params: {},
           path: "/",
           route: "controller/index"
+        },
+        {
+          method: Methods.OPTIONS,
+          params: {},
+          path: "/authenticate",
+          route: "controller/test"
         },
         {
           method: Methods.GET,
@@ -66,6 +78,7 @@ describe("Router", () => {
         "/home",
         "/controller/indexs"
       ];
+
       assert.isTrue(isEqual(data, result));
     });
 
