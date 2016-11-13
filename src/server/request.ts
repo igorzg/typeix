@@ -223,6 +223,20 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#getRequestBody
+   * @private
+   *
+   * @description
+   * Get request body if present only on POST, PUT, PATCH
+   */
+  getRequestBody(): Buffer {
+    return Buffer.concat(this.data);
+  }
+
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#getUUID
    * @private
    *
@@ -850,5 +864,17 @@ export class RequestReflection {
    */
   getRoute(): string {
     return this.resolvedRoute.route;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#getRequestBody
+   *
+   * @description
+   * Get request body buffer
+   */
+  getRequestBody(): Buffer {
+    return this.request.getRequestBody();
   }
 }
