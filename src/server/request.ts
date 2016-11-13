@@ -171,6 +171,17 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#setStatusCode
+   * @private
+   * @description
+   * Set request status code
+   */
+  setStatusCode(code: number) {
+    this.statusCode = code;
+  }
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#destroy
    * @private
    * @description
@@ -876,5 +887,17 @@ export class RequestReflection {
    */
   getRequestBody(): Buffer {
     return this.request.getRequestBody();
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#setStatusCode
+   *
+   * @description
+   * Set status code
+   */
+  setStatusCode(code: number) {
+    this.request.setStatusCode(code);
   }
 }
