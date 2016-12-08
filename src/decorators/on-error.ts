@@ -12,7 +12,7 @@ import {isEqual} from "../core";
  * @description
  * Define custom error message
  */
-export var OnError = (status: number, message: string): Function => {
+export let OnError = (status: number, message: string): Function => {
   return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
     let type = "OnError";
     let metadata: Array<any> = [];

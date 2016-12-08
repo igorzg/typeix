@@ -25,7 +25,7 @@ import {Metadata} from "../injector/metadata";
  *    }
  * }
  */
-export var Module = (config: IModuleMetadata) => (Class) => {
+export let Module = (config: IModuleMetadata) => (Class) => {
   if (!isClass(Class)) {
     throw new TypeError(`@Module is allowed only on class`);
   }

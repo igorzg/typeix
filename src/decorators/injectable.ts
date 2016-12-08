@@ -18,4 +18,4 @@ import {Provider} from "./provider";
  *    }
  * }
  */
-export var Injectable = () => Provider([]);
+export let Injectable = () => Provider([]);

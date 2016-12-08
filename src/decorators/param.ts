@@ -27,7 +27,7 @@ import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
  *     }
  * }
  */
-export var Param = (value: string) => {
+export let Param = (value: string) => {
   return (Class: any, key?: any, paramIndex?: any): any => {
     let type = "Param";
     let metadata: Array<any> = [];

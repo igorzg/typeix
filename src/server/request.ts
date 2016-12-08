@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass, isArray, isNumber, isDate, isTruthy} from "../core";
+import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -15,6 +15,7 @@ import {IModuleMetadata} from "../interfaces/imodule";
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
+import {IAction} from "../interfaces/iaction";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -179,6 +180,7 @@ export class Request implements IAfterConstruct {
   setStatusCode(code: number) {
     this.statusCode = code;
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -452,34 +454,15 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getControllerProvider
+   * @name Request#hasMappedAction
    * @private
    * @description
-   * Returns a controller provider
+   * Check if controller has mapped action
    */
-  getControllerProvider(name: String, actionName: String, resolvedRoute: ResolvedRoute): IProvider {
-    let controllerProvider: IProvider = this.controllers
-      .map(item => Metadata.verifyProvider(item))
-      .find((Class: IProvider) => {
-        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === name;
-      });
-    if (!isPresent(controllerProvider)) {
-      throw new HttpError(500, `You must define controller within current route`, {
-        name,
-        actionName,
-        resolvedRoute
-      });
-    } else if (!isClass(controllerProvider.provide)) {
-      throw new HttpError(500, `Controller must be a class type`, {
-        name,
-        actionName,
-        resolvedRoute
-      });
-    }
-    return controllerProvider;
+  hasMappedAction(controllerProvider: IProvider, actionName: String): boolean {
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
+    return isPresent(mappings.find(item => item.type === name && item.value === actionName));
   }
-
   /**
    * @since 1.0.0
    * @function
@@ -488,14 +471,13 @@ export class Request implements IAfterConstruct {
    * @description
    * Returns a mapped action metadata
    */
-  getMappedAction(controllerProvider: IProvider, actionName: String, resolvedRoute: ResolvedRoute): any {
+  getMappedAction(controllerProvider: IProvider, actionName: String, resolvedRoute: ResolvedRoute, name: String = "Action"): IAction {
     // get mappings from controller
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
-    let mappedAction = mappings.find(item => item.type === "Action" && item.value === actionName);
-
+    let mappedAction = mappings.find(item => item.type === name && item.value === actionName);
     // check if action is present
     if (!isPresent(mappedAction)) {
-      throw new HttpError(500, `Action is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
+      throw new HttpError(500, `${name} is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
         name,
         actionName,
         resolvedRoute
@@ -536,17 +518,80 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#getControllerProvider
+   * @private
+   * @description
+   * Returns a controller provider
+   */
+  getControllerProvider(name: String, actionName: String, resolvedRoute: ResolvedRoute): IProvider {
+    let controllerProvider: IProvider = this.controllers
+      .map(item => Metadata.verifyProvider(item))
+      .find((Class: IProvider) => {
+        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        return metadata.name === name;
+      });
+    if (!isPresent(controllerProvider)) {
+      throw new HttpError(500, `You must define controller within current route`, {
+        name,
+        actionName,
+        resolvedRoute
+      });
+    } else if (!isClass(controllerProvider.provide)) {
+      throw new HttpError(500, `Controller must be a class type`, {
+        name,
+        actionName,
+        resolvedRoute
+      });
+    }
+    return controllerProvider;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#processAction
+   * @private
+   * @description
+   * Process mapped action
+   */
+  processAction(injector: Injector, controllerProvider: IProvider, mappedAction: IAction, resolvedRoute: ResolvedRoute) {
+    // get controller instance
+    let controllerInstance = injector.get(controllerProvider.provide);
+    // get action
+    let action = controllerInstance[mappedAction.key].bind(controllerInstance);
+    // content type
+    let contentType = this.getParamByMappedAction(controllerProvider, mappedAction, "Produces");
+    if (isPresent(contentType)) {
+      this.contentType = contentType;
+    }
+    // resolve action params
+    let actionParams = [];
+    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction, "Param");
+    if (isPresent(params)) {
+      params.forEach(param => {
+        if (
+          (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
+        ) {
+          throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
+        }
+        actionParams.push(resolvedRoute.params[param.value]);
+      });
+    }
+
+    return action.apply(controllerInstance, actionParams);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#handleController
    * @private
    * @description
    * Handle controller instance
    */
   async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
-
     // find controller
     let controllerProvider = this.getControllerProvider(name, actionName, resolvedRoute);
-    // get mapped action metadata
-    let mappedAction: any = this.getMappedAction(controllerProvider, actionName, resolvedRoute);
     // get controller metadata
     let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
@@ -567,31 +612,16 @@ export class Request implements IAfterConstruct {
       controllerProvider,
       Metadata.verifyProviders(providers)
     );
-    // get controller instance
-    let instance = injector.get(controllerProvider.provide);
-    // get action
-    let action = instance[mappedAction.key].bind(instance);
-    // content type
-    let contentType = this.getParamByMappedAction(controllerProvider, mappedAction, "Produces");
-    if (isPresent(contentType)) {
-      this.contentType = contentType;
-    }
-    // resolve action params
-    let actionParams = [];
-    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction, "Param");
-    if (isPresent(params)) {
-      params.forEach(param => {
-        if (
-          (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
-        ) {
-          throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
-        }
-        actionParams.push(resolvedRoute.params[param.value]);
-      });
+    // Action
+    let action = await this.processAction(
+      injector,
+      controllerProvider,
+      this.getMappedAction(controllerProvider, actionName, resolvedRoute),
+      resolvedRoute
+    );
 
-    }
     // resolve action call
-    return Promise.resolve(await action.apply(instance, actionParams)).then(resolved => this.render(resolved));
+    return this.render(action);
   }
 
   /**
@@ -658,6 +688,7 @@ export class RequestReflection {
   onDestroy(callback: Function): void {
     this.request.getEventEmitter().once("destroy", callback);
   }
+
   /**
    * @since 1.0.0
    * @function

@@ -14,7 +14,7 @@ import {IControllerMetadata} from "../interfaces/icontroller";
  * @description
  * Define controller of application
  */
-export var Controller = (config: IControllerMetadata) => (Class) => {
+export let Controller = (config: IControllerMetadata) => (Class) => {
   if (!isArray(config.providers)) {
     config.providers = [];
   }

@@ -1,5 +1,6 @@
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {isEqual} from "../core";
+import {IAction} from "../interfaces/iaction";
 /**
  * Action decorator
  * @decorator
@@ -11,7 +12,7 @@ import {isEqual} from "../core";
  * @description
  * Define name of action to class
  */
-export var Action = (value: string): Function => {
+export let Action = (value: string): Function => {
   return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
     let type = "Action";
     let metadata: Array<any> = [];
@@ -23,11 +24,12 @@ export var Action = (value: string): Function => {
     } else if (!Metadata.isDescriptor(descriptor) && !isEqual(Class, descriptor)) {
       throw new TypeError(`@${type} is allowed ony on function type ${Metadata.getName(Class, "on class ")}`);
     }
-    metadata.push({
+    let iAction: IAction = {
       type,
       key,
       value
-    });
+    };
+    metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);
     if (Metadata.isDescriptor(descriptor)) {
       descriptor.configurable = false;

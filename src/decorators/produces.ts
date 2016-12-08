@@ -11,7 +11,7 @@ import {isEqual} from "../core";
  * @description
  * Produces content type
  */
-export var Produces = (value: string) => (Class: any, key: string, descriptor: PropertyDescriptor) => {
+export let Produces = (value: string) => (Class: any, key: string, descriptor: PropertyDescriptor) => {
   let type = "Produces";
   let metadata: Array<any> = [];
   if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {

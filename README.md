@@ -6,3 +6,8 @@
 * Works with node gte 6.x.x
 * Typeix has dependency injection inspired by Angular 2
 
+
+
+**Development paths for tsconfig.json**
+* demo-app/node_modules/typeix/build
+

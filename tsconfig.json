@@ -6,7 +6,7 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "build",
+    "outDir": "demo-app/node_modules/typeix/build",
     "rootDir": "src",
     "sourceMap": true,
     "inlineSources": false,

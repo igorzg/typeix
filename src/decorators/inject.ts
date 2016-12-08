@@ -21,7 +21,7 @@ import {IInjectParam, IInjectKey} from "../interfaces/idecorators";
  *    private myService;
  * }
  */
-export var Inject = (value: Function|string, isMutable?: boolean) => {
+export let Inject = (value: Function|string, isMutable?: boolean) => {
   return (Class: any, key?: any, paramIndex?: any): any => {
     let metadata: Array<IInjectParam|IInjectKey> = [];
     if (Metadata.hasMetadata(Class, INJECT_KEYS)) {
