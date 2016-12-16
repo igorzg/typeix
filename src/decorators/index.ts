@@ -1,4 +1,4 @@
-export {Action} from "./action";
+export {Action, Before, After} from "./action";
 export {Controller} from "./controller";
 export {Inject} from "./inject";
 export {Injectable} from "./injectable";

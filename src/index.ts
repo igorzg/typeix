@@ -3,6 +3,8 @@
  */
 export {
   Action,
+  Before,
+  After,
   Controller,
   Inject,
   Injectable,

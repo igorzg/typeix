@@ -1,20 +1,21 @@
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {isEqual} from "../core";
 import {IAction} from "../interfaces/iaction";
+
 /**
  * Action decorator
  * @decorator
  * @function
- * @name Action
+ * @private
+ * @name mapAction
  *
- * @param {String} value
+ * @param {String} type
  *
  * @description
- * Define name of action to class
+ * Multiple action type providers
  */
-export let Action = (value: string): Function => {
+let mapAction = (type) => (value: string): Function => {
   return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
-    let type = "Action";
     let metadata: Array<any> = [];
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
       metadata = Metadata.getMetadata(Class, FUNCTION_KEYS);
@@ -38,3 +39,39 @@ export let Action = (value: string): Function => {
     return Class;
   };
 };
+/**
+ * Action decorator
+ * @decorator
+ * @function
+ * @name Action
+ *
+ * @param {String} value
+ *
+ * @description
+ * Define name of action to class
+ */
+export let Action = mapAction("Action");
+/**
+ * Before Action decorator
+ * @decorator
+ * @function
+ * @name Before
+ *
+ * @param {String} value
+ *
+ * @description
+ * Define name of before action to class
+ */
+export let Before = mapAction("Before");
+/**
+ * After Action decorator
+ * @decorator
+ * @function
+ * @name After
+ *
+ * @param {String} value
+ *
+ * @description
+ * Define name of after action to class
+ */
+export let After = mapAction("After");

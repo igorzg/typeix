@@ -459,10 +459,11 @@ export class Request implements IAfterConstruct {
    * @description
    * Check if controller has mapped action
    */
-  hasMappedAction(controllerProvider: IProvider, actionName: String): boolean {
+  hasMappedAction(controllerProvider: IProvider, actionName: String, name: String = "Action"): boolean {
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
     return isPresent(mappings.find(item => item.type === name && item.value === actionName));
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -590,6 +591,8 @@ export class Request implements IAfterConstruct {
    * Handle controller instance
    */
   async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
+
+    let key = "__chain__";
     // find controller
     let controllerProvider = this.getControllerProvider(name, actionName, resolvedRoute);
     // get controller metadata
@@ -612,16 +615,67 @@ export class Request implements IAfterConstruct {
       controllerProvider,
       Metadata.verifyProviders(providers)
     );
+
+
+    // process @BeforeEach action
+    if (this.hasMappedAction(controllerProvider, actionName, "BeforeEach")) {
+      let result = await this.processAction(
+        injector,
+        controllerProvider,
+        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "BeforeEach"),
+        resolvedRoute
+      );
+
+      injector.set(key, result);
+    }
+
+    // process @Before action
+    if (this.hasMappedAction(controllerProvider, actionName, "Before")) {
+      let result = await this.processAction(
+        injector,
+        controllerProvider,
+        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "Before"),
+        resolvedRoute
+      );
+
+      injector.set(key, result);
+    }
+
     // Action
-    let action = await this.processAction(
+
+    let actionResult = await this.processAction(
       injector,
       controllerProvider,
       this.getMappedAction(controllerProvider, actionName, resolvedRoute),
       resolvedRoute
     );
 
-    // resolve action call
-    return this.render(action);
+    injector.set(key, actionResult);
+
+    // process @After action
+    if (this.hasMappedAction(controllerProvider, actionName, "After")) {
+      let result = await this.processAction(
+        injector,
+        controllerProvider,
+        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "After"),
+        resolvedRoute
+      );
+      injector.set(key, result);
+    }
+
+    // process @AfterEach action
+    if (this.hasMappedAction(controllerProvider, actionName, "AfterEach")) {
+      let result = await this.processAction(
+        injector,
+        controllerProvider,
+        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "AfterEach"),
+        resolvedRoute
+      );
+      injector.set(key, result);
+    }
+
+    // render action call
+    return this.render(injector.get(key));
   }
 
   /**
