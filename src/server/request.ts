@@ -12,7 +12,7 @@ import {clean} from "../logger/inspect";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {IModuleMetadata} from "../interfaces/imodule";
-import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
+import {Metadata, FUNCTION_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
@@ -21,7 +21,7 @@ import {IAction} from "../interfaces/iaction";
  * @type {RegExp}
  */
 const COOKIE_PARSE_REGEX = /(\w+[^=]+)=([^;]+)/g;
-
+const CHAIN_KEY = "__chain__";
 /**
  * @since 1.0.0
  * @class
@@ -529,10 +529,10 @@ export class Request implements IAfterConstruct {
    * @description
    * Get list of params
    */
-  getParamsByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: String): Array<any> {
+  getParamsByMappedAction(controllerProvider: IProvider, mappedAction: any): Array<any> {
     // get mappings from controller
-    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
-    return mappings.filter(item => item.type === paramName && item.key === mappedAction.key);
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_PARAMS);
+    return mappings.filter(item => item.key === mappedAction.key);
   }
 
   /**
@@ -586,15 +586,33 @@ export class Request implements IAfterConstruct {
     }
     // resolve action params
     let actionParams = [];
-    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction, "Param");
+    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction);
+
     if (isPresent(params)) {
-      params.forEach(param => {
-        if (
-          (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
-        ) {
-          throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
+      // make sure params are sorted correctly :)
+      params.sort((a, b) => {
+        if (a.paramIndex > b.paramIndex) {
+          return 1;
+        } else if (a.paramIndex < b.paramIndex) {
+          return -1;
         }
-        actionParams.push(resolvedRoute.params[param.value]);
+        return 0;
+      });
+      // push action params
+      params.forEach(param => {
+        switch (param.type) {
+          case "Param":
+            if (
+              (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
+            ) {
+              throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
+            }
+            actionParams.push(resolvedRoute.params[param.value]);
+            break;
+          case "Chain":
+            actionParams.push(injector.get(CHAIN_KEY));
+            break;
+        }
       });
     }
 
@@ -611,7 +629,6 @@ export class Request implements IAfterConstruct {
    */
   async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
 
-    let key = "__chain__";
     // find controller
     let controllerProvider = this.getControllerProvider(name, actionName, resolvedRoute);
     // get controller metadata
@@ -628,13 +645,12 @@ export class Request implements IAfterConstruct {
       useValue: {}
     });
     // create controller injector
-    let injector = new Injector(this.reflectionInjector);
+    let injector = new Injector(this.reflectionInjector, [CHAIN_KEY]);
     // initialize controller
     injector.createAndResolve(
       controllerProvider,
       Metadata.verifyProviders(providers)
     );
-
 
     // process @BeforeEach action
     if (this.hasMappedAction(controllerProvider, actionName, "BeforeEach") && isFalsy(this.isChainStopped)) {
@@ -645,7 +661,7 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       );
 
-      injector.set(key, result);
+      injector.set(CHAIN_KEY, result);
     }
 
     // process @Before action
@@ -657,7 +673,7 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       );
 
-      injector.set(key, result);
+      injector.set(CHAIN_KEY, result);
     }
 
     // Action
@@ -668,7 +684,7 @@ export class Request implements IAfterConstruct {
         this.getMappedAction(controllerProvider, actionName, resolvedRoute),
         resolvedRoute
       );
-      injector.set(key, result);
+      injector.set(CHAIN_KEY, result);
     }
 
     // process @After action
@@ -679,7 +695,7 @@ export class Request implements IAfterConstruct {
         this.getMappedAction(controllerProvider, actionName, resolvedRoute, "After"),
         resolvedRoute
       );
-      injector.set(key, result);
+      injector.set(CHAIN_KEY, result);
     }
 
     // process @AfterEach action
@@ -690,11 +706,11 @@ export class Request implements IAfterConstruct {
         this.getMappedAction(controllerProvider, actionName, resolvedRoute, "AfterEach"),
         resolvedRoute
       );
-      injector.set(key, result);
+      injector.set(CHAIN_KEY, result);
     }
 
     // render action call
-    return this.render(injector.get(key));
+    return this.render(injector.get(CHAIN_KEY));
   }
 
   /**

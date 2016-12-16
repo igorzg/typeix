@@ -2,6 +2,7 @@
  * Export decorators
  */
 export {
+  Chain,
   Action,
   Before,
   After,

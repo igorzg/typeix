@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Produces, Action, Controller, Param, RequestReflection, OnError} from "typeix";
+import {Inject, Produces, Action, Controller, Param, RequestReflection, OnError, Before, Chain} from "typeix";
 import {lookup} from "mime";
 /**
  * Controller example
@@ -55,6 +55,7 @@ export class CoreController {
    *
    */
   @Action("assets")
+  @OnError(500, JSON.stringify({message: "File don't exists"}))
   fileLoadAction(@Param("file") file: string): Promise<Buffer> {
     let type = lookup(Assets.publicPath(file));
     this.request.setContentType(type);
@@ -75,9 +76,26 @@ export class CoreController {
    * }
    *
    */
+  @Before("index")
+  beforeIndex(): string {
+    return "Before INDEX";
+  }
+  /**
+   * @function
+   * @name actionIndex
+   *
+   * @description
+   * There is no naming convention of function names only what is required to define action is \@Action metadata
+   *
+   * @example
+   * \@Action("index")
+   *  iIgnoreNamingConvention(): string {
+   *    return "Only important fact is a \@Action param";
+   * }
+   *
+   */
   @Action("index")
-  @OnError(500, "My custom message")
-  actionIndex(): string {
-    return "My action " + this.request.getCookie("Authorization");
+  actionIndex(@Chain() data): string {
+    return "My action " + data;
   }
 }

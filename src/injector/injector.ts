@@ -1,4 +1,4 @@
-import {isFunction, toString, isPresent, uuid, isArray} from "../core";
+import {isFunction, toString, isPresent, uuid, isArray, isClass} from "../core";
 import {Metadata} from "./metadata";
 import {IProvider} from "../interfaces/iprovider";
 import {IInjectKey} from "../interfaces/idecorators";
@@ -13,6 +13,35 @@ import {IInjectKey} from "../interfaces/idecorators";
  */
 class ProviderList {
   private _list = {};
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#constructor
+   * @param {string} _id
+   * @param {Array<any>} keys
+   *
+   * @description
+   * Create a new instance with new id
+   */
+  constructor(private _id: string, private keys: Array<any> = []) {
+  }
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name ProviderList#isMutable
+   * @param {Object} key
+   *
+   * @description
+   * Check if key is mutable
+   */
+  isMutable(key: any): boolean {
+    return this.keys.indexOf(key) > -1;
+  }
+
   /**
    * @since 1.0.0
    * @static
@@ -25,14 +54,17 @@ class ProviderList {
    * Simulate set as on Map object
    */
   set(key: any, value: Object): void {
-    if (!this.has(key)) {
+    if (!this.has(key) || this.isMutable(key)) {
       Object.defineProperty(this._list, key, {
         configurable: false,
         value: value,
-        writable: false
+        writable: this.isMutable(key)
       });
+    } else {
+      throw new TypeError(`${isClass(key) ? Metadata.getName(key) : key} is already defined in injector, value: ${value}`);
     }
   }
+
   /**
    * @since 1.0.0
    * @static
@@ -46,6 +78,7 @@ class ProviderList {
   get(key: any): any {
     return this._list[key];
   }
+
   /**
    * @since 1.0.0
    * @static
@@ -58,6 +91,7 @@ class ProviderList {
   clear() {
     this._list = {};
   }
+
   /**
    * @since 1.0.0
    * @static
@@ -86,7 +120,7 @@ class ProviderList {
 export class Injector {
   // injector indentifier
   private _uid: string = uuid();
-  private _providers: ProviderList = new ProviderList();
+  private _providers: ProviderList;
   private _children: Array<Injector> = [];
 
   /**
@@ -165,11 +199,13 @@ export class Injector {
    * @function
    * @name Injector#constructor
    * @param {Injector} parent
+   * @param {Array<any>} keys which are mutable
    *
    * @description
    * Injector constructor
    */
-  constructor(private parent?: Injector) {
+  constructor(private parent?: Injector, keys: Array<any> = []) {
+    this._providers = new ProviderList(this._uid, keys);
   }
 
   /**
@@ -211,7 +247,9 @@ export class Injector {
     if (provider.useClass.prototype.hasOwnProperty("afterConstruct") && isFunction(instance.afterConstruct)) {
       instance.afterConstruct();
     }
-    this.set(Injector, this); // set local injector
+    if (!this.has(Injector)) {
+      this.set(Injector, this); // set local injector
+    }
     return instance;
   }
 
