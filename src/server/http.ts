@@ -36,6 +36,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): In
         {provide: "isCustomError", useValue: false},
         {provide: "isForwarded", useValue: false},
         {provide: "isForwarder", useValue: false},
+        {provide: "isChainStopped", useValue: false},
         {provide: "statusCode", useValue: 200},
         {provide: "data", useValue: []},
         EventEmitter

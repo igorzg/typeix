@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy} from "../core";
+import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy, isFalsy} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -168,6 +168,13 @@ export class Request implements IAfterConstruct {
    * Injector
    */
   private reflectionInjector: Injector;
+  /**
+   * @param {boolean} isChainStopped
+   * @description
+   * When chain is stopped framework will not propagate actions
+   */
+  @Inject("isChainStopped", true)
+  private isChainStopped: boolean;
 
   /**
    * @since 1.0.0
@@ -179,6 +186,18 @@ export class Request implements IAfterConstruct {
    */
   setStatusCode(code: number) {
     this.statusCode = code;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#stopChain
+   * @private
+   * @description
+   * Stop action chain
+   */
+  stopActionChain() {
+    this.isChainStopped = true;
   }
 
   /**
@@ -618,7 +637,7 @@ export class Request implements IAfterConstruct {
 
 
     // process @BeforeEach action
-    if (this.hasMappedAction(controllerProvider, actionName, "BeforeEach")) {
+    if (this.hasMappedAction(controllerProvider, actionName, "BeforeEach") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
@@ -630,7 +649,7 @@ export class Request implements IAfterConstruct {
     }
 
     // process @Before action
-    if (this.hasMappedAction(controllerProvider, actionName, "Before")) {
+    if (this.hasMappedAction(controllerProvider, actionName, "Before") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
@@ -642,18 +661,18 @@ export class Request implements IAfterConstruct {
     }
 
     // Action
-
-    let actionResult = await this.processAction(
-      injector,
-      controllerProvider,
-      this.getMappedAction(controllerProvider, actionName, resolvedRoute),
-      resolvedRoute
-    );
-
-    injector.set(key, actionResult);
+    if (isFalsy(this.isChainStopped)) {
+      let result = await this.processAction(
+        injector,
+        controllerProvider,
+        this.getMappedAction(controllerProvider, actionName, resolvedRoute),
+        resolvedRoute
+      );
+      injector.set(key, result);
+    }
 
     // process @After action
-    if (this.hasMappedAction(controllerProvider, actionName, "After")) {
+    if (this.hasMappedAction(controllerProvider, actionName, "After") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
@@ -664,7 +683,7 @@ export class Request implements IAfterConstruct {
     }
 
     // process @AfterEach action
-    if (this.hasMappedAction(controllerProvider, actionName, "AfterEach")) {
+    if (this.hasMappedAction(controllerProvider, actionName, "AfterEach") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
@@ -987,5 +1006,17 @@ export class RequestReflection {
    */
   setStatusCode(code: number) {
     this.request.setStatusCode(code);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestReflection#stopActionChain
+   *
+   * @description
+   * Stops action chain
+   */
+  stopActionChain() {
+    this.request.stopActionChain();
   }
 }
