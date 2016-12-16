@@ -1,6 +1,6 @@
 {
   "name": "typeix",
-  "version": "1.0.0-alpha-19",
+  "version": "1.0.0-alpha-20",
   "dependencies": {
     "@types/chai": "^3.4.34",
     "reflect-metadata": "0.1.3"
