@@ -1,5 +1,6 @@
 import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
 import {isEqual} from "../core";
+import {IAction} from "../interfaces/iaction";
 /**
  * On error decorator
  * @decorator
@@ -24,14 +25,18 @@ export let OnError = (status: number, message: string): Function => {
     } else if (!Metadata.isDescriptor(descriptor) && !isEqual(Class, descriptor)) {
       throw new TypeError(`@${type} is allowed ony on function type ${Metadata.getName(Class, "on class ")}`);
     }
-    metadata.push({
+
+    let iAction: IAction = {
       type,
       key,
       value : {
         status,
         message
-      }
-    });
+      },
+      className: Metadata.getName(Class)
+    };
+
+    metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);
     if (Metadata.isDescriptor(descriptor)) {
       descriptor.configurable = false;

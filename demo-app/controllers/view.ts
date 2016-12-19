@@ -1,7 +1,5 @@
-import {Assets} from "../components/assets";
-import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach} from "typeix";
-import {ViewController} from "./view";
-
+import {Inject, Controller, RequestReflection, BeforeEach, AfterEach, Chain,  Action} from "typeix";
+import {CoreController} from "./core";
 /**
  * Controller example
  * @constructor
@@ -14,18 +12,11 @@ import {ViewController} from "./view";
  * as local instance as providers to this controllers
  */
 @Controller({
-  name: "home",
+  name: "view",
   providers: [] // type of local instances within new request since controller is instanciated on each request
 })
-export class HomeController extends ViewController {
+export class ViewController extends CoreController {
 
-  /**
-   * @param {Assets} assetLoader
-   * @description
-   * Custom asset loader service
-   */
-  @Inject(Assets)
-  assetLoader: Assets;
   /**
    * @param {RequestReflection} request
    * @description
@@ -48,9 +39,9 @@ export class HomeController extends ViewController {
    * }
    *
    */
-  @Before("index")
-  beforeIndex(@Chain() data: string): string {
-    return "Before INDEX: <- " + data;
+  @Action("index")
+  actionIndex(@Chain() data: string): string {
+    return "My action view <- " + data;
   }
 
   /**
@@ -61,9 +52,9 @@ export class HomeController extends ViewController {
    * before each
    *
    */
-  @BeforeEach()
-  beforeEach(): string {
-    return "Before each home" ;
+  @AfterEach()
+  afterEach(@Chain() data: string): string {
+    return "after each view <-" + data;
   }
 
 }

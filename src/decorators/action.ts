@@ -17,18 +17,20 @@ import {IAction} from "../interfaces/iaction";
 let mapAction = (type) => (value: string): Function => {
   return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
     let metadata: Array<any> = [];
+    let className: string = Metadata.getName(Class);
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
       metadata = Metadata.getMetadata(Class, FUNCTION_KEYS);
     }
-    if (metadata.find(item => item.type === type && item.key === key)) {
-      throw new TypeError(`Only one action definition is allowed on ${key} ${Metadata.getName(Class, "on class ")}`);
+    if (metadata.find(item => item.type === type && item.key === key && item.className === className)) {
+      throw new TypeError(`Only one @${type} definition is allowed on ${key} ${Metadata.getName(Class, "on class ")}`);
     } else if (!Metadata.isDescriptor(descriptor) && !isEqual(Class, descriptor)) {
       throw new TypeError(`@${type} is allowed ony on function type ${Metadata.getName(Class, "on class ")}`);
     }
     let iAction: IAction = {
       type,
       key,
-      value
+      value,
+      className: Metadata.getName(Class)
     };
     metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);
@@ -53,18 +55,20 @@ let mapAction = (type) => (value: string): Function => {
 let mapEachAction = (type) => (): Function => {
   return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
     let metadata: Array<any> = [];
+    let className: string = Metadata.getName(Class);
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
       metadata = Metadata.getMetadata(Class, FUNCTION_KEYS);
     }
-    if (metadata.find(item => item.type === type)) {
-      throw new TypeError(`Only one action definition is allowed ${Metadata.getName(Class, "on class ")}`);
+    if (metadata.find(item => item.type === type && item.className === className)) {
+      throw new TypeError(`Only one @${type} definition is allowed ${Metadata.getName(Class, "on class ")}`);
     } else if (!Metadata.isDescriptor(descriptor) && !isEqual(Class, descriptor)) {
       throw new TypeError(`@${type} is allowed ony on function type ${Metadata.getName(Class, "on class ")}`);
     }
     let iAction: IAction = {
       type,
       key,
-      value: null
+      value: null,
+      className: Metadata.getName(Class)
     };
     metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);

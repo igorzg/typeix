@@ -493,8 +493,19 @@ export class Request implements IAfterConstruct {
    */
   getMappedAction(controllerProvider: IProvider, actionName: String, resolvedRoute: ResolvedRoute, name: String = "Action"): IAction {
     // get mappings from controller
-    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
-    let mappedAction = mappings.find(item => item.type === name && item.value === actionName);
+    let mappings = Metadata
+      .getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
+      .filter(item => item.type === name && item.value === actionName);
+
+    let mappedAction;
+    // search mapped on current controller
+    if (mappings.length > 0) {
+      mappedAction = mappings.find(item => item.className === Metadata.getName(controllerProvider.provide));
+    }
+    // get first parent one from inheritance
+    if (!isPresent(mappedAction)) {
+      mappedAction = mappings.pop();
+    }
     // check if action is present
     if (!isPresent(mappedAction)) {
       throw new HttpError(500, `${name} is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
