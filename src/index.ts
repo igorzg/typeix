@@ -6,6 +6,8 @@ export {
   Action,
   Before,
   After,
+  BeforeEach,
+  AfterEach,
   Controller,
   Inject,
   Injectable,

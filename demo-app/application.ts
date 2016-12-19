@@ -1,6 +1,7 @@
 import {Module, Logger, Inject, IAfterConstruct, Router, Methods} from "typeix";
 import {Assets} from "./components/assets";
 import {CoreController} from "./controllers/core";
+import {HomeController} from "./controllers/home";
 /**
  * Application entry point
  * @constructor
@@ -11,10 +12,10 @@ import {CoreController} from "./controllers/core";
  * \@Module is used to define application entry point class
  */
 @Module({
-  controllers: [CoreController],
+  controllers: [CoreController, HomeController],
   providers: [Logger, Router, Assets]
 })
-export class Application implements IAfterConstruct{
+export class Application implements IAfterConstruct {
 
   /**
    * @param {Assets} assetLoader
@@ -67,7 +68,7 @@ export class Application implements IAfterConstruct{
       },
       {
         methods: [Methods.GET],
-        route: "core/index",
+        route: "home/index",
         url: "/"
       }
     ]);

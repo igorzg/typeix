@@ -644,20 +644,25 @@ export class Request implements IAfterConstruct {
       provide: "response",
       useValue: {}
     });
+
     // create controller injector
     let injector = new Injector(this.reflectionInjector, [CHAIN_KEY]);
+
     // initialize controller
     injector.createAndResolve(
       controllerProvider,
       Metadata.verifyProviders(providers)
     );
 
+    // set default chain key
+    injector.set(CHAIN_KEY, null);
+
     // process @BeforeEach action
-    if (this.hasMappedAction(controllerProvider, actionName, "BeforeEach") && isFalsy(this.isChainStopped)) {
+    if (this.hasMappedAction(controllerProvider, null, "BeforeEach") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "BeforeEach"),
+        this.getMappedAction(controllerProvider, null, resolvedRoute, "BeforeEach"),
         resolvedRoute
       );
 
@@ -699,11 +704,11 @@ export class Request implements IAfterConstruct {
     }
 
     // process @AfterEach action
-    if (this.hasMappedAction(controllerProvider, actionName, "AfterEach") && isFalsy(this.isChainStopped)) {
+    if (this.hasMappedAction(controllerProvider, null, "AfterEach") && isFalsy(this.isChainStopped)) {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "AfterEach"),
+        this.getMappedAction(controllerProvider, null, resolvedRoute, "AfterEach"),
         resolvedRoute
       );
       injector.set(CHAIN_KEY, result);

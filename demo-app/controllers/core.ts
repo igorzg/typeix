@@ -1,5 +1,8 @@
 import {Assets} from "../components/assets";
-import {Inject, Produces, Action, Controller, Param, RequestReflection, OnError, Before, Chain} from "typeix";
+import {
+  Inject, Produces, Action, Controller, Param, RequestReflection, OnError, Before, Chain,
+  BeforeEach, AfterEach
+} from "typeix";
 import {lookup} from "mime";
 /**
  * Controller example
@@ -64,38 +67,27 @@ export class CoreController {
 
   /**
    * @function
-   * @name actionIndex
+   * @name BeforeEach
    *
    * @description
-   * There is no naming convention of function names only what is required to define action is \@Action metadata
-   *
-   * @example
-   * \@Action("index")
-   *  iIgnoreNamingConvention(): string {
-   *    return "Only important fact is a \@Action param";
-   * }
+   * before each
    *
    */
-  @Before("index")
-  beforeIndex(): string {
-    return "Before INDEX";
+  @BeforeEach()
+  beforeEachAction(): string {
+    return "Before each" ;
   }
+
   /**
    * @function
-   * @name actionIndex
+   * @name AfterEach
    *
    * @description
-   * There is no naming convention of function names only what is required to define action is \@Action metadata
-   *
-   * @example
-   * \@Action("index")
-   *  iIgnoreNamingConvention(): string {
-   *    return "Only important fact is a \@Action param";
-   * }
+   * After each action
    *
    */
-  @Action("index")
-  actionIndex(@Chain() data): string {
-    return "My action " + data;
+  @AfterEach()
+  afterEachAction(@Chain() data: string): string {
+    return "After each <- " + data;
   }
 }
