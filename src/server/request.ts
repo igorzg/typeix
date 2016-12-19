@@ -508,7 +508,7 @@ export class Request implements IAfterConstruct {
     }
     // check if action is present
     if (!isPresent(mappedAction)) {
-      throw new HttpError(500, `${name} is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
+      throw new HttpError(500, `@${name}("${actionName}") is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
         name,
         actionName,
         resolvedRoute

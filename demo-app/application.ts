@@ -69,9 +69,20 @@ export class Application implements IAfterConstruct {
       },
       {
         methods: [Methods.GET],
+        route: "home/id",
+        url: "/<id:(\\d+)>/<name:(\\w+)>"
+      },
+      {
+        methods: [Methods.GET],
+        route: "home/id",
+        url: "/<id:(\\d+)>"
+      },
+      {
+        methods: [Methods.GET],
         route: "home/index",
         url: "/"
       }
+
     ]);
   }
 }

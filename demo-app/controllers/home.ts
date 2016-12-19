@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach} from "typeix";
+import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach, Param} from "typeix";
 import {ViewController} from "./view";
 
 /**
@@ -34,6 +34,26 @@ export class HomeController extends ViewController {
   @Inject(RequestReflection)
   request: RequestReflection;
 
+
+  /**
+   * @function
+   * @name actionIndex
+   *
+   * @description
+   * There is no naming convention of function names only what is required to define action is \@Action metadata
+   *
+   * @example
+   * \@Action("index")
+   *  iIgnoreNamingConvention(): string {
+   *    return "Only important fact is a \@Action param";
+   * }
+   *
+   */
+  @Action("id")
+  actionId(@Param("id") id: number, @Chain() data: string, @Param("name") name: string): string {
+    return `Action id: ${id} name: ${name} <- ${data}`;
+  }
+
   /**
    * @function
    * @name actionIndex
@@ -63,7 +83,7 @@ export class HomeController extends ViewController {
    */
   @BeforeEach()
   beforeEach(): string {
-    return "Before each home" ;
+    return "Before each home";
   }
 
 }
