@@ -8,6 +8,7 @@ export {
   After,
   BeforeEach,
   AfterEach,
+  Filter,
   Controller,
   Inject,
   Injectable,
@@ -31,6 +32,7 @@ export {
   IModuleMetadata,
   IProvider,
   IAfterConstruct,
+  IFilter,
   Route,
   RouteRuleConfig,
   ResolvedRoute

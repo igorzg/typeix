@@ -1,9 +1,18 @@
 import {Assets} from "../components/assets";
 import {
-  Inject, Produces, Action, Controller, Param, RequestReflection, OnError, Before, Chain,
-  BeforeEach, AfterEach
+  Inject,
+  Produces,
+  Action,
+  Controller,
+  Param,
+  RequestReflection,
+  OnError,
+  Chain,
+  BeforeEach,
+  AfterEach
 } from "typeix";
 import {lookup} from "mime";
+import {Cache} from "../filters/cache";
 /**
  * Controller example
  * @constructor
@@ -17,6 +26,7 @@ import {lookup} from "mime";
  */
 @Controller({
   name: "core",
+  filters: [Cache],
   providers: [] // type of local instances within new request since controller is instanciated on each request
 })
 export class CoreController {
@@ -35,6 +45,7 @@ export class CoreController {
    */
   @Inject(RequestReflection)
   request: RequestReflection;
+
   /**
    * @function
    * @name fileLoadAction
@@ -75,7 +86,7 @@ export class CoreController {
    */
   @BeforeEach()
   beforeEachAction(): string {
-    return "Before each" ;
+    return "Before each";
   }
 
   /**

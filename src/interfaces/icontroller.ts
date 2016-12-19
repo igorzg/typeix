@@ -1,4 +1,5 @@
 import {IProvider} from "./iprovider";
+import {TFilter} from "./ifilter";
 /**
  * @since 1.0.0
  * @interface
@@ -11,5 +12,6 @@ import {IProvider} from "./iprovider";
  */
 export interface IControllerMetadata {
   name: string;
+  filters?: Array<TFilter>;
   providers?: Array<IProvider|Function>;
 }
