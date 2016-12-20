@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy, isFalsy} from "../core";
+import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
@@ -17,7 +17,6 @@ import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {TFilter} from "../interfaces/ifilter";
-import {isArray} from "util";
 import {IParam} from "../interfaces/iparam";
 /**
  * Cookie parse regex
@@ -556,6 +555,7 @@ export class Request implements IAfterConstruct {
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
     return mappings.find((item: IAction) => item.type === paramName && item.key === mappedAction.key && this.isControllerInherited(controllerProvider.provide, item.proto));
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -670,42 +670,42 @@ export class Request implements IAfterConstruct {
                        data: Array<TFilter>,
                        resolvedRoute: ResolvedRoute,
                        isAfter: boolean): Promise<any> {
-    if (isArray(data)) {
-      let filters = data.filter(item => {
-        let metadata = Metadata.getComponentConfig(item);
-        if (isPresent(metadata)) {
-          return (
-            metadata.route === "*" ||
-            metadata.route === resolvedRoute.route ||
-            metadata.route === (name + "/*")
-          );
-        }
-        return false;
-      })
-        .sort((aItem, bItem) => {
-          let a: any = Metadata.getComponentConfig(aItem);
-          let b: any = Metadata.getComponentConfig(bItem);
-          if (a.priority > b.priority) {
-            return -1;
-          } else if (a.priority < b.priority) {
-            return 1;
-          }
-          return 0;
-        });
-
-      if (filters.length > 0) {
-        for (let Class of filters) {
-          let filterInjector = Injector.createAndResolveChild(injector, Class, []);
-          let filter = filterInjector.get(Class);
-          if (!isAfter) {
-            injector.set(CHAIN_KEY, await filter.before(injector.get(CHAIN_KEY)));
-          } else {
-            injector.set(CHAIN_KEY, await filter.after(injector.get(CHAIN_KEY)));
-          }
-          filterInjector.destroy();
-        }
+    let filters = data.filter(item => {
+      let metadata = Metadata.getComponentConfig(item);
+      if (isPresent(metadata)) {
+        return (
+          metadata.route === "*" ||
+          metadata.route === resolvedRoute.route ||
+          metadata.route === (name + "/*")
+        );
       }
+      return false;
+    })
+      .sort((aItem, bItem) => {
+        let a: any = Metadata.getComponentConfig(aItem);
+        let b: any = Metadata.getComponentConfig(bItem);
+        if (a.priority > b.priority) {
+          return -1;
+        } else if (a.priority < b.priority) {
+          return 1;
+        }
+        return 0;
+      });
+
+    for (let Class of filters) {
+      let filterInjector = Injector.createAndResolveChild(injector, Class, []);
+      let filter = filterInjector.get(Class);
+      if (!isAfter) {
+        let result = await filter.before(injector.get(CHAIN_KEY));
+        injector.set(CHAIN_KEY, result);
+      } else {
+        let result = await filter.after(injector.get(CHAIN_KEY));
+        injector.set(CHAIN_KEY, result);
+      }
+      filterInjector.destroy();
     }
+
+    return await injector.get(CHAIN_KEY);
   }
 
   /**
@@ -745,8 +745,12 @@ export class Request implements IAfterConstruct {
 
     // set default chain key
     injector.set(CHAIN_KEY, null);
+
     // process filters
-    this.processFilters(injector, name, metadata.filters, resolvedRoute, false);
+    if (isArray(metadata.filters)) {
+      // set filter result
+      injector.set(CHAIN_KEY, await this.processFilters(injector, name, metadata.filters, resolvedRoute, false));
+    }
 
     // process @BeforeEach action
     if (this.hasMappedAction(controllerProvider, null, "BeforeEach") && isFalsy(this.isChainStopped)) {
@@ -805,12 +809,13 @@ export class Request implements IAfterConstruct {
       injector.set(CHAIN_KEY, result);
     }
 
-    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected)) {
-      this.processFilters(injector, name, metadata.filters, resolvedRoute, true);
+    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected) && isArray(metadata.filters)) {
+      // set filter result
+      injector.set(CHAIN_KEY, await this.processFilters(injector, name, metadata.filters, resolvedRoute, true));
     }
 
     // render action call
-    return this.render(injector.get(CHAIN_KEY));
+    return this.render(await injector.get(CHAIN_KEY));
   }
 
   /**

@@ -82,7 +82,6 @@ export class Application implements IAfterConstruct {
         route: "home/index",
         url: "/"
       }
-
     ]);
   }
 }

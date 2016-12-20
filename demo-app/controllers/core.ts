@@ -11,7 +11,6 @@ import {
   Chain
 } from "typeix";
 import {lookup} from "mime";
-import {Cache} from "../filters/cache";
 /**
  * Controller example
  * @constructor
@@ -25,7 +24,6 @@ import {Cache} from "../filters/cache";
  */
 @Controller({
   name: "core",
-  filters: [Cache],
   providers: [] // type of local instances within new request since controller is instanciated on each request
 })
 export class CoreController {
@@ -73,19 +71,6 @@ export class CoreController {
     let type = lookup(Assets.publicPath(file));
     this.request.setContentType(type);
     return this.assetLoader.load(file);
-  }
-
-  /**
-   * @function
-   * @name BeforeEach
-   *
-   * @description
-   * before each
-   *
-   */
-  @BeforeEach()
-  beforeEachAction(@Chain() data: string): string {
-    return "Before each core <- " + data;
   }
 
 }

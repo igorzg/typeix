@@ -1,6 +1,7 @@
 import {Assets} from "../components/assets";
 import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach, Param} from "typeix";
 import {ViewController} from "./view";
+import {Cache} from "../filters/cache";
 
 /**
  * Controller example
@@ -15,6 +16,7 @@ import {ViewController} from "./view";
  */
 @Controller({
   name: "home",
+  filters: [Cache],
   providers: [] // type of local instances within new request since controller is instanciated on each request
 })
 export class HomeController extends ViewController {
@@ -54,6 +56,18 @@ export class HomeController extends ViewController {
     return `Action id: ${id} name: ${name} <- ${data}`;
   }
 
+  /**
+   * @function
+   * @name BeforeEach
+   *
+   * @description
+   * before each
+   *
+   */
+  @BeforeEach()
+  beforeEachAction(@Chain() data: string): string {
+    return "Before each core <- " + data;
+  }
   /**
    * @function
    * @name actionIndex
