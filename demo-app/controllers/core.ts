@@ -7,9 +7,8 @@ import {
   Param,
   RequestReflection,
   OnError,
-  Chain,
   BeforeEach,
-  AfterEach
+  Chain
 } from "typeix";
 import {lookup} from "mime";
 import {Cache} from "../filters/cache";
@@ -85,20 +84,8 @@ export class CoreController {
    *
    */
   @BeforeEach()
-  beforeEachAction(): string {
-    return "Before each";
+  beforeEachAction(@Chain() data: string): string {
+    return "Before each core <- " + data;
   }
 
-  /**
-   * @function
-   * @name AfterEach
-   *
-   * @description
-   * After each action
-   *
-   */
-  @AfterEach()
-  afterEachAction(@Chain() data: string): string {
-    return "After each <- " + data;
-  }
 }

@@ -27,5 +27,5 @@ export interface IAction {
   type: string;
   key: string;
   value: string | ErrorMessage;
-  className: string;
+  proto: Function;
 }

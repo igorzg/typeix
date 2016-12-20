@@ -16,6 +16,9 @@ import {Metadata, FUNCTION_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
+import {TFilter} from "../interfaces/ifilter";
+import {isArray} from "util";
+import {IParam} from "../interfaces/iparam";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -59,6 +62,14 @@ export class Request implements IAfterConstruct {
    */
   @Inject("isCustomError")
   private isCustomError: boolean;
+
+  /**
+   * @param {Boolean} isForwarded
+   * @description
+   * Information internally used by request itself on forwarded requests
+   */
+  @Inject("isRedirected")
+  private isRedirected: boolean;
 
   /**
    * @param {Boolean} isForwarded
@@ -394,7 +405,7 @@ export class Request implements IAfterConstruct {
             // get mapped action metadata
             let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
             // get on error
-            let onError = this.getParamByMappedAction(controllerProvider, mappedAction, "OnError");
+            let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
             // if on error is present define custom error
             if (isPresent(onError)) {
               // set code from it
@@ -473,13 +484,27 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#isControllerPrototypeOf
+   * @private
+   * @description
+   * Validate controller inheritance
+   */
+  isControllerInherited(a: Function, b: Function) {
+    return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#hasMappedAction
    * @private
    * @description
    * Check if controller has mapped action
    */
   hasMappedAction(controllerProvider: IProvider, actionName: String, name: String = "Action"): boolean {
-    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
+    let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
+      .filter((item: IAction) => this.isControllerInherited(controllerProvider.provide, item.proto));
+
     return isPresent(mappings.find(item => item.type === name && item.value === actionName));
   }
 
@@ -495,7 +520,7 @@ export class Request implements IAfterConstruct {
     // get mappings from controller
     let mappings = Metadata
       .getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
-      .filter(item => item.type === name && item.value === actionName);
+      .filter((item: IAction) => item.type === name && item.value === actionName && this.isControllerInherited(controllerProvider.provide, item.proto));
 
     let mappedAction;
     // search mapped on current controller
@@ -521,29 +546,28 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getParamByMappedAction
+   * @name Request#getDecoratorByMappedAction
    * @private
    * @description
    * Get param decorator by mapped action
    */
-  getParamByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: String): any {
+  getDecoratorByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: string): any {
     // get mappings from controller
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
-    return mappings.find(item => item.type === paramName && item.key === mappedAction.key);
+    return mappings.find((item: IAction) => item.type === paramName && item.key === mappedAction.key && this.isControllerInherited(controllerProvider.provide, item.proto));
   }
-
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getParamsByMappedAction
+   * @name Request#getMappedActionArguments
    * @private
    * @description
-   * Get list of params
+   * Get list of action arguments
    */
-  getParamsByMappedAction(controllerProvider: IProvider, mappedAction: any): Array<any> {
+  getMappedActionArguments(controllerProvider: IProvider, mappedAction: any): Array<any> {
     // get mappings from controller
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_PARAMS);
-    return mappings.filter(item => item.key === mappedAction.key);
+    return mappings.filter((item: IParam) => item.key === mappedAction.key);
   }
 
   /**
@@ -585,19 +609,22 @@ export class Request implements IAfterConstruct {
    * @description
    * Process mapped action
    */
-  processAction(injector: Injector, controllerProvider: IProvider, mappedAction: IAction, resolvedRoute: ResolvedRoute) {
+  processAction(injector: Injector,
+                controllerProvider: IProvider,
+                mappedAction: IAction,
+                resolvedRoute: ResolvedRoute): string | Buffer {
     // get controller instance
     let controllerInstance = injector.get(controllerProvider.provide);
     // get action
     let action = controllerInstance[mappedAction.key].bind(controllerInstance);
     // content type
-    let contentType = this.getParamByMappedAction(controllerProvider, mappedAction, "Produces");
+    let contentType = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "Produces");
     if (isPresent(contentType)) {
       this.contentType = contentType;
     }
     // resolve action params
     let actionParams = [];
-    let params: Array<any> = this.getParamsByMappedAction(controllerProvider, mappedAction);
+    let params: Array<any> = this.getMappedActionArguments(controllerProvider, mappedAction);
 
     if (isPresent(params)) {
       // make sure params are sorted correctly :)
@@ -633,17 +660,68 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#processControllerFilters
+   * @private
+   * @description
+   * Process controller filters
+   */
+  async processFilters(injector: Injector,
+                       name: string,
+                       data: Array<TFilter>,
+                       resolvedRoute: ResolvedRoute,
+                       isAfter: boolean): Promise<any> {
+    if (isArray(data)) {
+      let filters = data.filter(item => {
+        let metadata = Metadata.getComponentConfig(item);
+        if (isPresent(metadata)) {
+          return (
+            metadata.route === "*" ||
+            metadata.route === resolvedRoute.route ||
+            metadata.route === (name + "/*")
+          );
+        }
+        return false;
+      })
+        .sort((aItem, bItem) => {
+          let a: any = Metadata.getComponentConfig(aItem);
+          let b: any = Metadata.getComponentConfig(bItem);
+          if (a.priority > b.priority) {
+            return -1;
+          } else if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+
+      if (filters.length > 0) {
+        for (let Class of filters) {
+          let filterInjector = Injector.createAndResolveChild(injector, Class, []);
+          let filter = filterInjector.get(Class);
+          if (!isAfter) {
+            injector.set(CHAIN_KEY, await filter.before(injector.get(CHAIN_KEY)));
+          } else {
+            injector.set(CHAIN_KEY, await filter.after(injector.get(CHAIN_KEY)));
+          }
+          filterInjector.destroy();
+        }
+      }
+    }
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#handleController
    * @private
    * @description
    * Handle controller instance
    */
-  async handleController(name: String, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
+  async handleController(name: string, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
 
     // find controller
     let controllerProvider = this.getControllerProvider(name, actionName, resolvedRoute);
     // get controller metadata
-    let metadata: IModuleMetadata = Metadata.getComponentConfig(controllerProvider.provide);
+    let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
     // limit controller api, no access to request api
     providers.push({
@@ -667,6 +745,8 @@ export class Request implements IAfterConstruct {
 
     // set default chain key
     injector.set(CHAIN_KEY, null);
+    // process filters
+    this.processFilters(injector, name, metadata.filters, resolvedRoute, false);
 
     // process @BeforeEach action
     if (this.hasMappedAction(controllerProvider, null, "BeforeEach") && isFalsy(this.isChainStopped)) {
@@ -723,6 +803,10 @@ export class Request implements IAfterConstruct {
         resolvedRoute
       );
       injector.set(CHAIN_KEY, result);
+    }
+
+    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected)) {
+      this.processFilters(injector, name, metadata.filters, resolvedRoute, true);
     }
 
     // render action call

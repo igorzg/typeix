@@ -44,17 +44,18 @@ export class ViewController extends CoreController {
     return "My action view <- " + data;
   }
 
+
   /**
    * @function
-   * @name BeforeEach
+   * @name AfterEach
    *
    * @description
-   * before each
+   * After each action
    *
    */
   @AfterEach()
-  afterEach(@Chain() data: string): string {
-    return "after each view <-" + data;
+  afterEachAction(@Chain() data: string): string {
+    return "After each view <- " + data;
   }
 
 }

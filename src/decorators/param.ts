@@ -1,5 +1,6 @@
 import {isNumber} from "../core";
 import {Metadata, FUNCTION_PARAMS} from "../injector/metadata";
+import {IParam} from "../interfaces/iparam";
 
 /**
  * @since 1.0.0
@@ -38,12 +39,13 @@ export let Param = (value: string) => {
       throw new TypeError(`@Param is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex}
       @Param is allowed only as parameter type!`);
     }
-    metadata.push({
+    let param: IParam = {
       type,
       key,
       value,
       paramIndex
-    });
+    };
+    metadata.push(param);
     Metadata.defineMetadata(Class, FUNCTION_PARAMS, metadata);
     return Class;
   };

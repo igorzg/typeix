@@ -33,6 +33,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): In
         {provide: "controllers", useValue: metadata.controllers},
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
+        {provide: "isRedirected", useValue: false},
         {provide: "isCustomError", useValue: false},
         {provide: "isForwarded", useValue: false},
         {provide: "isForwarder", useValue: false},

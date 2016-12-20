@@ -70,20 +70,7 @@ export class HomeController extends ViewController {
    */
   @Before("index")
   beforeIndex(@Chain() data: string): string {
-    return "Before INDEX: <- " + data;
-  }
-
-  /**
-   * @function
-   * @name BeforeEach
-   *
-   * @description
-   * before each
-   *
-   */
-  @BeforeEach()
-  beforeEach(): string {
-    return "Before each home";
+    return "Before index home: <- " + data;
   }
 
 }

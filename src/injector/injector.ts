@@ -153,7 +153,7 @@ export class Injector {
    * );
    * let myInstance = injector.get(MyInjectableClass);
    */
-  static createAndResolveChild(parent: Injector, Class: Function, providers: Array<IProvider|Function>): Injector {
+  static createAndResolveChild(parent: Injector, Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
     let child = new Injector(parent);
     child.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
     parent.setChild(child);

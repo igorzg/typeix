@@ -7,7 +7,7 @@
  * Filter for controller before and after processing
  */
 export interface IFilter {
-  before(): string | Buffer | Promise<string | Buffer>;
+  before(data: string | Buffer): string | Buffer | Promise<string | Buffer>;
   after(data: string | Buffer): string | Buffer | Promise<string | Buffer>;
 }
 

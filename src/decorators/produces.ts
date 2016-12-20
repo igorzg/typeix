@@ -27,7 +27,7 @@ export let Produces = (value: string) => (Class: any, key: string, descriptor: P
     type,
     key,
     value,
-    className: Metadata.getName(Class)
+    proto: Class
   };
   metadata.push(iAction);
   Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);

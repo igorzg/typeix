@@ -29,11 +29,11 @@ export let OnError = (status: number, message: string): Function => {
     let iAction: IAction = {
       type,
       key,
-      value : {
+      value: {
         status,
         message
       },
-      className: Metadata.getName(Class)
+      proto: Class
     };
 
     metadata.push(iAction);

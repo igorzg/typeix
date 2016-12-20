@@ -25,8 +25,8 @@ export class Cache implements IFilter {
    * @description
    * Before each controller
    */
-  before(): string|Buffer|Promise<string|Buffer> {
-    return "Before controller";
+  before(data: string): string|Buffer|Promise<string|Buffer> {
+    return "Before controller filter <-" + data;
   }
   /**
    * @function
@@ -36,7 +36,7 @@ export class Cache implements IFilter {
    * Before each controller apply this filter
    */
   after(data: string): string|Buffer|Promise<string|Buffer> {
-    return "After controller <- " + data;
+    return "After controller filter <- " + data;
   }
 
 }

@@ -30,7 +30,7 @@ let mapAction = (type) => (value: string): Function => {
       type,
       key,
       value,
-      className: Metadata.getName(Class)
+      proto: Class
     };
     metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);
@@ -68,7 +68,7 @@ let mapEachAction = (type) => (): Function => {
       type,
       key,
       value: null,
-      className: Metadata.getName(Class)
+      proto: Class
     };
     metadata.push(iAction);
     Metadata.defineMetadata(Class, FUNCTION_KEYS, metadata);
