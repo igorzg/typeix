@@ -1,6 +1,7 @@
 import {IModuleMetadata} from "../interfaces/imodule";
 import {isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
+
 /**
  * Module decorator
  * @decorator
