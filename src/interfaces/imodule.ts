@@ -4,6 +4,8 @@ import {RouteRuleConfig} from "./iroute";
  * @since 1.0.0
  * @interface
  * @name IModuleMetadata
+ * @param {Array<Function|IProvider>} imports
+ * @param {Array<Function|IProvider>} exports
  * @param {String} name
  * @param {Array<RouteRuleConfig>} routes
  * @param {Array<IModuleMetadata>} modules
@@ -14,6 +16,8 @@ import {RouteRuleConfig} from "./iroute";
  * Bootstrap class config metadata
  */
 export interface IModuleMetadata {
+  imports?: Array<Function|IProvider>;
+  exports?: Array<Function|IProvider>;
   name?: string;
   routes?: Array<RouteRuleConfig>;
   modules?: Array<IModuleMetadata>;

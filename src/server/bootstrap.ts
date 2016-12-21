@@ -5,7 +5,14 @@ import {Request} from "./request";
 import {isPresent} from "../core";
 import {EventEmitter} from "events";
 import {IModuleMetadata} from "../interfaces/imodule";
+import {Metadata} from "../injector/metadata";
 
+export function createModule(Class: Function) {
+  let injector = Injector.createAndResolve(Class, []);
+  let metadata: IModuleMetadata = Metadata.getComponentConfig(Class);
+  // @todo missing import export logic and initalization of modules
+  return injector;
+}
 /**
  * @since 1.0.0
  * @function

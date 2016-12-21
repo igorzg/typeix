@@ -3,6 +3,7 @@ import {Assets} from "./components/assets";
 import {CoreController} from "./controllers/core";
 import {HomeController} from "./controllers/home";
 import {ViewController} from "./controllers/view";
+import {AdminModule} from "./modules/admin/admin.module";
 /**
  * Application entry point
  * @constructor
@@ -13,6 +14,8 @@ import {ViewController} from "./controllers/view";
  * \@Module is used to define application entry point class
  */
 @Module({
+  imports: [AdminModule],
+  exports: [Logger, Router],
   controllers: [ViewController, CoreController, HomeController],
   providers: [Logger, Router, Assets]
 })

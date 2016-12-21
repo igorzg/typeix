@@ -2,7 +2,7 @@ import {Injector} from "../injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
 import {isString} from "../core";
-import {fireRequest} from "./bootstrap";
+import {fireRequest, createModule} from "./bootstrap";
 import {IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 /**
@@ -18,7 +18,7 @@ import {Metadata} from "../injector/metadata";
  * Use httpServer function to httpServer an Module.
  */
 export function httpServer(Class: Function, port: number, hostname?: string): Injector {
-  let injector = Injector.createAndResolve(Class, []);
+  let injector = createModule(Class);
   let logger: Logger = injector.get(Logger);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(Class);
   let server = createServer();
