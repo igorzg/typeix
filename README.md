@@ -7,6 +7,9 @@
 * Typeix has dependency injection inspired by Angular 2
 
 
+[View demo application](https://github.com/igorzg/typeix/tree/master/demo-app)
+
+
 
 **Development paths for tsconfig.json**
 * demo-app/node_modules/typeix/build
