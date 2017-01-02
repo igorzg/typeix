@@ -59,7 +59,8 @@ export {
  */
 export {
   httpServer,
-  RequestReflection
+  getModule,
+  Request
 } from "./server/index";
 /**
  * Export all from core

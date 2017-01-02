@@ -11,13 +11,13 @@ import {Metadata} from "../injector/metadata";
  * Filter is used as pre controller and after controller actions
  *
  * @example
- * import {IFilter, Filter, RequestReflection, Inject} from "typeix";
+ * import {IFilter, Filter, Request, Inject} from "typeix";
  *
  * \@Filter(100)
  * export class Cache implements IFilter {
  *
- *  \@Inject(RequestReflection)
- *  request: RequestReflection;
+ *  \@Inject(Request)
+ *  request: Request;
  *
  *
  *  before(): string|Buffer|Promise<string|Buffer> {

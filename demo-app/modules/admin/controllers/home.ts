@@ -1,4 +1,4 @@
-import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach, Param} from "typeix";
+import {Inject, Action, Controller, Request, Before, Chain, BeforeEach, Param} from "typeix";
 
 /**
  * Controller example
@@ -19,12 +19,12 @@ export class HomeController {
 
 
   /**
-   * @param {RequestReflection} request
+   * @param {Request} request
    * @description
-   * Request reflection
+   * ControllerResolver reflection
    */
-  @Inject(RequestReflection)
-  request: RequestReflection;
+  @Inject(Request)
+  request: Request;
 
 
   /**
