@@ -2,6 +2,7 @@ import {Assets} from "../components/assets";
 import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach, Param} from "typeix";
 import {ViewController} from "./view";
 import {Cache} from "../filters/cache";
+import {ChainFilter} from "../filters/chain";
 
 /**
  * Controller example
@@ -16,7 +17,7 @@ import {Cache} from "../filters/cache";
  */
 @Controller({
   name: "home",
-  filters: [Cache],
+  filters: [Cache, ChainFilter],
   providers: [] // type of local instances within new request since controller is instanciated on each request
 })
 export class HomeController extends ViewController {
