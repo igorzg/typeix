@@ -259,8 +259,8 @@ export class RouteResolver {
         let [module, controller, action] = resolvedRoute.route.split("/");
         return {
           module: !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module),
-          controller: controller,
-          action: !isPresent(action) ? module : action,
+          controller: !isPresent(action) ? module : controller,
+          action: !isPresent(action) ? controller : action,
           resolvedRoute,
           data: this.data
         };
