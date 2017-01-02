@@ -94,28 +94,19 @@ export class ControllerResolver {
   private data: Array<Buffer>;
 
   /**
-   * @param {Array<IModuleMetadata>} modules
-   * @description
-   * Lost of modules imported on current module
-   */
-  @Inject("modules")
-  private modules: Array<IModuleMetadata>;
-
-  /**
-   * @param {Array<IProvider|Function>} controllers
-   * @description
-   * List of controllers assigned to current module
-   */
-  @Inject("controllers")
-  private controllers: Array<IProvider|Function>;
-
-  /**
    * @param {Number} statusCode
    * @description
    * ControllerResolver status code default 200
    */
   @Inject("statusCode", true)
   private statusCode: number;
+  /**
+   * @param {String} contentType
+   * @description
+   * Content type
+   */
+  @Inject("contentType", true)
+  private contentType: String;
 
   /**
    * @param {Injector} Injector
@@ -140,13 +131,7 @@ export class ControllerResolver {
   @Inject(EventEmitter)
   private eventEmitter: EventEmitter;
 
-  /**
-   * @param {String} contentType
-   * @description
-   * Content type
-   */
-  @Inject("contentType", true)
-  private contentType: String;
+
 
 
   /**
@@ -319,7 +304,7 @@ export class ControllerResolver {
    * @description
    * Process request logic
    */
-  process(): Promise<any> {
+  process(): Promise<string|Buffer> {
 
     // destroy on end
     if (!this.isForwarded) {

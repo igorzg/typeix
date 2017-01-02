@@ -15,7 +15,6 @@ import {AdminModule} from "./modules/admin/admin.module";
  */
 @Module({
   imports: [AdminModule],
-  exports: [Logger, Router],
   controllers: [ViewController, CoreController, HomeController],
   providers: [Logger, Router, Assets]
 })

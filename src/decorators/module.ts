@@ -1,6 +1,8 @@
 import {IModuleMetadata} from "../interfaces/imodule";
 import {isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
+import {Router} from "../router/router";
+import {Logger} from "../logger/logger";
 
 /**
  * Module decorator
@@ -32,6 +34,15 @@ export let Module = (config: IModuleMetadata) => (Class) => {
   }
   if (!isArray(config.providers)) {
     config.providers = [];
+  }
+  if (!isArray(config.exports)) {
+    config.exports = [];
+  }
+  if (config.exports.indexOf(Logger) === -1) {
+    config.exports.push(Logger);
+  }
+  if (config.exports.indexOf(Router) === -1) {
+    config.exports.push(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
   Metadata.setComponentConfig(Class, config);

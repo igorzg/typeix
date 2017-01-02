@@ -30,17 +30,17 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  * @name createModule
  * @param {Provider|Function} Class
  * @param {Injector} parent
- * @param {Provider|Function} exports
+ * @param {Provider|Function} exp
  *
  * @description
  * Bootstrap modules recursive
  */
-export function createModule(Class: IProvider|Function, parent?: Injector, exports?: Array<IProvider|Function>): Array<IModule> {
+export function createModule(Class: IProvider|Function, parent?: Injector, exp?: Array<IProvider|Function>): Array<IModule> {
   let modules = [];
   let provider = Metadata.verifyProvider(Class);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
   // inject shared instance
-  let injector = Injector.createAndResolve(Class, isArray(exports) ? exports.map(iClass => {
+  let injector = Injector.createAndResolve(Class, isArray(exp) ? exp.map(iClass => {
       return {
         provide: iClass,
         useValue: parent.get(iClass)
@@ -53,22 +53,18 @@ export function createModule(Class: IProvider|Function, parent?: Injector, expor
     name: metadata.name
   });
 
-  metadata.imports.forEach(importModule => modules = modules.concat(createModule(importModule, injector, metadata.exports)));
+  if (isArray(metadata.imports)) {
+    metadata.imports.forEach(importModule => modules = modules.concat(createModule(importModule, injector, metadata.exports)));
+  }
 
-  let duplicates = modules
-    .map(item => item.name)
-    .reduce((acc, el, i, arr) => {
-      if (arr.indexOf(el) !== i && acc.indexOf(el) === -1) {
-        acc.push(el);
-      }
-      return acc;
-    });
+  let duplicates = [];
+  //@todo fix duplicates algorithm
 
   if (duplicates.indexOf(BOOTSTRAP_MODULE) > -1) {
     throw new Error(`Only one ${BOOTSTRAP_MODULE}" module is allowed. Please make sure that all child modules have defined name
      on @Module annotation and that any @Module name is not "${BOOTSTRAP_MODULE}"`);
   } else if (duplicates.length > 0) {
-    throw new Error(`Modules must have unique names. Please make sure that all child modules have unique names. ${duplicates.join(",")}`);
+    throw new Error(`Modules must have unique names. Please make sure that all child modules have unique names duplicates: ${duplicates}`);
   }
 
   return modules;
@@ -104,6 +100,8 @@ export function fireRequest(modules: Array<IModule>,
       {provide: "url", useValue: parse(request.url, true)},
       {provide: "UUID", useValue: uuid()},
       {provide: "data", useValue: []},
+      {provide: "contentType", useValue: "text/html"},
+      {provide: "statusCode", useValue: 200},
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
       {provide: "modules", useValue: modules}

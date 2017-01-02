@@ -5,12 +5,16 @@ import {IncomingMessage, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
 import {Router, Methods} from "../router/router";
 import {Url} from "url";
-import {IResolvedModule} from "../interfaces/imodule";
+import {IResolvedModule, IModule, IModuleMetadata} from "../interfaces/imodule";
 import {ResolvedRoute} from "../interfaces/iroute";
 import {isPresent, isString, isClass} from "../core";
 import {HttpError} from "../error";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
+import {getModule} from "./bootstrap";
+import {ControllerResolver} from "./request";
+import {EventEmitter} from "events";
+import {Injector} from "../injector/injector";
 
 /**
  * @since 1.0.0
@@ -82,6 +86,30 @@ export class RouteResolver {
   private url: Url;
 
   /**
+   * @param {Url} url
+   * @description
+   * Parsed request url
+   */
+  @Inject("modules")
+  private modules: Array<IModule>;
+
+  /**
+   * @param {Number} statusCode
+   * @description
+   * ControllerResolver status code default 200
+   */
+  @Inject("statusCode", true)
+  private statusCode: number;
+
+  /**
+   * @param {String} contentType
+   * @description
+   * Content type
+   */
+  @Inject("contentType", true)
+  private contentType: String;
+
+  /**
    * @since 1.0.0
    * @function
    * @name ControllerResolver#render
@@ -93,12 +121,12 @@ export class RouteResolver {
    * @description
    * This method sends data to client
    */
-  render(response: string | Buffer, statusCode: number, contentType: string): string | Buffer {
+  render(response: string | Buffer): string | Buffer {
     this.logger.info("ControllerResolver.render", {
       id: this.id
     });
     if (isString(response) || (response instanceof Buffer)) {
-      this.response.writeHead(statusCode, {"Content-Type": contentType});
+      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
       this.response.write(response);
       this.response.end();
       return response;
@@ -121,27 +149,79 @@ export class RouteResolver {
    * @description
    * Returns a controller provider
    */
-  getControllerProvider(controllers: Array<Function>, name: String, actionName: String, resolvedRoute: ResolvedRoute): IProvider {
-    let controllerProvider: IProvider = controllers
+  getControllerProvider(resolvedModule: IResolvedModule): IProvider {
+
+    let provider: IProvider = Metadata.verifyProvider(resolvedModule.module.provider);
+    let moduleMetadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
+
+    let controllerProvider: IProvider = moduleMetadata.controllers
       .map(item => Metadata.verifyProvider(item))
       .find((Class: IProvider) => {
         let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === name;
+        return metadata.name === resolvedModule.controller;
       });
     if (!isPresent(controllerProvider)) {
       throw new HttpError(500, `You must define controller within current route`, {
-        name,
-        actionName,
-        resolvedRoute
+        controllerName: resolvedModule.controller,
+        actionName: resolvedModule.action,
+        resolvedRoute: resolvedModule.resolvedRoute
       });
     } else if (!isClass(controllerProvider.provide)) {
       throw new HttpError(500, `Controller must be a class type`, {
-        name,
-        actionName,
-        resolvedRoute
+        controllerName: resolvedModule.controller,
+        actionName: resolvedModule.action,
+        resolvedRoute: resolvedModule.resolvedRoute
       });
     }
     return controllerProvider;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestProcessor#processModule
+   * @private
+   * @description
+   * Resolve route and deliver resolved module
+   */
+  processModule(resolvedModule: IResolvedModule): Promise<string|Buffer> {
+
+    let childInjector = Injector.createAndResolveChild(
+      resolvedModule.module.injector,
+      ControllerResolver,
+      [
+        {provide: "contentType", useValue: "text/html"},
+        {provide: "statusCode", useValue: 200},
+        {provide: "data", useValue: this.data},
+        {provide: "request", useValue: this.request},
+        {provide: "response", useValue: this.response},
+        {provide: "url", useValue: this.url},
+        {provide: "UUID", useValue: this.id},
+        {provide: "controllerProvider", useValue: this.getControllerProvider(resolvedModule)},
+        {provide: "actionName", useValue: resolvedModule.action},
+        {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
+
+        {provide: "isRedirected", useValue: false},
+        {provide: "isCustomError", useValue: false},
+        {provide: "isForwarded", useValue: false},
+        {provide: "isForwarder", useValue: false},
+        {provide: "isChainStopped", useValue: false},
+        EventEmitter
+      ]
+    );
+    /**
+     * On finish destroy injector
+     */
+    this.response.on("finish", () => childInjector.destroy());
+    /**
+     * Get request instance
+     * @type {any}
+     */
+    let pRequest: ControllerResolver = childInjector.get(ControllerResolver);
+    /**
+     * Process request
+     */
+    return pRequest.process();
   }
 
   /**
@@ -177,138 +257,88 @@ export class RouteResolver {
 
         // define module controller action
         let [module, controller, action] = resolvedRoute.route.split("/");
-
-        if (!isPresent(action)) {
-          action = module;
-        }
-
         return {
-          module: module,
+          module: !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module),
           controller: controller,
-          action: action,
+          action: !isPresent(action) ? module : action,
+          resolvedRoute,
           data: this.data
         };
       })
-      .then((resolvedModule: IResolvedModule) => {
+      .then((resolvedModule: IResolvedModule) => this.processModule(resolvedModule))
+      .then(data => this.render(data));
 
-      });
 
-
-    //
-    // let childInjector = Injector.createAndResolveChild(
-    //   injector,
-    //   ControllerResolver,
-    //   [
-    //     {provide: "contentType", useValue: "text/html"},
-    //     {provide: "modules", useValue: isPresent(metadata.modules) ? metadata.modules : []},
-    //     {provide: "controllers", useValue: metadata.controllers},
-    //     {provide: "request", useValue: request},
-    //     {provide: "response", useValue: response},
-    //     {provide: "isRedirected", useValue: false},
-    //     {provide: "isCustomError", useValue: false},
-    //     {provide: "isForwarded", useValue: false},
-    //     {provide: "isForwarder", useValue: false},
-    //     {provide: "isChainStopped", useValue: false},
-    //     {provide: "statusCode", useValue: 200},
-    //     {provide: "data", useValue: []},
-    //     EventEmitter
-    //   ]
-    // );
-    // /**
-    //  * On finish destroy injector
-    //  */
-    // response.on("finish", () => childInjector.destroy());
-    // /**
-    //  * Get request instance
-    //  * @type {any}
-    //  */
-    // let pRequest: ControllerResolver = childInjector.get(ControllerResolver);
-    // /**
-    //  * Process request
-    //  */
-    // return pRequest
-    //   .process()
-    //   .catch(error =>
-    //     logger.error("ControllerResolver.error", {
-    //       stack: error.stack,
-    //       url: request.url,
+    // .catch((error: HttpError) => {
+    //     // force HttpError to be thrown
+    //     if (!(error instanceof HttpError)) {
+    //       let _error: HttpError = error;
+    //       error = new HttpError(500, _error.message, {});
+    //       error.stack = _error.stack;
+    //     }
+    //     // log error message
+    //     this.logger.error(error.message, {
+    //       id: this.id,
+    //       method: this.request.method,
+    //       request: this.url,
+    //       url: this.request.url,
     //       error
+    //     });
+    //
+    //     if (isPresent(this.reflectionInjector)) {
+    //       // define module controller action
+    //       let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
+    //
+    //       let [module, controller, action] = resolvedRoute.route.split("/");
+    //
+    //       if (!isPresent(action)) {
+    //         // find controller
+    //         let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
+    //         // get mapped action metadata
+    //         let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
+    //         // get on error
+    //         let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
+    //         // if on error is present define custom error
+    //         if (isPresent(onError)) {
+    //           // set code from it
+    //           this.statusCode = onError.value.status;
+    //           // get custom message
+    //           return onError.value.message;
+    //         }
+    //
+    //       }
+    //     }
+    //     // status code is mutable
+    //     this.statusCode = error.getCode();
+    //     // render error
+    //     return clean(error.toString());
+    //   })
+    //     .catch((error: HttpError) => {
+    //
+    //       if (!(error instanceof HttpError)) {
+    //         let _error: HttpError = error;
+    //         error = new HttpError(500, _error.message, {});
+    //         error.stack = _error.stack;
+    //       }
+    //       // log error message
+    //       this.logger.error(error.message, {
+    //         id: this.id,
+    //         method: this.request.method,
+    //         request: this.url,
+    //         url: this.request.url,
+    //         error
+    //       });
+    //       // set status code
+    //       this.statusCode = error.getCode();
+    //       // clean log output
+    //       return clean(error.toString());
     //     })
-    //   );
-
-
-
-
-  // .catch((error: HttpError) => {
-  //     // force HttpError to be thrown
-  //     if (!(error instanceof HttpError)) {
-  //       let _error: HttpError = error;
-  //       error = new HttpError(500, _error.message, {});
-  //       error.stack = _error.stack;
-  //     }
-  //     // log error message
-  //     this.logger.error(error.message, {
-  //       id: this.id,
-  //       method: this.request.method,
-  //       request: this.url,
-  //       url: this.request.url,
-  //       error
-  //     });
-  //
-  //     if (isPresent(this.reflectionInjector)) {
-  //       // define module controller action
-  //       let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
-  //
-  //       let [module, controller, action] = resolvedRoute.route.split("/");
-  //
-  //       if (!isPresent(action)) {
-  //         // find controller
-  //         let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
-  //         // get mapped action metadata
-  //         let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
-  //         // get on error
-  //         let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
-  //         // if on error is present define custom error
-  //         if (isPresent(onError)) {
-  //           // set code from it
-  //           this.statusCode = onError.value.status;
-  //           // get custom message
-  //           return onError.value.message;
-  //         }
-  //
-  //       }
-  //     }
-  //     // status code is mutable
-  //     this.statusCode = error.getCode();
-  //     // render error
-  //     return clean(error.toString());
-  //   })
-  //     .catch((error: HttpError) => {
-  //
-  //       if (!(error instanceof HttpError)) {
-  //         let _error: HttpError = error;
-  //         error = new HttpError(500, _error.message, {});
-  //         error.stack = _error.stack;
-  //       }
-  //       // log error message
-  //       this.logger.error(error.message, {
-  //         id: this.id,
-  //         method: this.request.method,
-  //         request: this.url,
-  //         url: this.request.url,
-  //         error
-  //       });
-  //       // set status code
-  //       this.statusCode = error.getCode();
-  //       // clean log output
-  //       return clean(error.toString());
-  //     })
-  //     .catch((error: HttpError) => this.logger.error(error.message, {
-  //       id: this.id,
-  //       method: this.request.method,
-  //       request: this.url,
-  //       url: this.request.url,
-  //       error
-  //     }));
+    //     .catch((error: HttpError) => this.logger.error(error.message, {
+    //       id: this.id,
+    //       method: this.request.method,
+    //       request: this.url,
+    //       url: this.request.url,
+    //       error
+    //     }));
   }
 }
