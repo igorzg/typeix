@@ -1,14 +1,13 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Router, Methods} from "../router/router";
-import {uuid, isString, isPresent, toString, isClass, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
+import {Methods} from "../router/router";
+import {isString, isPresent, toString, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
-import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
+import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
-import {parse, Url} from "url";
+import {Url} from "url";
 import {ResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
-import {clean} from "../logger/inspect";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {IModuleMetadata} from "../interfaces/imodule";
@@ -30,13 +29,13 @@ const CHAIN_KEY = "__chain__";
  * @name Request
  * @constructor
  * @description
- * Request is responsible for handling router result and processing all requests in system
+ * ControllerResolver is responsible for handling router result and processing all requests in system
  * This component is used internally by framework
  *
  * @private
  */
 @Injectable()
-export class Request implements IAfterConstruct {
+export class ControllerResolver {
 
   /**
    * @param IncomingMessage
@@ -113,7 +112,7 @@ export class Request implements IAfterConstruct {
   /**
    * @param {Number} statusCode
    * @description
-   * Request status code default 200
+   * ControllerResolver status code default 200
    */
   @Inject("statusCode", true)
   private statusCode: number;
@@ -133,15 +132,6 @@ export class Request implements IAfterConstruct {
    */
   @Inject(Logger)
   private logger: Logger;
-
-  /**
-   * @param {Router} router
-   * @description
-   * Provided by injector
-   */
-  @Inject(Router)
-  private router: Router;
-
   /**
    * @param {EventEmitter} eventEmitter
    * @description
@@ -164,20 +154,30 @@ export class Request implements IAfterConstruct {
    * @description
    * UUID identifier of request
    */
-  private id: string = uuid();
+  @Inject("UUID")
+  private id: string;
   /**
    * @param {Url} url
    * @description
    * Parsed request url
    */
+  @Inject("url")
   private url: Url;
 
   /**
-   * @param {Injector} reflectionInjector
+   * @param {IProvider} controllerProvider
    * @description
    * Injector
    */
-  private reflectionInjector: Injector;
+  @Inject("controllerProvider")
+  private controllerProvider: IProvider;
+  /**
+   * @param {actionName} actionName:
+   * @description
+   * Action name
+   */
+  @Inject("actionName")
+  private actionName: string;
   /**
    * @param {boolean} isChainStopped
    * @description
@@ -185,6 +185,14 @@ export class Request implements IAfterConstruct {
    */
   @Inject("isChainStopped", true)
   private isChainStopped: boolean;
+
+  /**
+   * @param {ResolvedRoute} resolvedRoute
+   * @description
+   * Resolved route from injector
+   */
+  @Inject("resolvedRoute")
+  private resolvedRoute: ResolvedRoute;
 
   /**
    * @since 1.0.0
@@ -306,179 +314,28 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#afterConstruct
-   * @private
-   * @description
-   * This function is called by injector after constructor is initialized
-   */
-  afterConstruct(): void {
-    this.url = parse(this.request.url, true);
-    this.logger.trace("Request.args", {
-      id: this.id,
-      url: this.url
-    });
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
    * @name Request#process
    * @private
    * @description
    * Process request logic
    */
   process(): Promise<any> {
+
     // destroy on end
     if (!this.isForwarded) {
       this.response.once("finish", () => this.destroy());
       // destroy if connection was terminated before end
       this.response.once("close", () => this.destroy());
     }
-    // process request
-    return this.router
-      .parseRequest(this.url.pathname, this.request.method, this.request.headers)
-      .then((resolvedRoute: ResolvedRoute) => {
-        this.logger.info("Route.parseRequest", {
-          id: this.id,
-          isCustomError: this.isCustomError,
-          isForwarded: this.isForwarded,
-          method: this.request.method,
-          path: this.url.pathname,
-          route: resolvedRoute
-        });
 
-        if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1 && !this.isForwarded) {
-          this.request.on("data", item => this.data.push(<Buffer> item));
-          return new Promise((resolve, reject) => {
-            this.request.on("error", reject.bind(this));
-            this.request.on("end", resolve.bind(this, resolvedRoute));
-          });
-        }
-        return resolvedRoute;
-      })
-      .then((resolvedRoute: ResolvedRoute) => {
-        // set request reflection
-        this.reflectionInjector = Injector.createAndResolveChild(this.injector, RequestReflection, [
-          {provide: Request, useValue: this},
-          {provide: "resolvedRoute", useValue: resolvedRoute}
-        ]);
+    // set request reflection
+    let reflectionInjector = Injector.createAndResolveChild(this.injector, Request, [
+      {provide: ControllerResolver, useValue: this}
+    ]);
 
-        // define module controller action
-        let [module, controller, action] = resolvedRoute.route.split("/");
-
-        if (!isPresent(action)) {
-          return this.handleController(module, controller, resolvedRoute);
-        } else if (isPresent(action)) {
-          return this.handleModule(module, controller, action, resolvedRoute);
-        }
-
-        throw new HttpError(500, `Route definition is invalid, route must contain controller/action or module/controller/action pattern`, {
-          resolvedRoute
-        });
-      })
-      .catch((error: HttpError) => {
-        // force HttpError to be thrown
-        if (!(error instanceof HttpError)) {
-          let _error: HttpError = error;
-          error = new HttpError(500, _error.message, {});
-          error.stack = _error.stack;
-        }
-        // log error message
-        this.logger.error(error.message, {
-          id: this.id,
-          method: this.request.method,
-          request: this.url,
-          url: this.request.url,
-          error
-        });
-
-        if (isPresent(this.reflectionInjector)) {
-          // define module controller action
-          let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
-
-          let [module, controller, action] = resolvedRoute.route.split("/");
-
-          if (!isPresent(action)) {
-            // find controller
-            let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
-            // get mapped action metadata
-            let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
-            // get on error
-            let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
-            // if on error is present define custom error
-            if (isPresent(onError)) {
-              // set code from it
-              this.statusCode = onError.value.status;
-              // get custom message
-              return this.render(onError.value.message);
-            }
-
-          } else if (isPresent(action)) {
-            return this.handleModule(module, controller, action, resolvedRoute);
-          }
-        }
-        // status code is mutable
-        this.statusCode = error.getCode();
-        // render error
-        return this.render(clean(error.toString()));
-      })
-      .catch((error: HttpError) => {
-
-        if (!(error instanceof HttpError)) {
-          let _error: HttpError = error;
-          error = new HttpError(500, _error.message, {});
-          error.stack = _error.stack;
-        }
-        // log error message
-        this.logger.error(error.message, {
-          id: this.id,
-          method: this.request.method,
-          request: this.url,
-          url: this.request.url,
-          error
-        });
-        // set status code
-        this.statusCode = error.getCode();
-        // clean log output
-        return this.render(clean(error.toString()));
-      })
-      .catch((error: HttpError) => this.logger.error(error.message, {
-        id: this.id,
-        method: this.request.method,
-        request: this.url,
-        url: this.request.url,
-        error
-      }));
+    return this.processController(reflectionInjector, this.controllerProvider, this.actionName);
   }
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#render
-   * @param {Buffer|String} response
-   * @private
-   * @description
-   * This method sends data to client
-   */
-  render(response: string | Buffer): string | Buffer {
-    this.logger.info("Request.render", {
-      id: this.id
-    });
-    if (isString(response) || (response instanceof Buffer)) {
-      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
-      this.response.write(response);
-      this.response.end();
-      return response;
-    }
-    this.logger.error("Invalid response type", {
-      id: this.id,
-      response: response,
-      type: typeof response
-    });
-    throw new HttpError(500, "ResponseType must be string or buffer", {
-      response
-    });
-  }
 
   /**
    * @since 1.0.0
@@ -515,11 +372,14 @@ export class Request implements IAfterConstruct {
    * @description
    * Returns a mapped action metadata
    */
-  getMappedAction(controllerProvider: IProvider, actionName: String, resolvedRoute: ResolvedRoute, name: String = "Action"): IAction {
+  getMappedAction(controllerProvider: IProvider, actionName: String, name: String = "Action"): IAction {
     // get mappings from controller
     let mappings = Metadata
       .getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
-      .filter((item: IAction) => item.type === name && item.value === actionName && this.isControllerInherited(controllerProvider.provide, item.proto));
+      .filter((item: IAction) =>
+        item.type === name && item.value === actionName &&
+        this.isControllerInherited(controllerProvider.provide, item.proto)
+      );
 
     let mappedAction;
     // search mapped on current controller
@@ -535,7 +395,7 @@ export class Request implements IAfterConstruct {
       throw new HttpError(500, `@${name}("${actionName}") is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
         name,
         actionName,
-        resolvedRoute
+        resolvedRoute: this.resolvedRoute
       });
     }
 
@@ -553,7 +413,10 @@ export class Request implements IAfterConstruct {
   getDecoratorByMappedAction(controllerProvider: IProvider, mappedAction: any, paramName: string): any {
     // get mappings from controller
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
-    return mappings.find((item: IAction) => item.type === paramName && item.key === mappedAction.key && this.isControllerInherited(controllerProvider.provide, item.proto));
+    return mappings.find((item: IAction) =>
+      item.type === paramName && item.key === mappedAction.key &&
+      this.isControllerInherited(controllerProvider.provide, item.proto)
+    );
   }
 
   /**
@@ -570,36 +433,6 @@ export class Request implements IAfterConstruct {
     return mappings.filter((item: IParam) => item.key === mappedAction.key);
   }
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getControllerProvider
-   * @private
-   * @description
-   * Returns a controller provider
-   */
-  getControllerProvider(name: String, actionName: String, resolvedRoute: ResolvedRoute): IProvider {
-    let controllerProvider: IProvider = this.controllers
-      .map(item => Metadata.verifyProvider(item))
-      .find((Class: IProvider) => {
-        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === name;
-      });
-    if (!isPresent(controllerProvider)) {
-      throw new HttpError(500, `You must define controller within current route`, {
-        name,
-        actionName,
-        resolvedRoute
-      });
-    } else if (!isClass(controllerProvider.provide)) {
-      throw new HttpError(500, `Controller must be a class type`, {
-        name,
-        actionName,
-        resolvedRoute
-      });
-    }
-    return controllerProvider;
-  }
 
   /**
    * @since 1.0.0
@@ -611,8 +444,7 @@ export class Request implements IAfterConstruct {
    */
   processAction(injector: Injector,
                 controllerProvider: IProvider,
-                mappedAction: IAction,
-                resolvedRoute: ResolvedRoute): string | Buffer {
+                mappedAction: IAction): string | Buffer {
     // get controller instance
     let controllerInstance = injector.get(controllerProvider.provide);
     // get action
@@ -641,11 +473,11 @@ export class Request implements IAfterConstruct {
         switch (param.type) {
           case "Param":
             if (
-              (isPresent(resolvedRoute.params) && !resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(resolvedRoute.params)
+              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(this.resolvedRoute.params)
             ) {
-              throw new TypeError(`Property ${param.value} is not defined on route ${toString(resolvedRoute)}`);
+              throw new TypeError(`Property ${param.value} is not defined on route ${toString(this.resolvedRoute)}`);
             }
-            actionParams.push(resolvedRoute.params[param.value]);
+            actionParams.push(this.resolvedRoute.params[param.value]);
             break;
           case "Chain":
             actionParams.push(injector.get(CHAIN_KEY));
@@ -668,14 +500,13 @@ export class Request implements IAfterConstruct {
   async processFilters(injector: Injector,
                        name: string,
                        data: Array<TFilter>,
-                       resolvedRoute: ResolvedRoute,
                        isAfter: boolean): Promise<any> {
     let filters = data.filter(item => {
       let metadata = Metadata.getComponentConfig(item);
       if (isPresent(metadata)) {
         return (
           metadata.route === "*" ||
-          metadata.route === resolvedRoute.route ||
+          metadata.route === this.resolvedRoute.route ||
           metadata.route === (name + "/*")
         );
       }
@@ -711,15 +542,16 @@ export class Request implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#handleController
+   * @name Request#processController
    * @private
    * @description
    * Handle controller instance
    */
-  async handleController(name: string, actionName: String, resolvedRoute: ResolvedRoute): Promise<any> {
+  async processController(reflectionInjector: Injector,
+                          controllerProvider: IProvider,
+                          actionName: String): Promise<any> {
 
-    // find controller
-    let controllerProvider = this.getControllerProvider(name, actionName, resolvedRoute);
+    let controllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     // get controller metadata
     let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
@@ -735,7 +567,7 @@ export class Request implements IAfterConstruct {
     });
 
     // create controller injector
-    let injector = new Injector(this.reflectionInjector, [CHAIN_KEY]);
+    let injector = new Injector(reflectionInjector, [CHAIN_KEY]);
 
     // initialize controller
     injector.createAndResolve(
@@ -749,7 +581,7 @@ export class Request implements IAfterConstruct {
     // process filters
     if (isArray(metadata.filters)) {
       // set filter result
-      injector.set(CHAIN_KEY, await this.processFilters(injector, name, metadata.filters, resolvedRoute, false));
+      injector.set(CHAIN_KEY, await this.processFilters(injector, controllerMetadata.name, metadata.filters, false));
     }
 
     // process @BeforeEach action
@@ -757,8 +589,7 @@ export class Request implements IAfterConstruct {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, null, resolvedRoute, "BeforeEach"),
-        resolvedRoute
+        this.getMappedAction(controllerProvider, null, "BeforeEach")
       );
 
       injector.set(CHAIN_KEY, result);
@@ -769,8 +600,7 @@ export class Request implements IAfterConstruct {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "Before"),
-        resolvedRoute
+        this.getMappedAction(controllerProvider, actionName, "Before")
       );
 
       injector.set(CHAIN_KEY, result);
@@ -781,8 +611,7 @@ export class Request implements IAfterConstruct {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, actionName, resolvedRoute),
-        resolvedRoute
+        this.getMappedAction(controllerProvider, actionName)
       );
       injector.set(CHAIN_KEY, result);
     }
@@ -792,8 +621,7 @@ export class Request implements IAfterConstruct {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, actionName, resolvedRoute, "After"),
-        resolvedRoute
+        this.getMappedAction(controllerProvider, actionName, "After")
       );
       injector.set(CHAIN_KEY, result);
     }
@@ -803,43 +631,25 @@ export class Request implements IAfterConstruct {
       let result = await this.processAction(
         injector,
         controllerProvider,
-        this.getMappedAction(controllerProvider, null, resolvedRoute, "AfterEach"),
-        resolvedRoute
+        this.getMappedAction(controllerProvider, null, "AfterEach")
       );
       injector.set(CHAIN_KEY, result);
     }
 
     if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected) && isArray(metadata.filters)) {
       // set filter result
-      injector.set(CHAIN_KEY, await this.processFilters(injector, name, metadata.filters, resolvedRoute, true));
+      injector.set(CHAIN_KEY, await this.processFilters(injector, controllerMetadata.name, metadata.filters, true));
     }
 
     // render action call
-    return this.render(await injector.get(CHAIN_KEY));
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#handleModule
-   * @private
-   * @description
-   * Handle module instance
-   */
-  handleModule(module: String, name: String, action: String, resolvedRoute: ResolvedRoute) {
-    throw new HttpError(500, `Modules are not implemented in current version :)`, {
-      module,
-      name,
-      action,
-      resolvedRoute
-    });
+    return await injector.get(CHAIN_KEY);
   }
 }
 
 /**
  * @since 1.0.0
  * @class
- * @name RequestReflection
+ * @name Request
  * @constructor
  * @description
  * Get request reflection to limit public api
@@ -847,15 +657,15 @@ export class Request implements IAfterConstruct {
  * @private
  */
 @Injectable()
-export class RequestReflection {
+export class Request {
 
   /**
-   * @param Request
+   * @param ControllerResolver
    * @description
-   * Current internal Request instance
+   * Current internal ControllerResolver instance
    */
-  @Inject(Request)
-  private request: Request;
+  @Inject(ControllerResolver)
+  private controllerResolver: ControllerResolver;
 
   /**
    * @param ResolvedRoute
@@ -874,27 +684,27 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#onDestroy
+   * @name Request#onDestroy
    *
    * @description
    * Add destroy event to public api
    */
   onDestroy(callback: Function): void {
-    this.request.getEventEmitter().once("destroy", callback);
+    this.controllerResolver.getEventEmitter().once("destroy", callback);
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getConnection
+   * @name Request#getConnection
    *
    * @description
    * Get connection data
    */
   getConnection(): IConnection {
-    let request = this.request.getIncomingMessage();
+    let request = this.controllerResolver.getIncomingMessage();
     return {
-      uuid: this.request.getUUID(),
+      uuid: this.controllerResolver.getUUID(),
       method: request.method,
       url: request.url,
       httpVersion: request.httpVersion,
@@ -911,7 +721,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getCookies
+   * @name Request#getCookies
    *
    * @description
    * Return parsed cookies
@@ -950,7 +760,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getCookie
+   * @name Request#getCookie
    *
    * @description
    * Return request headers
@@ -963,7 +773,7 @@ export class RequestReflection {
   /**
    * @since 0.0.1
    * @function
-   * @name RequestReflection#setResponseCookie
+   * @name Request#setResponseCookie
    * @param {String} key cookie name
    * @param {String} value cookie value
    * @param {String|Object|Number} expires expire date
@@ -1005,19 +815,19 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getRequestHeaders
+   * @name Request#getRequestHeaders
    *
    * @description
    * Return request headers
    */
   getRequestHeaders(): any {
-    return this.request.getIncomingMessage().headers;
+    return this.controllerResolver.getIncomingMessage().headers;
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getRequestHeader
+   * @name Request#getRequestHeader
    *
    * @description
    * Return request header by name
@@ -1031,7 +841,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#setResponseHeader
+   * @name Request#setResponseHeader
    * @param {String} name
    * @param {String} value
    *
@@ -1039,26 +849,26 @@ export class RequestReflection {
    * Set response header
    */
   setResponseHeader(name: string, value: string | string[]): void {
-    this.request.getServerResponse().setHeader(name, value);
+    this.controllerResolver.getServerResponse().setHeader(name, value);
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#setContentType
+   * @name Request#setContentType
    * @param {String} value
    *
    * @description
    * Set response content type
    */
   setContentType(value: string) {
-    this.request.setContentType(value);
+    this.controllerResolver.setContentType(value);
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getParams
+   * @name Request#getParams
    *
    * @description
    * Get all request parameters
@@ -1070,7 +880,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getParam
+   * @name Request#getParam
    * @param {string} name
    *
    * @description
@@ -1084,7 +894,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getMethod
+   * @name Request#getMethod
    *
    * @description
    * Return resolved route method
@@ -1096,7 +906,7 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getRoute
+   * @name Request#getRoute
    *
    * @description
    * Return resolved route name
@@ -1108,36 +918,36 @@ export class RequestReflection {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#getRequestBody
+   * @name Request#getRequestBody
    *
    * @description
    * Get request body buffer
    */
   getRequestBody(): Buffer {
-    return this.request.getRequestBody();
+    return this.controllerResolver.getRequestBody();
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#setStatusCode
+   * @name Request#setStatusCode
    *
    * @description
    * Set status code
    */
   setStatusCode(code: number) {
-    this.request.setStatusCode(code);
+    this.controllerResolver.setStatusCode(code);
   }
 
   /**
    * @since 1.0.0
    * @function
-   * @name RequestReflection#stopActionChain
+   * @name Request#stopActionChain
    *
    * @description
    * Stops action chain
    */
   stopActionChain() {
-    this.request.stopActionChain();
+    this.controllerResolver.stopActionChain();
   }
 }

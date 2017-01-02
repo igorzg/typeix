@@ -1,4 +1,4 @@
-import {IFilter, Filter, RequestReflection, Inject} from "typeix";
+import {IFilter, Filter, Request, Inject} from "typeix";
 
 /**
  * @constructor
@@ -11,12 +11,12 @@ import {IFilter, Filter, RequestReflection, Inject} from "typeix";
 @Filter(80)
 export class ChainFilter implements IFilter {
   /**
-   * @param {RequestReflection} request
+   * @param {Request} request
    * @description
-   * Request reflection
+   * ControllerResolver reflection
    */
-  @Inject(RequestReflection)
-  request: RequestReflection;
+  @Inject(Request)
+  request: Request;
 
   /**
    * @function

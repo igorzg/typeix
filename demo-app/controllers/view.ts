@@ -1,4 +1,4 @@
-import {Inject, Controller, RequestReflection, BeforeEach, AfterEach, Chain,  Action} from "typeix";
+import {Inject, Controller, Request, BeforeEach, AfterEach, Chain,  Action} from "typeix";
 import {CoreController} from "./core";
 /**
  * Controller example
@@ -18,12 +18,12 @@ import {CoreController} from "./core";
 export class ViewController extends CoreController {
 
   /**
-   * @param {RequestReflection} request
+   * @param {Request} request
    * @description
-   * Request reflection
+   * ControllerResolver reflection
    */
-  @Inject(RequestReflection)
-  request: RequestReflection;
+  @Inject(Request)
+  request: Request;
 
   /**
    * @function

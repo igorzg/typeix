@@ -5,7 +5,7 @@ import {
   Action,
   Controller,
   Param,
-  RequestReflection,
+  Request,
   OnError,
   BeforeEach,
   Chain
@@ -36,12 +36,12 @@ export class CoreController {
   @Inject(Assets)
   assetLoader: Assets;
   /**
-   * @param {RequestReflection} request
+   * @param {Request} request
    * @description
-   * Request reflection
+   * ControllerResolver reflection
    */
-  @Inject(RequestReflection)
-  request: RequestReflection;
+  @Inject(Request)
+  request: Request;
 
   /**
    * @function

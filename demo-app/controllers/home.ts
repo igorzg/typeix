@@ -1,5 +1,5 @@
 import {Assets} from "../components/assets";
-import {Inject, Action, Controller, RequestReflection, Before, Chain, BeforeEach, Param} from "typeix";
+import {Inject, Action, Controller, Request, Before, Chain, BeforeEach, Param} from "typeix";
 import {ViewController} from "./view";
 import {Cache} from "../filters/cache";
 import {ChainFilter} from "../filters/chain";
@@ -30,12 +30,12 @@ export class HomeController extends ViewController {
   @Inject(Assets)
   assetLoader: Assets;
   /**
-   * @param {RequestReflection} request
+   * @param {Request} request
    * @description
-   * Request reflection
+   * ControllerResolver reflection
    */
-  @Inject(RequestReflection)
-  request: RequestReflection;
+  @Inject(Request)
+  request: Request;
 
 
   /**
