@@ -33,7 +33,7 @@ export interface IUrlTreePath {
  * @name Headers
  *
  * @description
- * Request headers
+ * ControllerResolver headers
  */
 export interface Headers {}
 /**

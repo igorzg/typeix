@@ -1,2 +1,3 @@
 export {httpServer} from "./http";
-export {RequestReflection} from "./request";
+export {getModule} from "./bootstrap";
+export {Request} from "./request";

@@ -1,5 +1,6 @@
 import {IProvider} from "./iprovider";
 import {RouteRuleConfig} from "./iroute";
+import {Injector} from "../injector/injector";
 /**
  * @since 1.0.0
  * @interface
@@ -20,7 +21,40 @@ export interface IModuleMetadata {
   exports?: Array<Function|IProvider>;
   name?: string;
   routes?: Array<RouteRuleConfig>;
-  modules?: Array<IModuleMetadata>;
   controllers: Array<IProvider|Function>;
   providers?: Array<IProvider|Function>;
+}
+
+/**
+ * @since 1.0.0
+ * @interface
+ * @name IModule
+ * @param {Injector} injector
+ * @param {string} name
+ *
+ * @description
+ * Bootstraped module injector instance
+ */
+export interface IModule {
+  injector: Injector;
+  provider: Array<Function|IProvider>;
+  name: string;
+}
+/**
+ * @since 1.0.0
+ * @interface
+ * @name IResolvedModule
+ * @param {Object} module
+ * @param {Array<Buffer>} data
+ * @param {String} controller
+ * @param {String} action
+ *
+ * @description
+ * Resolved module data from resolved route
+ */
+export interface IResolvedModule {
+  module: any;
+  data?: Array<Buffer>;
+  controller: string;
+  action: string;
 }

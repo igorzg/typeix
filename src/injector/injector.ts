@@ -187,7 +187,7 @@ export class Injector {
    * );
    * let myInstance = injector.get(MyInjectableClass);
    */
-  static createAndResolve(Class: Function, providers: Array<IProvider|Function>): Injector {
+  static createAndResolve(Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
     let injector = new Injector();
     injector.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
     return injector;

@@ -12,7 +12,7 @@ import {Inject} from "../decorators/inject";
  * @name Methods
  *
  * @description
- * Request methods
+ * ControllerResolver methods
  */
 export enum Methods {
   GET,
