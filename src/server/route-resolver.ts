@@ -15,6 +15,7 @@ import {getModule} from "./bootstrap";
 import {ControllerResolver} from "./request";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
+import {clean} from "../logger/inspect";
 
 /**
  * @since 1.0.0
@@ -266,79 +267,79 @@ export class RouteResolver {
         };
       })
       .then((resolvedModule: IResolvedModule) => this.processModule(resolvedModule))
-      .then(data => this.render(data));
+      .then(data => this.render(data))
+      .catch((error: HttpError) => {
+        // force HttpError to be thrown
+        if (!(error instanceof HttpError)) {
+          let _error: HttpError = error;
+          error = new HttpError(500, _error.message, {});
+          error.stack = _error.stack;
+        }
+        // log error message
+        this.logger.error(error.message, {
+          id: this.id,
+          method: this.request.method,
+          request: this.url,
+          url: this.request.url,
+          error
+        });
+        //
+        // if (isPresent(this.reflectionInjector)) {
+        //   // define module controller action
+        //   let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
+        //
+        //   let [module, controller, action] = resolvedRoute.route.split("/");
+        //
+        //   if (!isPresent(action)) {
+        //     // find controller
+        //     let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
+        //     // get mapped action metadata
+        //     let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
+        //     // get on error
+        //     let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
+        //     // if on error is present define custom error
+        //     if (isPresent(onError)) {
+        //       // set code from it
+        //       this.statusCode = onError.value.status;
+        //       // get custom message
+        //       return onError.value.message;
+        //     }
+        //
+        //   }
+        // }
+        // status code is mutable
+        this.statusCode = error.getCode();
+        // render error
+        return this.render(clean(error.toString()));
+      })
+      .catch((error: HttpError) => {
+
+        if (!(error instanceof HttpError)) {
+          let _error: HttpError = error;
+          error = new HttpError(500, _error.message, {});
+          error.stack = _error.stack;
+        }
+        // log error message
+        this.logger.error(error.message, {
+          id: this.id,
+          method: this.request.method,
+          request: this.url,
+          url: this.request.url,
+          error
+        });
+        // set status code
+        this.statusCode = error.getCode();
+        // clean log output
+        return this.render(clean(error.toString()));
+      })
+      .catch((error: HttpError) => this.logger.error(error.message, {
+        id: this.id,
+        method: this.request.method,
+        request: this.url,
+        url: this.request.url,
+        error
+      }));
 
 
-    // .catch((error: HttpError) => {
-    //     // force HttpError to be thrown
-    //     if (!(error instanceof HttpError)) {
-    //       let _error: HttpError = error;
-    //       error = new HttpError(500, _error.message, {});
-    //       error.stack = _error.stack;
-    //     }
-    //     // log error message
-    //     this.logger.error(error.message, {
-    //       id: this.id,
-    //       method: this.request.method,
-    //       request: this.url,
-    //       url: this.request.url,
-    //       error
-    //     });
-    //
-    //     if (isPresent(this.reflectionInjector)) {
-    //       // define module controller action
-    //       let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
-    //
-    //       let [module, controller, action] = resolvedRoute.route.split("/");
-    //
-    //       if (!isPresent(action)) {
-    //         // find controller
-    //         let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
-    //         // get mapped action metadata
-    //         let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
-    //         // get on error
-    //         let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
-    //         // if on error is present define custom error
-    //         if (isPresent(onError)) {
-    //           // set code from it
-    //           this.statusCode = onError.value.status;
-    //           // get custom message
-    //           return onError.value.message;
-    //         }
-    //
-    //       }
-    //     }
-    //     // status code is mutable
-    //     this.statusCode = error.getCode();
-    //     // render error
-    //     return clean(error.toString());
-    //   })
-    //     .catch((error: HttpError) => {
-    //
-    //       if (!(error instanceof HttpError)) {
-    //         let _error: HttpError = error;
-    //         error = new HttpError(500, _error.message, {});
-    //         error.stack = _error.stack;
-    //       }
-    //       // log error message
-    //       this.logger.error(error.message, {
-    //         id: this.id,
-    //         method: this.request.method,
-    //         request: this.url,
-    //         url: this.request.url,
-    //         error
-    //       });
-    //       // set status code
-    //       this.statusCode = error.getCode();
-    //       // clean log output
-    //       return clean(error.toString());
-    //     })
-    //     .catch((error: HttpError) => this.logger.error(error.message, {
-    //       id: this.id,
-    //       method: this.request.method,
-    //       request: this.url,
-    //       url: this.request.url,
-    //       error
-    //     }));
   }
 }
