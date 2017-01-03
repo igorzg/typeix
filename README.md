@@ -23,9 +23,10 @@
 #### create project
 ```npm
 npm init
+```
+```npm
 npm install typeix --save
 ```
-
 #### create controllers/core.controller.ts
 ```typescript
 import { Controller, Action, isPresent } from "typeix";
