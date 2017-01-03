@@ -1,3 +1,7 @@
+## 1.0.0-alpha-24
+- Fix injector processor
+- Fix status code and content type resolver
+
 ## 1.0.0-alpha-23
 - Refactored request processing
 - Implemented module system
