@@ -162,6 +162,17 @@ export class ControllerResolver {
   /**
    * @since 1.0.0
    * @function
+   * @name Request#isControllerPrototypeOf
+   * @private
+   * @description
+   * Validate controller inheritance
+   */
+  static isControllerInherited(a: Function, b: Function) {
+    return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
+  }
+  /**
+   * @since 1.0.0
+   * @function
    * @name Request#setStatusCode
    * @private
    * @description
@@ -306,18 +317,6 @@ export class ControllerResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#isControllerPrototypeOf
-   * @private
-   * @description
-   * Validate controller inheritance
-   */
-  isControllerInherited(a: Function, b: Function) {
-    return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
    * @name Request#hasMappedAction
    * @private
    * @description
@@ -325,7 +324,7 @@ export class ControllerResolver {
    */
   hasMappedAction(controllerProvider: IProvider, actionName: String, name: String = "Action"): boolean {
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
-      .filter((item: IAction) => this.isControllerInherited(controllerProvider.provide, item.proto));
+      .filter((item: IAction) => ControllerResolver.isControllerInherited(controllerProvider.provide, item.proto));
 
     return isPresent(mappings.find(item => item.type === name && item.value === actionName));
   }
@@ -344,7 +343,7 @@ export class ControllerResolver {
       .getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS)
       .filter((item: IAction) =>
         item.type === name && item.value === actionName &&
-        this.isControllerInherited(controllerProvider.provide, item.proto)
+        ControllerResolver.isControllerInherited(controllerProvider.provide, item.proto)
       );
 
     let mappedAction;
@@ -381,7 +380,7 @@ export class ControllerResolver {
     let mappings = Metadata.getMetadata(controllerProvider.provide.prototype, FUNCTION_KEYS);
     return mappings.find((item: IAction) =>
       item.type === paramName && item.key === mappedAction.key &&
-      this.isControllerInherited(controllerProvider.provide, item.proto)
+      ControllerResolver.isControllerInherited(controllerProvider.provide, item.proto)
     );
   }
 
