@@ -21,13 +21,17 @@
 
 ## Getting started
 #### create project
+
 ```npm
 npm init
 ```
+
 ```npm
 npm install typeix --save
 ```
+
 #### create controllers/core.controller.ts
+
 ```typescript
 import { Controller, Action, isPresent } from "typeix";
 import { readFile } from "fs";
@@ -76,12 +80,14 @@ class Application implements IAfterConstruct {
     this.router.addRules([
         {
           methods: [Methods.GET],
-          route: "core/favicon", // module/controller/action or controller/action
+          // module/controller/action or controller/action
+          route: "core/favicon", 
           url: "/favicon.ico"
         },
         {
           methods: [Methods.GET],
-          route: "core/index", // equals root/core/index since bootstrap module is root module
+           // equals root/core/index since bootstrap module is root module
+          route: "core/index",
           url: "/"
         }
     ]);
@@ -91,7 +97,7 @@ class Application implements IAfterConstruct {
 ```
 
 #### create bootstrap.ts
-````typescript
+```typescript
 import {Application} from "./application.module";
 import {httpServer} from "typeix";
 
@@ -100,8 +106,9 @@ import {httpServer} from "typeix";
  *
  * @description
  * Creates server instance on port 9000
- * We always use separate bootstrap file to bootstrap application because of testing or server side fakeHttp feature.
+ * We always use separate bootstrap file to bootstrap application 
+ * because of testing or server side fakeHttp feature.
  * We will be able to simulate server side request with fakeHttp
  */
 httpServer(Application, 9000);
-````
+```
