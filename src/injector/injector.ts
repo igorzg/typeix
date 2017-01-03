@@ -224,16 +224,26 @@ export class Injector {
     providers = Metadata.mergeProviders(Metadata.getConstructorProviders(provider.provide), providers);
     // create _providers first
     providers.forEach(item => this.createAndResolve(item, Metadata.getConstructorProviders(item.provide)));
+
+    // set correct injector
+    if (!this.has(Injector)) {
+      this.set(Injector, this); // set local injector
+    }
+
     // if provider.useValue is present return value
     if (isPresent(provider.useValue)) {
       this.set(provider.provide, provider.useValue);
       return this.get(provider.provide);
     }
-
+    // get constructor args
     let keys = Metadata.getConstructorInjectKeys(provider.provide);
+    // get providers for constructor
     let args = keys.map(arg => this.get(arg, provider));
+    // create instance
     let instance = Reflect.construct(provider.useClass, args);
+    // get @Inject data
     let protoKeys = Metadata.getConstructorPrototypeKeys(provider.useClass);
+    // assign injected values
     if (isArray(protoKeys)) {
       protoKeys.forEach((item: IInjectKey) => {
         let value = this.get(item.value);
@@ -243,13 +253,13 @@ export class Injector {
         });
       });
     }
+    // set provider and value
     this.set(provider.provide, instance);
+    // invoke after construct
     if (provider.useClass.prototype.hasOwnProperty("afterConstruct") && isFunction(instance.afterConstruct)) {
       instance.afterConstruct();
     }
-    if (!this.has(Injector)) {
-      this.set(Injector, this); // set local injector
-    }
+
     return instance;
   }
 
