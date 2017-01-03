@@ -42,8 +42,8 @@ export class HomeController {
    *
    */
   @Action("index")
-  actionIndex(): string {
-    return `Action index: admin module`;
+  actionIndex(@Chain() data: string): string {
+    return `Action index: admin module <-` + data;
   }
 
   /**
@@ -56,7 +56,7 @@ export class HomeController {
    */
   @BeforeEach()
   beforeEachAction(@Chain() data: string): string {
-    return "Before each core <- " + data;
+    return "Before each admin module <- " + data;
   }
 
   /**
@@ -75,7 +75,7 @@ export class HomeController {
    */
   @Before("index")
   beforeIndex(@Chain() data: string): string {
-    return "Before index home: <- " + data;
+    return "Before index admin module: <- " + data;
   }
 
 }
