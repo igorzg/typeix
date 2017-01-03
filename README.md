@@ -8,3 +8,12 @@
 
 
 [View demo application](https://github.com/igorzg/typeix/tree/master/demo-app)
+
+## Features
+* Dependency Injection
+* Modular design
+* MVC structure
+* Component driven -> singletons -> depends on injection level
+* Request Filters
+* Nice routing features -> supports static && dynamic routing
+
