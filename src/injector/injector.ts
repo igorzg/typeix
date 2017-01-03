@@ -205,6 +205,9 @@ export class Injector {
    * Injector constructor
    */
   constructor(private parent?: Injector, keys: Array<any> = []) {
+    if (isArray(keys) && keys.indexOf(Injector) === -1) {
+      keys.push(Injector);
+    }
     this._providers = new ProviderList(this._uid, keys);
   }
 
