@@ -20,13 +20,13 @@
 
 
 ## Getting started
-* create project
-```
+#### create project
+```npm
 npm init
 npm install typeix --save
 ```
 
-* create controllers/core.controller.ts
+#### create controllers/core.controller.ts
 ```typescript
 import { Controller, Action, isPresent } from "typeix";
 import { readFile } from "fs";
@@ -56,7 +56,7 @@ export class CoreController {
 
 ```
 
-* create application.module.ts
+#### create application.module.ts
 ```typescript
 import { Module, Router, Inject, IAfterConstruct, Methods } from "typeix"
 import { CoreController } from "./controllers/core.controller"
@@ -89,7 +89,7 @@ class Application implements IAfterConstruct {
 }
 ```
 
-* create bootstrap.ts
+#### create bootstrap.ts
 ````typescript
 import {Application} from "./application.module";
 import {httpServer} from "typeix";
