@@ -8,6 +8,7 @@ import {Metadata} from "../injector/metadata";
 import {RouteResolver} from "./route-resolver";
 import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
+import {EventEmitter} from "events";
 
 export const BOOTSTRAP_MODULE = "bootstrap";
 
@@ -104,13 +105,19 @@ export function fireRequest(modules: Array<IModule>,
       {provide: "statusCode", useValue: 200},
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
-      {provide: "modules", useValue: modules}
+      {provide: "modules", useValue: modules},
+      EventEmitter
     ]
   );
   /**
    * Get RouteResolver instance
    */
   let rRouteResolver: RouteResolver = routeResolverInjector.get(RouteResolver);
+
+  /**
+   * On finish destroy injector
+   */
+  response.on("finish", () => routeResolverInjector.destroy());
 
   return rRouteResolver
     .process()

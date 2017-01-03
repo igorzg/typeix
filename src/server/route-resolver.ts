@@ -1,4 +1,4 @@
-import {IProvider} from "../interfaces/iprovider";
+import {IProvider, IAfterConstruct} from "../interfaces/iprovider";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {IncomingMessage, ServerResponse} from "http";
@@ -28,7 +28,7 @@ import {clean} from "../logger/inspect";
  * @private
  */
 @Injectable()
-export class RouteResolver {
+export class RouteResolver implements IAfterConstruct {
 
   /**
    * @param IncomingMessage
@@ -111,12 +111,32 @@ export class RouteResolver {
   private contentType: String;
 
   /**
+   * @param {EventEmitter} eventEmitter
+   * @description
+   * Responsible for handling events
+   */
+  @Inject(EventEmitter)
+  private eventEmitter: EventEmitter;
+
+  /**
    * @since 1.0.0
    * @function
-   * @name ControllerResolver#render
+   * @name RouteResolver#afterConstruct
+   *
+   * @private
+   * @description
+   * Create events for status code and content type change
+   */
+  afterConstruct() {
+    this.eventEmitter.on("statusCode", value => this.statusCode = value);
+    this.eventEmitter.on("contentType", value => this.contentType = value);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RouteResolver#render
    * @param {Buffer|String} response
-   * @param {Number} statusCode
-   * @param {String} contentType
    *
    * @private
    * @description
@@ -145,7 +165,7 @@ export class RouteResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name ControllerResolver#getControllerProvider
+   * @name RouteResolver#getControllerProvider
    * @private
    * @description
    * Returns a controller provider
@@ -180,7 +200,7 @@ export class RouteResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestProcessor#processModule
+   * @name RouteResolver#processModule
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -191,8 +211,6 @@ export class RouteResolver {
       resolvedModule.module.injector,
       ControllerResolver,
       [
-        {provide: "contentType", useValue: "text/html"},
-        {provide: "statusCode", useValue: 200},
         {provide: "data", useValue: this.data},
         {provide: "request", useValue: this.request},
         {provide: "response", useValue: this.response},
@@ -207,7 +225,7 @@ export class RouteResolver {
         {provide: "isForwarded", useValue: false},
         {provide: "isForwarder", useValue: false},
         {provide: "isChainStopped", useValue: false},
-        EventEmitter
+        {provide: EventEmitter, useValue: this.eventEmitter}
       ]
     );
     /**
@@ -228,7 +246,7 @@ export class RouteResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name RequestProcessor#process
+   * @name RouteResolver#process
    * @private
    * @description
    * Resolve route and deliver resolved module

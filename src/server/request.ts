@@ -10,7 +10,6 @@ import {ResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {IModuleMetadata} from "../interfaces/imodule";
 import {Metadata, FUNCTION_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
@@ -94,21 +93,6 @@ export class ControllerResolver {
   private data: Array<Buffer>;
 
   /**
-   * @param {Number} statusCode
-   * @description
-   * ControllerResolver status code default 200
-   */
-  @Inject("statusCode", true)
-  private statusCode: number;
-  /**
-   * @param {String} contentType
-   * @description
-   * Content type
-   */
-  @Inject("contentType", true)
-  private contentType: String;
-
-  /**
    * @param {Injector} Injector
    * @description
    * Injector which created request
@@ -130,10 +114,6 @@ export class ControllerResolver {
    */
   @Inject(EventEmitter)
   private eventEmitter: EventEmitter;
-
-
-
-
   /**
    * @param {string} id
    * @description
@@ -187,8 +167,22 @@ export class ControllerResolver {
    * @description
    * Set request status code
    */
-  setStatusCode(code: number) {
-    this.statusCode = code;
+  setStatusCode(value: number) {
+    this.eventEmitter.emit("statusCode", value);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#setContentType
+   * @private
+   * @param {String} value
+   *
+   * @description
+   * Set response content type
+   */
+  setContentType(value: string) {
+    this.eventEmitter.emit("contentType", value);
   }
 
   /**
@@ -282,19 +276,6 @@ export class ControllerResolver {
     return this.id;
   }
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setContentType
-   * @private
-   * @param {String} value
-   *
-   * @description
-   * Set response content type
-   */
-  setContentType(value: string) {
-    this.contentType = value;
-  }
 
   /**
    * @since 1.0.0
@@ -437,7 +418,7 @@ export class ControllerResolver {
     // content type
     let contentType = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "Produces");
     if (isPresent(contentType)) {
-      this.contentType = contentType;
+      this.eventEmitter.emit("contentType", contentType);
     }
     // resolve action params
     let actionParams = [];
@@ -540,16 +521,9 @@ export class ControllerResolver {
     // get controller metadata
     let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
-    // limit controller api, no access to request api
-    providers.push({
-      provide: "request",
-      useValue: {}
-    });
-    // limit controller api, no access to response api
-    providers.push({
-      provide: "response",
-      useValue: {}
-    });
+    // limit controller api
+    let limitApi = ["request", "response", "controllerProvider", "modules"];
+    limitApi.forEach(item => providers.push({provide: item, useValue: {}}));
 
     // create controller injector
     let injector = new Injector(reflectionInjector, [CHAIN_KEY]);
