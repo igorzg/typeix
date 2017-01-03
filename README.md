@@ -112,3 +112,5 @@ import {httpServer} from "typeix";
  */
 httpServer(Application, 9000);
 ```
+
+To start your application run node bootstrap.js after compiling to javascript.
