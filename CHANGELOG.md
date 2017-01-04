@@ -1,3 +1,6 @@
+## 1.0.0-alpha-25
+- Remove unnecessary dependencies in package.json  
+
 ## 1.0.0-alpha-24
 - Fix injector processor
 - Fix status code and content type resolver
