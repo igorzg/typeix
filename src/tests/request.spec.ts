@@ -15,36 +15,47 @@ use(sinonChai);
 describe("Request", () => {
 
 
-  let resolvedRoute: ResolvedRoute = {
-    method: Methods.GET,
-    params: {},
-    route: "core/index"
-  };
+  let resolvedRoute: ResolvedRoute;
   let eventEmitter = new EventEmitter();
 
   let incommingMessage = Object.create({
     headers: {}
   });
 
-  let controllerResolver = Object.create({
-    getEventEmitter: () => {
-      return eventEmitter;
-    },
-    getIncomingMessage: () => {
-      return incommingMessage;
-    },
-    getRequestBody: () => {
-    },
-    getUUID: () => "1",
-    setStatusCode: () => {
-    },
-    stopActionChain: () => {
-    }
-  });
+  let controllerResolver;
 
   let request: Request;
 
   beforeEach(() => {
+    resolvedRoute = {
+      method: Methods.GET,
+      params: {
+        a: 1,
+        b: 2
+      },
+      route: "core/index"
+    };
+    controllerResolver = Object.create({
+      getEventEmitter: () => {
+        return eventEmitter;
+      },
+      getRequestHeader: () => {
+      },
+      getServerResponse: () => {
+      },
+      getIncomingMessage: () => {
+        return incommingMessage;
+      },
+      setContentType: () => {
+      },
+      getRequestBody: () => {
+      },
+      getUUID: () => "1",
+      setStatusCode: () => {
+      },
+      stopActionChain: () => {
+      }
+    });
     let injector = Injector.createAndResolve(Request, [
       {provide: "resolvedRoute", useValue: resolvedRoute},
       {provide: ControllerResolver, useValue: controllerResolver}
@@ -111,5 +122,127 @@ describe("Request", () => {
       localAddress: "192.0.0.1",
       localPort: 9000
     }));
+  });
+
+
+  it("Request.getCookies", () => {
+    let aSpy = stub(request, "getRequestHeader");
+    aSpy.returns("__id=d6ad83ce4a84516bf7d438504e81b139a1483565272; __id2=1;");
+    let data = request.getCookies();
+    let cookies = {
+      __id: "d6ad83ce4a84516bf7d438504e81b139a1483565272",
+      __id2: "1"
+    };
+    assertSpy.called(aSpy);
+    assert.isTrue(isEqual(data, cookies));
+  });
+
+  it("Request.getCookie", () => {
+    let aSpy = stub(request, "getCookies");
+    aSpy.returns({
+      __id: "d6ad83ce4a84516bf7d438504e81b139a1483565272",
+      __id2: "1"
+    });
+    let id = request.getCookie("__id");
+    assertSpy.called(aSpy);
+    assert.equal(id, "d6ad83ce4a84516bf7d438504e81b139a1483565272");
+  });
+
+  it("Request.getCookies null", () => {
+    let aSpy = stub(request, "getRequestHeader");
+    aSpy.returns(null);
+    let data = request.getCookies();
+    let cookies = {};
+    assertSpy.called(aSpy);
+    assert.isTrue(isEqual(data, cookies));
+  });
+
+  it("Request.setCookie", () => {
+    let key = "id";
+    let value = "d6ad83ce4a84516bf7d438504e81b139a1483565272";
+    let expires = new Date();
+    let domain = "sub.example.com";
+    let path = "/test";
+    let isHttpOnly = true;
+    let str = "id=d6ad83ce4a84516bf7d438504e81b139a1483565272; Expires=" + expires.toUTCString() + "; Path=sub.example.com; Domain=/test; HttpOnly";
+    let aSpy = stub(request, "setResponseHeader");
+    request.setCookie(key, value, expires, domain, path, isHttpOnly);
+    assertSpy.calledWith(aSpy, "Set-cookie", str);
+  });
+
+  it("Request.getRequestHeaders", () => {
+    let aSpy = stub(controllerResolver, "getIncomingMessage");
+    let headers = {
+      headers: {}
+    };
+    aSpy.returns(headers);
+    let rHeaders = request.getRequestHeaders();
+    assertSpy.called(aSpy);
+    assert.isTrue(isEqual(rHeaders, {}));
+  });
+
+
+  it("Request.getRequestHeader", () => {
+    let aSpy = stub(request, "getRequestHeaders");
+    let headers = {accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"};
+    aSpy.returns(headers);
+    let rHeaders = request.getRequestHeader("Accept");
+    assertSpy.called(aSpy);
+    assert.isTrue(isEqual(rHeaders, headers.accept));
+  });
+
+
+  it("Request.setResponseHeader", () => {
+    let api = {
+      setHeader: (a, b) => {
+      }
+    };
+    let bSpy = stub(api, "setHeader");
+    let aSpy = stub(controllerResolver, "getServerResponse");
+    aSpy.returns(api);
+    request.setResponseHeader("Content-Type", "application/javascript");
+    assertSpy.called(aSpy);
+    assertSpy.calledWith(bSpy, "Content-Type", "application/javascript");
+  });
+
+  it("Request.setContentType", () => {
+    let aSpy = stub(controllerResolver, "setContentType");
+    request.setContentType("application/javascript");
+    assertSpy.calledWith(aSpy, "application/javascript");
+  });
+
+
+  it("Request.getParams", () => {
+    assert.isTrue(isEqual(request.getParams(), resolvedRoute.params));
+  });
+
+  it("Request.getParam", () => {
+    assert.isTrue(isEqual(request.getParam("a"), 1));
+  });
+
+  it("Request.getMethod", () => {
+    assert.isTrue(isEqual(request.getMethod(), Methods.GET));
+  });
+
+  it("Request.getRoute", () => {
+    assert.isTrue(isEqual(request.getRoute(), "core/index"));
+  });
+
+  it("Request.getRequestBody", () => {
+    let aSpy = stub(controllerResolver, "getRequestBody");
+    request.getRequestBody();
+    assertSpy.called(aSpy);
+  });
+
+  it("Request.setStatusCode", () => {
+    let aSpy = stub(controllerResolver, "setStatusCode");
+    request.setStatusCode(400);
+    assertSpy.calledWith(aSpy, 400);
+  });
+
+  it("Request.stopActionChain", () => {
+    let aSpy = stub(controllerResolver, "stopActionChain");
+    request.stopActionChain();
+    assertSpy.called(aSpy);
   });
 });
