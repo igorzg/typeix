@@ -74,5 +74,10 @@ describe("ControllerResolver", () => {
     assertSpy.calledWith(aSpy, "contentType", contentType);
   });
 
+  it("ControllerResolver.stopActionChain", () => {
+    assert.isFalse(Reflect.get(controllerResolver, "isChainStopped"));
+    controllerResolver.stopActionChain();
+    assert.isTrue(Reflect.get(controllerResolver, "isChainStopped"));
+  });
 
 });
