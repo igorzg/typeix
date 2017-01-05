@@ -12,6 +12,7 @@ import {AssertionError} from "assert";
 import {Action, Before} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
+import {Produces} from "../decorators/produces";
 
 // use chai spies
 use(sinonChai);
@@ -177,5 +178,49 @@ describe("ControllerResolver", () => {
     };
     assert.deepEqual(action, bAction);
     assert.isTrue(isEqual(action, bAction));
+  });
+
+
+  it("ControllerResolver.getDecoratorByMappedAction", () => {
+    class A {
+      @Action("parent")
+      actionParent() {
+
+      }
+
+      @Before("index")
+      actionIndex() {
+
+      }
+    }
+    class B extends A {
+      @Produces("application/json")
+      @Action("index")
+      actionIndex() {
+
+      }
+    }
+    let aProvider = Metadata.verifyProvider(A);
+    let bProvider = Metadata.verifyProvider(B);
+
+    let action: IAction = controllerResolver.getMappedAction(bProvider, "index");
+    let bAction: IAction = {
+      key: "actionIndex",
+      proto: action.proto,
+      type: "Action",
+      value: "index"
+    };
+    assert.deepEqual(action, bAction);
+
+    let produces = controllerResolver.getDecoratorByMappedAction(bProvider, action, "Produces");
+    assert.deepEqual(produces, {
+        "key": "actionIndex",
+        "proto": produces.proto,
+        "type": "Produces",
+        "value": "application/json"
+      }
+    );
+
+    assert.isUndefined(controllerResolver.getDecoratorByMappedAction(bProvider, action, "Undefined"));
   });
 });
