@@ -29,8 +29,12 @@ describe("ControllerResolver", () => {
       },
       route: "core/index"
     };
-    response = {};
-    request = {};
+    response = {
+      response: true
+    };
+    request = {
+      request: true
+    };
     data = {};
     controllerProvider = {};
     IRequest = {};
@@ -94,5 +98,9 @@ describe("ControllerResolver", () => {
 
   it("ControllerResolver.getIncomingMessage", () => {
     assert.isTrue(isEqual(controllerResolver.getIncomingMessage(), request));
+  });
+
+  it("ControllerResolver.getServerResponse", () => {
+    assert.isTrue(isEqual(controllerResolver.getServerResponse(), response));
   });
 });
