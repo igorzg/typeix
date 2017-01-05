@@ -16,7 +16,7 @@ describe("ControllerResolver", () => {
 
 
   let resolvedRoute: ResolvedRoute;
-  let eventEmitter = new EventEmitter();
+  let eventEmitter;
   let controllerResolver: ControllerResolver;
   let controllerProvider, IRequest, request, response, data, id = uuid(), url = "/";
 
@@ -34,6 +34,7 @@ describe("ControllerResolver", () => {
     data = {};
     controllerProvider = {};
     IRequest = {};
+    eventEmitter  = new EventEmitter();
     let injector = Injector.createAndResolve(ControllerResolver, [
       {provide: "data", useValue: data},
       {provide: "request", useValue: request},
@@ -60,4 +61,9 @@ describe("ControllerResolver", () => {
     assert.isTrue(controllerResolver instanceof ControllerResolver);
   });
 
+  it("ControllerResolver.setStatusCode", () => {
+    let aSpy = spy(eventEmitter, "emit");
+    controllerResolver.setStatusCode(400);
+    assertSpy.calledWith(aSpy, "statusCode", 400);
+  });
 });
