@@ -39,10 +39,10 @@ export let Module = (config: IModuleMetadata) => (Class) => {
     config.exports = [];
   }
   if (config.exports.indexOf(Logger) === -1) {
-    config.exports.push(Logger);
+    config.exports.unshift(Logger);
   }
   if (config.exports.indexOf(Router) === -1) {
-    config.exports.push(Router);
+    config.exports.unshift(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
   Metadata.setComponentConfig(Class, config);

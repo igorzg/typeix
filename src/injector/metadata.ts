@@ -265,7 +265,8 @@ export class Metadata {
       if (!isPresent(value.provide) || (!isString(value.provide) && !isFunction(value.provide))) {
         throw new TypeError(`IProvider.provider must be string or Class type, ${toString(value)}`);
       } else if (isString(value.provide) && !isPresent(value.useValue)) {
-        throw new TypeError(`When IProvider.provide is string type, then it only works with useValue`);
+        throw new TypeError(`When IProvider.provide ${value.provide} is string type, 
+        then useValue must be defined! useValue: ${value.useValue}`);
       }
 
       if (isPresent(value.useClass)) {
