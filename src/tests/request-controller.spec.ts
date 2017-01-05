@@ -11,6 +11,7 @@ import {Logger} from "../logger/logger";
 import {AssertionError} from "assert";
 import {Action} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
+import {IAction} from "../interfaces/iaction";
 
 // use chai spies
 use(sinonChai);
@@ -129,5 +130,40 @@ describe("ControllerResolver", () => {
     let provider = Metadata.verifyProvider(B);
     assert.isTrue(controllerResolver.hasMappedAction(provider, "index"));
     assert.isFalse(controllerResolver.hasMappedAction(provider, "nomappedAction"));
+  });
+
+  it("ControllerResolver.getMappedAction", () => {
+    class A {
+      @Action("parent")
+      actionParent() {
+
+      }
+    }
+    class B extends A {
+      @Action("index")
+      actionIndex() {
+
+      }
+    }
+    let aProvider = Metadata.verifyProvider(A);
+    let bProvider = Metadata.verifyProvider(B);
+    assert.isFalse(controllerResolver.hasMappedAction(aProvider, "index"));
+    assert.isTrue(controllerResolver.hasMappedAction(aProvider, "parent"));
+    assert.isTrue(controllerResolver.hasMappedAction(bProvider, "index"));
+    assert.isTrue(controllerResolver.hasMappedAction(bProvider, "parent"));
+    let action1: IAction, action2: IAction, action3: IAction;
+
+    action1 = controllerResolver.getMappedAction(aProvider, "parent");
+    action2 = controllerResolver.getMappedAction(bProvider, "index");
+    action3 = controllerResolver.getMappedAction(bProvider, "parent");
+
+    assert.isNotNull(action1);
+    assert.isNotNull(action2);
+    assert.isNotNull(action3);
+
+
+    assert.throws(() => {
+      controllerResolver.getMappedAction(aProvider, "index");
+    }, `@Action("index") is not defined on controller A`);
   });
 });
