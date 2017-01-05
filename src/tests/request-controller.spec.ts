@@ -35,7 +35,7 @@ describe("ControllerResolver", () => {
     request = {
       request: true
     };
-    data = {};
+    data = [new Buffer(1), new Buffer(1)];
     controllerProvider = {};
     IRequest = {};
     eventEmitter  = new EventEmitter();
@@ -102,5 +102,9 @@ describe("ControllerResolver", () => {
 
   it("ControllerResolver.getServerResponse", () => {
     assert.isTrue(isEqual(controllerResolver.getServerResponse(), response));
+  });
+
+  it("ControllerResolver.getRequestBody", () => {
+    assert.isTrue(isEqual(controllerResolver.getRequestBody(), Buffer.concat(data)));
   });
 });
