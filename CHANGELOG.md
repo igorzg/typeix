@@ -1,4 +1,4 @@
-## 1.0.0-alpha-27
+## 1.0.0-alpha-28
 - Fixed injections for constructor and action params 
 - Added tests for Injector
 
