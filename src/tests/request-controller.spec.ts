@@ -87,4 +87,10 @@ describe("ControllerResolver", () => {
     assertSpy.calledWith(aSpy, "destroy");
     assertSpy.called(bSpy);
   });
+
+
+  it("ControllerResolver.getEventEmitter", () => {
+    assert.isTrue(isEqual(controllerResolver.getEventEmitter(), eventEmitter));
+  });
+
 });
