@@ -80,4 +80,11 @@ describe("ControllerResolver", () => {
     assert.isTrue(Reflect.get(controllerResolver, "isChainStopped"));
   });
 
+  it("ControllerResolver.destroy", () => {
+    let aSpy = spy(eventEmitter, "emit");
+    let bSpy = spy(eventEmitter, "removeAllListeners");
+    controllerResolver.destroy();
+    assertSpy.calledWith(aSpy, "destroy");
+    assertSpy.called(bSpy);
+  });
 });
