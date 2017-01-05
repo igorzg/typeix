@@ -9,7 +9,7 @@ import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
 import {AssertionError} from "assert";
-import {Action} from "../decorators/action";
+import {Action, Before} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
 
@@ -138,6 +138,11 @@ describe("ControllerResolver", () => {
       actionParent() {
 
       }
+
+      @Before("index")
+      actionIndex() {
+
+      }
     }
     class B extends A {
       @Action("index")
@@ -151,19 +156,26 @@ describe("ControllerResolver", () => {
     assert.isTrue(controllerResolver.hasMappedAction(aProvider, "parent"));
     assert.isTrue(controllerResolver.hasMappedAction(bProvider, "index"));
     assert.isTrue(controllerResolver.hasMappedAction(bProvider, "parent"));
-    let action1: IAction, action2: IAction, action3: IAction;
 
-    action1 = controllerResolver.getMappedAction(aProvider, "parent");
-    action2 = controllerResolver.getMappedAction(bProvider, "index");
-    action3 = controllerResolver.getMappedAction(bProvider, "parent");
+    assert.isNotNull(controllerResolver.getMappedAction(aProvider, "parent"));
+    assert.isNotNull(controllerResolver.getMappedAction(bProvider, "index"));
+    assert.isNotNull(controllerResolver.getMappedAction(bProvider, "parent"));
 
-    assert.isNotNull(action1);
-    assert.isNotNull(action2);
-    assert.isNotNull(action3);
-
+    assert.isNotNull(controllerResolver.getMappedAction(aProvider, "index", "Before"));
+    assert.isNotNull(controllerResolver.getMappedAction(bProvider, "index", "Before"));
 
     assert.throws(() => {
       controllerResolver.getMappedAction(aProvider, "index");
     }, `@Action("index") is not defined on controller A`);
+
+    let action: IAction = controllerResolver.getMappedAction(bProvider, "index", "Before");
+    let bAction: IAction = {
+      key: "actionIndex",
+      proto: action.proto,
+      type: "Before",
+      value: "index"
+    };
+    assert.deepEqual(action, bAction);
+    assert.isTrue(isEqual(action, bAction));
   });
 });
