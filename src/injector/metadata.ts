@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {isPresent, isFunction, isObject, isString, toString, isArray} from "../core";
 import {IProvider} from "../interfaces/iprovider";
+
 export const INJECT_KEYS = "inject:paramtypes";
 export const FUNCTION_KEYS = "function:decorators";
 export const FUNCTION_PARAMS = "function:paramtypes";
@@ -186,7 +187,7 @@ export class Metadata {
    */
   static getConstructorInjectKeys(Class: Function): Array<any> {
     let providers = Metadata.getMetadata(Class, DESIGN_PARAMTYPES_KEYS);
-    let injectors = Metadata.getMetadata(Class, INJECT_KEYS);
+    let injectors = Metadata.getMetadata(Class, FUNCTION_PARAMS);
     if (isArray(injectors)) {
       injectors.forEach(item => providers.splice(item.paramIndex, 1, item.value));
     }

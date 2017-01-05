@@ -13,6 +13,9 @@ import {Action, Before} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
 import {Produces} from "../decorators/produces";
+import {Inject} from "../decorators/inject";
+import {Param} from "../decorators/param";
+import {inspect} from "util";
 
 // use chai spies
 use(sinonChai);
@@ -141,7 +144,7 @@ describe("ControllerResolver", () => {
       }
 
       @Before("index")
-      actionIndex() {
+      beforeIndex() {
 
       }
     }
@@ -171,7 +174,7 @@ describe("ControllerResolver", () => {
 
     let action: IAction = controllerResolver.getMappedAction(bProvider, "index", "Before");
     let bAction: IAction = {
-      key: "actionIndex",
+      key: "beforeIndex",
       proto: action.proto,
       type: "Before",
       value: "index"
@@ -189,7 +192,7 @@ describe("ControllerResolver", () => {
       }
 
       @Before("index")
-      actionIndex() {
+      beforeIndex() {
 
       }
     }
@@ -222,5 +225,47 @@ describe("ControllerResolver", () => {
     );
 
     assert.isUndefined(controllerResolver.getDecoratorByMappedAction(bProvider, action, "Undefined"));
+  });
+
+
+  it("ControllerResolver.getMappedActionArguments", () => {
+    class A {
+      @Action("parent")
+      actionParent() {
+
+      }
+    }
+    class B extends A {
+
+      constructor(private test: Logger) {
+        super();
+        console.log("TEST", test);
+      }
+
+      @Action("index")
+      actionIndex(@Param("a") param, @Inject(Logger) logger): any {
+
+      }
+    }
+    let bProvider = Metadata.verifyProvider(B);
+    let action: IAction = controllerResolver.getMappedAction(bProvider, "index");
+    let arg = controllerResolver.getMappedActionArguments(bProvider, action);
+
+    assert.deepEqual(arg, [
+        {
+          type: 'Inject',
+          key: 'actionIndex',
+          value: Logger,
+          paramIndex: 1
+        },
+        {
+          type: 'Param',
+          key: 'actionIndex',
+          value: 'a',
+          paramIndex: 0
+        }
+      ]
+    );
+
   });
 });

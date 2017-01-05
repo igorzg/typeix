@@ -447,6 +447,9 @@ export class ControllerResolver {
           case "Chain":
             actionParams.push(injector.get(CHAIN_KEY));
             break;
+          case "Inject":
+            actionParams.push(injector.get(param.value));
+            break;
         }
       });
     }

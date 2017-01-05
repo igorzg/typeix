@@ -2,20 +2,6 @@ import {IProvider} from "./iprovider";
 /**
  * @since 1.0.0
  * @interface
- * @name IInjectParam
- * @param {Object} value
- * @param {number} paramIndex
- *
- * @description
- * Injection param is used internally by framework as metadata type
- */
-export interface IInjectParam {
-  value: any;
-  paramIndex: number;
-}
-/**
- * @since 1.0.0
- * @interface
  * @name IInjectKey
  * @param {Object} value
  * @param {Object} key
