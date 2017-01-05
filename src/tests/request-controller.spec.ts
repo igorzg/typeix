@@ -8,6 +8,7 @@ import {spy, stub, assert as assertSpy} from "sinon";
 import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
+import {AssertionError} from "assert";
 
 // use chai spies
 use(sinonChai);
@@ -19,6 +20,7 @@ describe("ControllerResolver", () => {
   let eventEmitter;
   let controllerResolver: ControllerResolver;
   let controllerProvider, IRequest, request, response, data, id = uuid(), url = "/";
+  let actionName = "action";
 
   beforeEach(() => {
     resolvedRoute = {
@@ -29,12 +31,8 @@ describe("ControllerResolver", () => {
       },
       route: "core/index"
     };
-    response = {
-      response: true
-    };
-    request = {
-      request: true
-    };
+    response = new EventEmitter();
+    request = new EventEmitter();
     data = [new Buffer(1), new Buffer(1)];
     controllerProvider = {};
     IRequest = {};
@@ -46,7 +44,7 @@ describe("ControllerResolver", () => {
       {provide: "url", useValue: url},
       {provide: "UUID", useValue: id},
       {provide: "controllerProvider", useValue: controllerProvider},
-      {provide: "actionName", useValue: "action"},
+      {provide: "actionName", useValue: actionName},
       {provide: "resolvedRoute", useValue: resolvedRoute},
 
       {provide: "isRedirected", useValue: false},
@@ -106,5 +104,17 @@ describe("ControllerResolver", () => {
 
   it("ControllerResolver.getRequestBody", () => {
     assert.isTrue(isEqual(controllerResolver.getRequestBody(), Buffer.concat(data)));
+  });
+
+  it("ControllerResolver.getUUID", () => {
+    assert.isTrue(isEqual(controllerResolver.getUUID(), id));
+  });
+
+
+  it("ControllerResolver.process", () => {
+    let aSpy = stub(controllerResolver, "processController");
+    aSpy.returnsArg(0);
+    let arg = controllerResolver.process();
+    assertSpy.calledWith(aSpy, arg, controllerProvider, actionName);
   });
 });
