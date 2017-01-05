@@ -1,3 +1,7 @@
+## 1.0.0-alpha-27
+- Fixed injections for constructor and action params 
+- Added tests for Injector
+
 ## 1.0.0-alpha-25
 - Remove unnecessary dependencies in package.json  
 
