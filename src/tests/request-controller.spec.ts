@@ -9,6 +9,8 @@ import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
 import {AssertionError} from "assert";
+import {Action} from "../decorators/action";
+import {Metadata} from "../injector/metadata";
 
 // use chai spies
 use(sinonChai);
@@ -36,7 +38,7 @@ describe("ControllerResolver", () => {
     data = [new Buffer(1), new Buffer(1)];
     controllerProvider = {};
     IRequest = {};
-    eventEmitter  = new EventEmitter();
+    eventEmitter = new EventEmitter();
     let injector = Injector.createAndResolve(ControllerResolver, [
       {provide: "data", useValue: data},
       {provide: "request", useValue: request},
@@ -110,11 +112,22 @@ describe("ControllerResolver", () => {
     assert.isTrue(isEqual(controllerResolver.getUUID(), id));
   });
 
-
   it("ControllerResolver.process", () => {
     let aSpy = stub(controllerResolver, "processController");
     aSpy.returnsArg(0);
     let arg = controllerResolver.process();
     assertSpy.calledWith(aSpy, arg, controllerProvider, actionName);
+  });
+
+  it("ControllerResolver.hasMappedAction", () => {
+    class B {
+      @Action("index")
+      index() {
+
+      }
+    }
+    let provider = Metadata.verifyProvider(B);
+    assert.isTrue(controllerResolver.hasMappedAction(provider, "index"));
+    assert.isFalse(controllerResolver.hasMappedAction(provider, "nomappedAction"));
   });
 });
