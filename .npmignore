@@ -4,5 +4,6 @@ demo-app
 .npmignore
 src
 docs
+build/tests
 typedoc.json
 
