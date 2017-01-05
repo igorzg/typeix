@@ -66,4 +66,13 @@ describe("ControllerResolver", () => {
     controllerResolver.setStatusCode(400);
     assertSpy.calledWith(aSpy, "statusCode", 400);
   });
+
+  it("ControllerResolver.setContentType", () => {
+    let contentType = "application/json";
+    let aSpy = spy(eventEmitter, "emit");
+    controllerResolver.setContentType(contentType);
+    assertSpy.calledWith(aSpy, "contentType", contentType);
+  });
+
+
 });
