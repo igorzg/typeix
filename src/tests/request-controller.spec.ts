@@ -16,6 +16,9 @@ import {Produces} from "../decorators/produces";
 import {Inject} from "../decorators/inject";
 import {Param} from "../decorators/param";
 import {inspect} from "util";
+import {Chain} from "../decorators/chain";
+import {Injectable} from "../decorators/injectable";
+import {Controller} from "../decorators/controller";
 
 // use chai spies
 use(sinonChai);
@@ -266,6 +269,50 @@ describe("ControllerResolver", () => {
         }
       ]
     );
+
+  });
+
+
+  it("ControllerResolver.processAction", () => {
+    let aSpy = spy(eventEmitter, "emit");
+    @Controller({
+      name: "root"
+    })
+    class A {
+
+      @Action("index")
+      @Produces("application/json")
+      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain() chain, @Inject(Logger) lg): any {
+        return {
+          param,
+          logger,
+          chain
+        };
+      }
+    }
+
+    let aProvider = Metadata.verifyProvider(A);
+    let action: IAction = controllerResolver.getMappedAction(aProvider, "index");
+    let chain = "__chain__";
+
+    // create controller injector
+    let injector = new Injector(null, [chain]);
+    injector.set(chain, "CHAIN");
+
+    let controller = injector.createAndResolve(aProvider, Metadata.verifyProviders([Logger]));
+
+    let cSpy = spy(controller, "actionIndex");
+
+    let result = controllerResolver.processAction(injector, aProvider, action);
+    assert.isNotNull(result);
+    assertSpy.calledWith(aSpy, "contentType", "application/json");
+    assertSpy.calledWith(cSpy, 1, injector.get(Logger), 2, "CHAIN", injector.get(Logger));
+
+    assert.deepEqual(result, {
+      param: 1,
+      logger: injector.get(Logger),
+      chain: "CHAIN"
+    });
 
   });
 });

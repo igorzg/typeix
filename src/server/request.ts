@@ -415,9 +415,10 @@ export class ControllerResolver {
     // get action
     let action = controllerInstance[mappedAction.key].bind(controllerInstance);
     // content type
-    let contentType = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "Produces");
+    let contentType: IParam = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "Produces");
+
     if (isPresent(contentType)) {
-      this.eventEmitter.emit("contentType", contentType);
+      this.setContentType(contentType.value);
     }
     // resolve action params
     let actionParams = [];
