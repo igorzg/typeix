@@ -29,24 +29,22 @@ import {Metadata, FUNCTION_PARAMS} from "../injector/metadata";
  *     }
  * }
  */
-export let Chain = () => {
-  return (Class: any, key?: any, paramIndex?: any): any => {
-    let type = "Chain";
-    let metadata: Array<any> = [];
-    if (Metadata.hasMetadata(Class, FUNCTION_PARAMS)) {
-      metadata = Metadata.getMetadata(Class, FUNCTION_PARAMS);
-    }
-    if (!isNumber(paramIndex)) {
-      throw new TypeError(`@Chain is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex}
+export let Chain = (Class: any, key?: any, paramIndex?: any): any => {
+  let type = "Chain";
+  let metadata: Array<any> = [];
+  if (Metadata.hasMetadata(Class, FUNCTION_PARAMS)) {
+    metadata = Metadata.getMetadata(Class, FUNCTION_PARAMS);
+  }
+  if (!isNumber(paramIndex)) {
+    throw new TypeError(`@Chain is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex}
       @Chain is allowed only as parameter type!`);
-    }
-    metadata.push({
-      type,
-      key,
-      value: null,
-      paramIndex
-    });
-    Metadata.defineMetadata(Class, FUNCTION_PARAMS, metadata);
-    return Class;
-  };
+  }
+  metadata.push({
+    type,
+    key,
+    value: null,
+    paramIndex
+  });
+  Metadata.defineMetadata(Class, FUNCTION_PARAMS, metadata);
+  return Class;
 };

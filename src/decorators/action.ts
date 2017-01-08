@@ -52,8 +52,8 @@ let mapAction = (type) => (value: string): Function => {
  * @description
  * Map each action type
  */
-let mapEachAction = (type) => (): Function => {
-  return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
+let mapEachAction = (type) =>
+  (Class: any, key: string, descriptor: PropertyDescriptor): Function => {
     let metadata: Array<any> = [];
     let className: string = Metadata.getName(Class);
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
@@ -78,7 +78,7 @@ let mapEachAction = (type) => (): Function => {
     }
     return Class;
   };
-};
+
 
 /**
  * Action decorator

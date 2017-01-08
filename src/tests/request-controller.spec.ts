@@ -2,22 +2,19 @@ import {Methods} from "../router/router";
 import {Injector} from "../injector/injector";
 import {ResolvedRoute} from "../interfaces/iroute";
 import {Request, ControllerResolver} from "../server/request";
-import {assert, expect, use} from "chai";
+import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
 import {spy, stub, assert as assertSpy} from "sinon";
 import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
-import {AssertionError} from "assert";
 import {Action, Before, After, BeforeEach, AfterEach} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
 import {Produces} from "../decorators/produces";
 import {Inject} from "../decorators/inject";
 import {Param} from "../decorators/param";
-import {inspect} from "util";
 import {Chain} from "../decorators/chain";
-import {Injectable} from "../decorators/injectable";
 import {Controller} from "../decorators/controller";
 import {IFilter} from "../interfaces/ifilter";
 import {Filter} from "../decorators/filter";
@@ -285,7 +282,7 @@ describe("ControllerResolver", () => {
 
       @Action("index")
       @Produces("application/json")
-      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain() chain, @Inject(Logger) lg): any {
+      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain chain, @Inject(Logger) lg): any {
         return {
           param,
           logger,
@@ -356,7 +353,7 @@ describe("ControllerResolver", () => {
 
       @Action("index")
       @Produces("application/json")
-      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain() chain, @Inject(Logger) lg): any {
+      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain chain, @Inject(Logger) lg): any {
         return {
           param,
           logger,
@@ -393,7 +390,7 @@ describe("ControllerResolver", () => {
     class A {
 
       @Action("index")
-      actionIndex(@Param("a") param, @Chain() chain): any {
+      actionIndex(@Param("a") param, @Chain chain): any {
         return {
           param,
           chain
@@ -425,28 +422,28 @@ describe("ControllerResolver", () => {
     })
     class A {
 
-      @BeforeEach()
-      actionBeforeEach(@Chain() chain): any {
+      @BeforeEach
+      actionBeforeEach(@Chain chain): any {
         return "beforeEach <- " + chain;
       }
 
       @Before("index")
-      actionBefore(@Chain() chain): any {
+      actionBefore(@Chain chain): any {
         return "before <- " + chain;
       }
 
       @Action("index")
-      actionIndex(@Chain() chain): any {
+      actionIndex(@Chain chain): any {
         return "action <- " + chain;
       }
 
       @After("index")
-      actionAfter(@Chain() chain): any {
+      actionAfter(@Chain chain): any {
         return "after <- " + chain;
       }
 
-      @AfterEach()
-      actionAfterEach(@Chain() chain): any {
+      @AfterEach
+      actionAfterEach(@Chain chain): any {
         return "afterEach <- " + chain;
       }
 
@@ -500,28 +497,28 @@ describe("ControllerResolver", () => {
     })
     class A {
 
-      @BeforeEach()
-      actionBeforeEach(@Chain() chain): any {
+      @BeforeEach
+      actionBeforeEach(@Chain chain: string): string {
         return "beforeEach <- " + chain;
       }
 
       @Before("index")
-      actionBefore(@Chain() chain): any {
+      actionBefore(@Chain chain: string): string {
         return "before <- " + chain;
       }
 
       @Action("index")
-      actionIndex(@Chain() chain): any {
+      actionIndex(@Chain chain: string): string {
         return "action <- " + chain;
       }
 
       @After("index")
-      actionAfter(@Chain() chain): any {
+      actionAfter(@Chain chain: string): string {
         return "after <- " + chain;
       }
 
-      @AfterEach()
-      actionAfterEach(@Chain() chain): any {
+      @AfterEach
+      actionAfterEach(@Chain chain: string): string {
         return "afterEach <- " + chain;
       }
 

@@ -1,3 +1,8 @@
+## 1.0.0-alpha-30
+- Changed @Chain @BeforeEach @AfterEach to not be function calls
+- Updated tests for controller 
+- Exchanged controllerResolver api
+
 ## 1.0.0-alpha-28
 - Fixed injections for constructor and action params 
 - Added tests for Injector
