@@ -19,6 +19,9 @@ import {inspect} from "util";
 import {Chain} from "../decorators/chain";
 import {Injectable} from "../decorators/injectable";
 import {Controller} from "../decorators/controller";
+import {IFilter} from "../interfaces/ifilter";
+import {Filter} from "../decorators/filter";
+import {IControllerMetadata} from "../interfaces/icontroller";
 
 // use chai spies
 use(sinonChai);
@@ -313,6 +316,105 @@ describe("ControllerResolver", () => {
       logger: injector.get(Logger),
       chain: "CHAIN"
     });
+
+  });
+
+
+  it("ControllerResolver.processFilters", (done) => {
+
+    @Filter(10)
+    class AFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+    }
+
+    @Filter(20)
+    class BFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+    }
+
+    @Controller({
+      filters: [AFilter, BFilter],
+      name: "root"
+    })
+    class A {
+
+      @Action("index")
+      @Produces("application/json")
+      actionIndex(@Param("a") param, @Inject(Logger) logger, @Param("b") b, @Chain() chain, @Inject(Logger) lg): any {
+        return {
+          param,
+          logger,
+          chain
+        };
+      }
+    }
+
+    let aProvider = Metadata.verifyProvider(A);
+    let chain = "__chain__";
+
+    // create controller injector
+    let injector = new Injector(null, [chain]);
+    injector.set(chain, "CHAIN");
+
+    let metadata: IControllerMetadata = Metadata.getComponentConfig(aProvider.provide);
+
+    let result: Promise<any> = controllerResolver.processFilters(injector, metadata, false);
+    assert.instanceOf(result, Promise);
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.equal(data, "aFilter <- bFilter <- CHAIN");
+      done();
+    })
+      .catch(done);
+  });
+
+
+
+  it("ControllerResolver.processController no action chain", (done) => {
+    @Controller({
+      name: "root"
+    })
+    class A {
+
+      @Action("index")
+      @Produces("application/json")
+      actionIndex(@Param("a") param, @Chain() chain): any {
+        return {
+          param,
+          chain
+        };
+      }
+    }
+    let aProvider = Metadata.verifyProvider(A);
+    // process controller
+    let result = controllerResolver.processController(new Injector(), aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, {
+        param: 1,
+        chain: null
+      });
+      done();
+    })
+      .catch(done);
 
   });
 });

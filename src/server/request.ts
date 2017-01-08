@@ -170,6 +170,7 @@ export class ControllerResolver {
   static isControllerInherited(a: Function, b: Function) {
     return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -467,16 +468,16 @@ export class ControllerResolver {
    * Process controller filters
    */
   async processFilters(injector: Injector,
-                       name: string,
-                       data: Array<TFilter>,
+                       metadata: IControllerMetadata,
                        isAfter: boolean): Promise<any> {
-    let filters = data.filter(item => {
-      let metadata = Metadata.getComponentConfig(item);
-      if (isPresent(metadata)) {
+
+    let filters = metadata.filters.filter(item => {
+      let filterMetadata = Metadata.getComponentConfig(item);
+      if (isPresent(filterMetadata)) {
         return (
-          metadata.route === "*" ||
-          metadata.route === this.resolvedRoute.route ||
-          metadata.route === (name + "/*")
+          filterMetadata.route === "*" ||
+          filterMetadata.route === this.resolvedRoute.route ||
+          filterMetadata.route === (metadata.name + "/*")
         );
       }
       return false;
@@ -519,8 +520,6 @@ export class ControllerResolver {
   async processController(reflectionInjector: Injector,
                           controllerProvider: IProvider,
                           actionName: String): Promise<any> {
-
-    let controllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     // get controller metadata
     let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
     let providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
@@ -543,7 +542,7 @@ export class ControllerResolver {
     // process filters
     if (isArray(metadata.filters)) {
       // set filter result
-      injector.set(CHAIN_KEY, await this.processFilters(injector, controllerMetadata.name, metadata.filters, false));
+      injector.set(CHAIN_KEY, await this.processFilters(injector, metadata, false));
     }
 
     // process @BeforeEach action
@@ -600,7 +599,7 @@ export class ControllerResolver {
 
     if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected) && isArray(metadata.filters)) {
       // set filter result
-      injector.set(CHAIN_KEY, await this.processFilters(injector, controllerMetadata.name, metadata.filters, true));
+      injector.set(CHAIN_KEY, await this.processFilters(injector, metadata, true));
     }
 
     // render action call
