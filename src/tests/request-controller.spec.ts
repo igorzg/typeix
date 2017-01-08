@@ -9,7 +9,7 @@ import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
 import {AssertionError} from "assert";
-import {Action, Before} from "../decorators/action";
+import {Action, Before, After, BeforeEach, AfterEach} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
 import {Produces} from "../decorators/produces";
@@ -393,7 +393,6 @@ describe("ControllerResolver", () => {
     class A {
 
       @Action("index")
-      @Produces("application/json")
       actionIndex(@Param("a") param, @Chain() chain): any {
         return {
           param,
@@ -412,6 +411,129 @@ describe("ControllerResolver", () => {
         param: 1,
         chain: null
       });
+      done();
+    })
+      .catch(done);
+
+  });
+
+  it("ControllerResolver.processController action chain no filter", (done) => {
+
+
+    @Controller({
+      name: "root"
+    })
+    class A {
+
+      @BeforeEach()
+      actionBeforeEach(@Chain() chain): any {
+        return "beforeEach <- " + chain;
+      }
+
+      @Before("index")
+      actionBefore(@Chain() chain): any {
+        return "before <- " + chain;
+      }
+
+      @Action("index")
+      actionIndex(@Chain() chain): any {
+        return "action <- " + chain;
+      }
+
+      @After("index")
+      actionAfter(@Chain() chain): any {
+        return "after <- " + chain;
+      }
+
+      @AfterEach()
+      actionAfterEach(@Chain() chain): any {
+        return "afterEach <- " + chain;
+      }
+
+    }
+    let aProvider = Metadata.verifyProvider(A);
+    // process controller
+    let result = controllerResolver.processController(new Injector(), aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, "afterEach <- after <- action <- before <- beforeEach <- null");
+      done();
+    })
+      .catch(done);
+
+  });
+
+
+  it("ControllerResolver.processController with filters", (done) => {
+
+    @Filter(10)
+    class AFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+    }
+
+    @Filter(20)
+    class BFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+    }
+
+    @Controller({
+      name: "root",
+      filters: [AFilter, BFilter]
+    })
+    class A {
+
+      @BeforeEach()
+      actionBeforeEach(@Chain() chain): any {
+        return "beforeEach <- " + chain;
+      }
+
+      @Before("index")
+      actionBefore(@Chain() chain): any {
+        return "before <- " + chain;
+      }
+
+      @Action("index")
+      actionIndex(@Chain() chain): any {
+        return "action <- " + chain;
+      }
+
+      @After("index")
+      actionAfter(@Chain() chain): any {
+        return "after <- " + chain;
+      }
+
+      @AfterEach()
+      actionAfterEach(@Chain() chain): any {
+        return "afterEach <- " + chain;
+      }
+
+    }
+    let aProvider = Metadata.verifyProvider(A);
+    // process controller
+    let result = controllerResolver.processController(new Injector(), aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, "aFilter <- bFilter <- afterEach <- after <- action <- before <- beforeEach <- aFilter <- bFilter <- null");
       done();
     })
       .catch(done);
