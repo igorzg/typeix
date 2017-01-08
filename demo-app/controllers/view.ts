@@ -1,4 +1,4 @@
-import {Inject, Controller, Request, BeforeEach, AfterEach, Chain,  Action} from "typeix";
+import {Inject, Controller, Request, AfterEach, Chain,  Action} from "typeix";
 import {CoreController} from "./core";
 /**
  * Controller example
@@ -40,7 +40,7 @@ export class ViewController extends CoreController {
    *
    */
   @Action("index")
-  actionIndex(@Chain() data: string): string {
+  actionIndex(@Chain data: string): string {
     return "My action view <- " + data;
   }
 
@@ -53,8 +53,8 @@ export class ViewController extends CoreController {
    * After each action
    *
    */
-  @AfterEach()
-  afterEachAction(@Chain() data: string): string {
+  @AfterEach
+  afterEachAction(@Chain data: string): string {
     return "After each view <- " + data;
   }
 

@@ -6,9 +6,7 @@ import {
   Controller,
   Param,
   Request,
-  OnError,
-  BeforeEach,
-  Chain
+  OnError
 } from "typeix";
 import {lookup} from "mime";
 /**

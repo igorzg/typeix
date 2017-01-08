@@ -53,7 +53,7 @@ export class HomeController extends ViewController {
    *
    */
   @Action("id")
-  actionId(@Param("id") id: number, @Chain() data: string, @Param("name") name: string): string {
+  actionId(@Param("id") id: number, @Chain data: string, @Param("name") name: string): string {
     return `Action id: ${id} name: ${name} <- ${data}`;
   }
 
@@ -65,8 +65,8 @@ export class HomeController extends ViewController {
    * before each
    *
    */
-  @BeforeEach()
-  beforeEachAction(@Chain() data: string): string {
+  @BeforeEach
+  beforeEachAction(@Chain data: string): string {
     return "Before each core <- " + data;
   }
   /**
@@ -84,7 +84,7 @@ export class HomeController extends ViewController {
    *
    */
   @Before("index")
-  beforeIndex(@Chain() data: string): string {
+  beforeIndex(@Chain data: string): string {
     return "Before index home: <- " + data;
   }
 
