@@ -5,7 +5,7 @@ import {Metadata} from "../injector/metadata";
 import {Inject} from "../decorators/inject";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
-import {ServerResponse} from "http";
+import {ServerResponse, IncomingMessage} from "http";
 
 export interface IFakeServerConfig {
 }
@@ -83,7 +83,7 @@ export class FakeServerApi {
  *
  * @private
  */
-class FakeIncomingMessage extends Readable {
+class FakeIncomingMessage extends Readable implements IncomingMessage {
   httpVersion: string = "1.1";
   httpVersionMajor: number = 1;
   httpVersionMinor: number = 1;
