@@ -14,7 +14,6 @@ import {Metadata, FUNCTION_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
-import {TFilter} from "../interfaces/ifilter";
 import {IParam} from "../interfaces/iparam";
 /**
  * Cookie parse regex
@@ -264,13 +263,13 @@ export class ControllerResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getRequestBody
+   * @name Request#getBody
    * @private
    *
    * @description
    * Get request body if present only on POST, PUT, PATCH
    */
-  getRequestBody(): Buffer {
+  getBody(): Buffer {
     return Buffer.concat(this.data);
   }
 
@@ -883,13 +882,13 @@ export class Request {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getRequestBody
+   * @name Request#getBody
    *
    * @description
    * Get request body buffer
    */
-  getRequestBody(): Buffer {
-    return this.controllerResolver.getRequestBody();
+  getBody(): Buffer {
+    return this.controllerResolver.getBody();
   }
 
   /**

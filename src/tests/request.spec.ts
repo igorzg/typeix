@@ -48,7 +48,7 @@ describe("Request", () => {
       },
       setContentType: () => {
       },
-      getRequestBody: () => {
+      getBody: () => {
       },
       getUUID: () => "1",
       setStatusCode: () => {
@@ -228,9 +228,9 @@ describe("Request", () => {
     assert.isTrue(isEqual(request.getRoute(), "core/index"));
   });
 
-  it("Request.getRequestBody", () => {
-    let aSpy = stub(controllerResolver, "getRequestBody");
-    request.getRequestBody();
+  it("Request.getBody", () => {
+    let aSpy = stub(controllerResolver, "getBody");
+    request.getBody();
     assertSpy.called(aSpy);
   });
 
