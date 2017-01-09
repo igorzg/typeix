@@ -10,7 +10,7 @@ import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 
-export const BOOTSTRAP_MODULE = "bootstrap";
+export const BOOTSTRAP_MODULE = "root";
 
 /**
  * @since 1.0.0

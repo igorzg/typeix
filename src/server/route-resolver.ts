@@ -143,9 +143,6 @@ export class RouteResolver implements IAfterConstruct {
    * This method sends data to client
    */
   render(response: string | Buffer): string | Buffer {
-    this.logger.info("ControllerResolver.render", {
-      id: this.id
-    });
     if (isString(response) || (response instanceof Buffer)) {
       this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
       this.response.write(response);
@@ -182,13 +179,7 @@ export class RouteResolver implements IAfterConstruct {
         return metadata.name === resolvedModule.controller;
       });
     if (!isPresent(controllerProvider)) {
-      throw new HttpError(500, `You must define controller within current route`, {
-        controllerName: resolvedModule.controller,
-        actionName: resolvedModule.action,
-        resolvedRoute: resolvedModule.resolvedRoute
-      });
-    } else if (!isClass(controllerProvider.provide)) {
-      throw new HttpError(500, `Controller must be a class type`, {
+      throw new HttpError(500, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
         controllerName: resolvedModule.controller,
         actionName: resolvedModule.action,
         resolvedRoute: resolvedModule.resolvedRoute
