@@ -28,7 +28,6 @@ describe("RouteRule", () => {
             params: {
               id: "123"
             },
-            path: "/home/123",
             route: "core/index"
           },
           {
@@ -36,7 +35,6 @@ describe("RouteRule", () => {
             params: {
               id: "123"
             },
-            path: "/home/123",
             route: "core/index"
           },
           false,

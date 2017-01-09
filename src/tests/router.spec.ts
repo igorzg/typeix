@@ -50,19 +50,16 @@ describe("Router", () => {
         {
           method: Methods.POST,
           params: {},
-          path: "/",
           route: "controller/index"
         },
         {
           method: Methods.OPTIONS,
           params: {},
-          path: "/authenticate",
           route: "controller/test"
         },
         {
           method: Methods.GET,
           params: {},
-          path: "/home",
           route: "controller/home"
         },
         {
@@ -70,7 +67,6 @@ describe("Router", () => {
           params: {
             id: "123"
           },
-          path: "/home/123",
           route: "controller/view"
         },
         "/home/123",

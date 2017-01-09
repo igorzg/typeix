@@ -56,7 +56,6 @@ export class RouteRule implements Route, IAfterConstruct {
     return Promise.resolve({
       method: getMethod(method),
       params: this.routeParser.getParams(path),
-      path: path,
       route: this.config.route
     });
   }
