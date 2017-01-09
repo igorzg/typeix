@@ -50,10 +50,24 @@ export class FakeServerApi {
   @Inject("modules")
   private modules: Array<IModule>;
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#getModules
+   * @description
+   * Get initialized modules
+   */
   getModules(): Array<IModule> {
     return this.modules;
   }
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#GET
+   * @description
+   * Fire GET Method
+   */
   GET(url: string, headers?: Object) {
     let request = new FakeIncomingMessage();
     request.method = "GET";
@@ -62,10 +76,149 @@ export class FakeServerApi {
     return this.request(request, new FakeServerResponse());
   }
 
-  POST(url: string, data?: Array<string|Buffer>, headers?: Object) {
-
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#OPTIONS
+   * @description
+   * Fire OPTIONS Method
+   */
+  OPTIONS(url: string, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "OPTIONS";
+    request.url = url;
+    request.headers = headers;
+    return this.request(request, new FakeServerResponse());
   }
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#HEAD
+   * @description
+   * Fire HEAD Method
+   */
+  HEAD(url: string, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "HEAD";
+    request.url = url;
+    request.headers = headers;
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#DELETE
+   * @description
+   * Fire DELETE Method
+   */
+  DELETE(url: string, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "DELETE";
+    request.url = url;
+    request.headers = headers;
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#TRACE
+   * @description
+   * Fire TRACE Method
+   */
+  TRACE(url: string, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "TRACE";
+    request.url = url;
+    request.headers = headers;
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#CONNECT
+   * @description
+   * Fire CONNECT Method
+   */
+  CONNECT(url: string, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "CONNECT";
+    request.url = url;
+    request.headers = headers;
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#POST
+   * @description
+   * Fire POST Method
+   */
+  POST(url: string, data?: string|Buffer, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "POST";
+    request.url = url;
+    request.headers = headers;
+    // simulate async event
+    setTimeout(() => {
+      request.emit("data", data);
+      request.emit("end");
+    }, 100);
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#PUT
+   * @description
+   * Fire PUT Method
+   */
+  PUT(url: string, data?: string|Buffer, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "PUT";
+    request.url = url;
+    request.headers = headers;
+    // simulate async event
+    setTimeout(() => {
+      request.emit("data", data);
+      request.emit("end");
+    });
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#PATCH
+   * @description
+   * Fire PATCH Method
+   */
+  PATCH(url: string, data?: string|Buffer, headers?: Object) {
+    let request = new FakeIncomingMessage();
+    request.method = "PATCH";
+    request.url = url;
+    request.headers = headers;
+    // simulate async event
+    setTimeout(() => {
+      request.emit("data", data);
+      request.emit("end");
+    });
+    return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerApi#request
+   * @private
+   * @description
+   * Fire request
+   */
   private request(request: FakeIncomingMessage, response: FakeServerResponse) {
     return fireRequest(this.getModules(), request, response);
   }
@@ -97,6 +250,8 @@ class FakeIncomingMessage extends Readable implements IncomingMessage {
   statusCode?: number;
   statusMessage?: string;
   socket: Socket;
+
+  protected _read(size: number): void {};
 
   setTimeout(msecs: number, callback: Function): NodeJS.Timer {
     return null;

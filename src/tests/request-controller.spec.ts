@@ -112,8 +112,8 @@ describe("ControllerResolver", () => {
     assert.isTrue(isEqual(controllerResolver.getServerResponse(), response));
   });
 
-  it("ControllerResolver.getRequestBody", () => {
-    assert.isTrue(isEqual(controllerResolver.getRequestBody(), Buffer.concat(data)));
+  it("ControllerResolver.getBody", () => {
+    assert.isTrue(isEqual(controllerResolver.getBody(), Buffer.concat(data)));
   });
 
   it("ControllerResolver.getUUID", () => {

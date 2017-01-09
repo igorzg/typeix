@@ -9,6 +9,7 @@ import {IAfterConstruct} from "../interfaces/iprovider";
 import {Inject} from "../decorators/inject";
 import {fakeHttpServer, FakeServerApi} from "../server/fake-http";
 import {Chain} from "../decorators/chain";
+import {Request} from "../server/request";
 
 // use chai spies
 use(sinonChai);
@@ -24,14 +25,22 @@ describe("fakeHttpServer", () => {
     })
     class MyController {
 
+      @Inject(Request)
+      private request: Request;
+
       @Before("index")
-      beforeAction() {
+      beforeIndex() {
         return "BEFORE";
       }
 
       @Action("index")
       actionIndex(@Chain data) {
         return "VALUE <- " + data;
+      }
+
+      @Action("call")
+      actionAjax() {
+        return "CALL=" + this.request.getBody();
       }
     }
 
@@ -42,11 +51,18 @@ describe("fakeHttpServer", () => {
     })
     class MyModule implements IAfterConstruct {
       afterConstruct(): void {
-        this.router.addRules([{
-          methods: [Methods.GET],
-          url: "/",
-          route: "core/index"
-        }]);
+        this.router.addRules([
+          {
+            methods: [Methods.GET],
+            url: "/",
+            route: "core/index"
+          },
+          {
+            methods: [Methods.POST],
+            url: "/ajax/call",
+            route: "core/call"
+          }
+        ]);
       }
 
       @Inject(Router)
@@ -64,5 +80,12 @@ describe("fakeHttpServer", () => {
     }).catch(done);
   });
 
+
+  it("Should do POST index", (done) => {
+    server.POST("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
+      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+      done();
+    }).catch(done);
+  });
 
 });
