@@ -205,7 +205,7 @@ export class ControllerResolver {
    * @description
    * Stop action chain
    */
-  stopActionChain() {
+  stopChain() {
     this.isChainStopped = true;
   }
 
@@ -496,13 +496,17 @@ export class ControllerResolver {
     for (let Class of filters) {
       let filterInjector = Injector.createAndResolveChild(injector, Class, []);
       let filter = filterInjector.get(Class);
-      if (!isAfter) {
-        let result = await filter.before(injector.get(CHAIN_KEY));
-        injector.set(CHAIN_KEY, result);
-      } else {
-        let result = await filter.after(injector.get(CHAIN_KEY));
-        injector.set(CHAIN_KEY, result);
+
+      if (isFalsy(this.isChainStopped)) {
+        if (!isAfter) {
+          let result = await filter.before(injector.get(CHAIN_KEY));
+          injector.set(CHAIN_KEY, result);
+        } else {
+          let result = await filter.after(injector.get(CHAIN_KEY));
+          injector.set(CHAIN_KEY, result);
+        }
       }
+
       filterInjector.destroy();
     }
 
@@ -903,12 +907,12 @@ export class Request {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#stopActionChain
+   * @name Request#stopChain
    *
    * @description
    * Stops action chain
    */
-  stopActionChain() {
-    this.controllerResolver.stopActionChain();
+  stopChain() {
+    this.controllerResolver.stopChain();
   }
 }

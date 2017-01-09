@@ -86,9 +86,9 @@ describe("ControllerResolver", () => {
     assertSpy.calledWith(aSpy, "contentType", contentType);
   });
 
-  it("ControllerResolver.stopActionChain", () => {
+  it("ControllerResolver.stopChain", () => {
     assert.isFalse(Reflect.get(controllerResolver, "isChainStopped"));
-    controllerResolver.stopActionChain();
+    controllerResolver.stopChain();
     assert.isTrue(Reflect.get(controllerResolver, "isChainStopped"));
   });
 
@@ -535,5 +535,278 @@ describe("ControllerResolver", () => {
     })
       .catch(done);
 
+  });
+
+
+
+
+
+
+  it("ControllerResolver.processController with stopChain", (done) => {
+
+    @Filter(10)
+    class AFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+    }
+
+    @Filter(20)
+    class BFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+    }
+
+    @Controller({
+      name: "root",
+      filters: [AFilter, BFilter]
+    })
+    class A {
+
+      @Inject(Request)
+      private request: Request;
+
+      @BeforeEach
+      actionBeforeEach(@Chain chain: string): string {
+        return "beforeEach <- " + chain;
+      }
+
+      @Before("index")
+      actionBefore(@Chain chain: string): string {
+        return "before <- " + chain;
+      }
+
+      @Action("index")
+      actionIndex(@Chain chain: string): string {
+
+        return "action <- " + chain;
+      }
+
+      @After("index")
+      actionAfter(@Chain chain: string): string {
+        this.request.stopChain();
+        return "after <- " + chain;
+      }
+
+      @AfterEach
+      actionAfterEach(@Chain chain: string): string {
+        return "afterEach <- " + chain;
+      }
+
+    }
+    let aProvider = Metadata.verifyProvider(A);
+
+    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
+      {provide: ControllerResolver, useValue: controllerResolver},
+      {provide: "resolvedRoute", useValue: resolvedRoute}
+    ]);
+    // process controller
+    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, "after <- action <- before <- beforeEach <- aFilter <- bFilter <- null");
+      done();
+    })
+      .catch(done);
+
+  });
+
+
+
+  it("ControllerResolver.processController with stopChain in Filter 1", (done) => {
+
+    @Filter(10)
+    class AFilter implements IFilter {
+
+      @Inject(Request)
+      private request: Request;
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        this.request.stopChain();
+        return "aFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+    }
+
+    @Filter(20)
+    class BFilter implements IFilter {
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+    }
+
+    @Controller({
+      name: "root",
+      filters: [AFilter, BFilter]
+    })
+    class A {
+
+      @Inject(Request)
+      private request: Request;
+
+      @BeforeEach
+      actionBeforeEach(@Chain chain: string): string {
+        return "beforeEach <- " + chain;
+      }
+
+      @Before("index")
+      actionBefore(@Chain chain: string): string {
+        return "before <- " + chain;
+      }
+
+      @Action("index")
+      actionIndex(@Chain chain: string): string {
+
+        return "action <- " + chain;
+      }
+
+      @After("index")
+      actionAfter(@Chain chain: string): string {
+        this.request.stopChain();
+        return "after <- " + chain;
+      }
+
+      @AfterEach
+      actionAfterEach(@Chain chain: string): string {
+        return "afterEach <- " + chain;
+      }
+
+    }
+    let aProvider = Metadata.verifyProvider(A);
+
+    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
+      {provide: ControllerResolver, useValue: controllerResolver},
+      {provide: "resolvedRoute", useValue: resolvedRoute}
+    ]);
+    // process controller
+    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, "aFilter <- bFilter <- null");
+      done();
+    })
+      .catch(done);
+  });
+
+
+
+
+  it("ControllerResolver.processController with stopChain in Filter 2", (done) => {
+
+    @Filter(10)
+    class AFilter implements IFilter {
+
+      @Inject(Request)
+      private request: Request;
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        this.request.stopChain();
+        return "aFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "aFilter <- " + data;
+      }
+
+    }
+
+    @Filter(20)
+    class BFilter implements IFilter {
+
+      @Inject(Request)
+      private request: Request;
+
+
+      before(data: string): string|Buffer|Promise<string|Buffer> {
+        this.request.stopChain();
+        return "bFilter <- " + data;
+      }
+
+      after(data: string): string|Buffer|Promise<string|Buffer> {
+        return "bFilter <- " + data;
+      }
+
+    }
+
+    @Controller({
+      name: "root",
+      filters: [AFilter, BFilter]
+    })
+    class A {
+
+      @Inject(Request)
+      private request: Request;
+
+      @BeforeEach
+      actionBeforeEach(@Chain chain: string): string {
+        return "beforeEach <- " + chain;
+      }
+
+      @Before("index")
+      actionBefore(@Chain chain: string): string {
+        return "before <- " + chain;
+      }
+
+      @Action("index")
+      actionIndex(@Chain chain: string): string {
+
+        return "action <- " + chain;
+      }
+
+      @After("index")
+      actionAfter(@Chain chain: string): string {
+        this.request.stopChain();
+        return "after <- " + chain;
+      }
+
+      @AfterEach
+      actionAfterEach(@Chain chain: string): string {
+        return "afterEach <- " + chain;
+      }
+
+    }
+    let aProvider = Metadata.verifyProvider(A);
+
+    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
+      {provide: ControllerResolver, useValue: controllerResolver},
+      {provide: "resolvedRoute", useValue: resolvedRoute}
+    ]);
+    // process controller
+    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+    assert.instanceOf(result, Promise);
+
+    result.then(data => {
+      assert.isNotNull(data);
+      assert.deepEqual(data, "bFilter <- null");
+      done();
+    })
+      .catch(done);
   });
 });

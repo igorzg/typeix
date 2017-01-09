@@ -53,7 +53,7 @@ describe("Request", () => {
       getUUID: () => "1",
       setStatusCode: () => {
       },
-      stopActionChain: () => {
+      stopChain: () => {
       }
     });
     let injector = Injector.createAndResolve(Request, [
@@ -240,9 +240,9 @@ describe("Request", () => {
     assertSpy.calledWith(aSpy, 400);
   });
 
-  it("Request.stopActionChain", () => {
-    let aSpy = stub(controllerResolver, "stopActionChain");
-    request.stopActionChain();
+  it("Request.stopChain", () => {
+    let aSpy = stub(controllerResolver, "stopChain");
+    request.stopChain();
     assertSpy.called(aSpy);
   });
 });
