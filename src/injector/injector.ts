@@ -237,6 +237,16 @@ export class Injector {
     if (isPresent(provider.useValue)) {
       this.set(provider.provide, provider.useValue);
       return this.get(provider.provide);
+    // if it's factory invoke it and set invoked factory as value
+    } else if (isPresent(provider.useFactory)) {
+      this.set(
+        provider.provide,
+        provider.useFactory.apply(
+          null,
+          provider.deps.map(item => this.get(Metadata.verifyProvider(item).provide))
+        )
+      );
+      return this.get(provider.provide);
     }
     // get constructor args
     let keys = Metadata.getConstructorInjectKeys(provider.provide);

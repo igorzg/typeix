@@ -68,6 +68,7 @@ export class Metadata {
    * @name Metadata#defineMetadata
    * @param {Function} token
    * @param {string} name
+   * @param {Object} value
    * @return {any} value
    *
    * @description
@@ -93,7 +94,11 @@ export class Metadata {
    * Check if some class has metadata by key
    */
   static hasMetadata(token: Function, name: string): boolean {
-    return Reflect.hasMetadata(name, token);
+    try {
+      return Reflect.hasMetadata(name, token);
+    } catch (e) {
+      return false;
+    }
   }
 
   /**
@@ -108,7 +113,7 @@ export class Metadata {
    * @description
    * Get class metadata if not present return defaultValue
    */
-  static getMetadata(token: Function, name: string, defaultValue = []) {
+  static getMetadata(token: Function, name: string, defaultValue: any = []) {
     return Metadata.hasMetadata(token, name) ? Reflect.getMetadata(name, token) : defaultValue;
   }
 
@@ -123,7 +128,7 @@ export class Metadata {
    * Get component config
    */
   static getComponentConfig(Class: Function): any {
-    return Metadata.getMetadata(Class, COMPONENT_CONFIG_KEYS);
+    return Metadata.getMetadata(Class, COMPONENT_CONFIG_KEYS, {});
   }
 
   /**
@@ -265,9 +270,6 @@ export class Metadata {
     } else if (isObject(value)) {
       if (!isPresent(value.provide) || (!isString(value.provide) && !isFunction(value.provide))) {
         throw new TypeError(`IProvider.provider must be string or Class type, ${toString(value)}`);
-      } else if (isString(value.provide) && !isPresent(value.useValue)) {
-        throw new TypeError(`When IProvider.provide ${value.provide} is string type, 
-        then useValue must be defined! useValue: ${value.useValue}`);
       }
 
       if (isPresent(value.useClass)) {
