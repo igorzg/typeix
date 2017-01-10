@@ -15,7 +15,7 @@ import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {IParam} from "../interfaces/iparam";
-import {StatusCode} from "./status-code";
+import {Status} from "./status-code";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -316,7 +316,7 @@ export class ControllerResolver {
     }
     // check if action is present
     if (!isPresent(mappedAction)) {
-      throw new HttpError(StatusCode.Bad_Request, `@${name}("${actionName}") is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
+      throw new HttpError(Status.Bad_Request, `@${name}("${actionName}") is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
         name,
         actionName,
         resolvedRoute: this.resolvedRoute
@@ -858,7 +858,7 @@ export class Request {
    * @description
    * Set status code
    */
-  setStatusCode(code: StatusCode | number) {
+  setStatusCode(code: Status | number) {
     this.controllerResolver.getEventEmitter().emit("statusCode", code);
   }
 
@@ -882,7 +882,7 @@ export class Request {
    * @description
    * Stops action chain
    */
-  redirectTo(url: string, code: StatusCode | number) {
+  redirectTo(url: string, code: Status | number) {
     this.stopChain();
     this.controllerResolver.getEventEmitter().emit("redirectTo", {
       url, code

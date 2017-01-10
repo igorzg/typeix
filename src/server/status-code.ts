@@ -1,23 +1,22 @@
-import {isEqual} from "../core";
 /**
  * @since 1.0.0
  * @interface
  * @name Redirect
  * @description
- * StatusCode enums
+ * Status enums
  */
 export interface IRedirect {
   url: string;
-  code: StatusCode;
+  code: Status;
 }
 /**
  * @since 1.0.0
  * @enum
  * @name Redirect
  * @description
- * StatusCode enums
+ * Status enums
  */
-export enum StatusCode {
+export enum Status {
   // 1xx Informational
   Continue = 100,
   Switching_Protocols = 101,
@@ -83,68 +82,4 @@ export enum StatusCode {
   Loop_Detected = 508,
   Not_Extended = 510,
   Network_Authentication_Required = 511
-}
-
-/**
- * @since 1.0.0
- * @function
- * @name getStatus
- * @description
- * Returns redirect status from code
- *
- * @private
- */
-export function getStatusByCode(code: number): number {
-  if (isEqual(code, 300)) {
-    return StatusCode.Multiple_Choices;
-  } else if (isEqual(code, 301)) {
-    return StatusCode.Moved_Permanently;
-  } else if (isEqual(code, 302)) {
-    return StatusCode.Found;
-  } else if (isEqual(code, 303)) {
-    return StatusCode.See_Other;
-  } else if (isEqual(code, 304)) {
-    return StatusCode.Not_Modified;
-  } else if (isEqual(code, 305)) {
-    return StatusCode.Use_Proxy;
-  } else if (isEqual(code, 306)) {
-    return StatusCode.Switch_Proxy;
-  } else if (isEqual(code, 307)) {
-    return StatusCode.Temporary_Redirect;
-  } else if (isEqual(code, 308)) {
-    return StatusCode.Permanent_Redirect;
-  }
-  return 307;
-}
-
-/**
- * @since 1.0.0
- * @function
- * @name getCodeByStatus
- * @description
- * Get status codes from redirect default one is Temporary_Redirect
- *
- * @private
- */
-export function getCodeByStatus(code: StatusCode): number {
-  if (isEqual(code, StatusCode.Multiple_Choices)) {
-    return 300;
-  } else if (isEqual(code, StatusCode.Moved_Permanently)) {
-    return 301;
-  } else if (isEqual(code, StatusCode.Found)) {
-    return 302;
-  } else if (isEqual(code, StatusCode.See_Other)) {
-    return 303;
-  } else if (isEqual(code, StatusCode.Not_Modified)) {
-    return 304;
-  } else if (isEqual(code, StatusCode.Use_Proxy)) {
-    return 305;
-  } else if (isEqual(code, StatusCode.Switch_Proxy)) {
-    return 306;
-  } else if (isEqual(code, StatusCode.Temporary_Redirect)) {
-    return 307;
-  } else if (isEqual(code, StatusCode.Permanent_Redirect)) {
-    return 308;
-  }
-  return 307;
 }

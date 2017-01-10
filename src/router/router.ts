@@ -6,7 +6,7 @@ import {Injector} from "../injector/injector";
 import {RouteRule} from "./route-rule";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {StatusCode} from "../server/status-code";
+import {Status} from "../server/status-code";
 /**
  * @since 1.0.0
  * @enum
@@ -169,7 +169,7 @@ export class Router {
         return Promise.resolve(<ResolvedRoute> result);
       }
     }
-    throw new HttpError(StatusCode.Not_Found, `Router.parseRequest: ${pathName} no route found, method: ${method}`, {
+    throw new HttpError(Status.Not_Found, `Router.parseRequest: ${pathName} no route found, method: ${method}`, {
       pathName,
       method
     });

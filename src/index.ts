@@ -61,7 +61,7 @@ export {
   httpServer,
   getModule,
   Request,
-  StatusCode,
+  Status,
   fakeHttpServer,
   FakeServerApi,
   FakeResponseApi,

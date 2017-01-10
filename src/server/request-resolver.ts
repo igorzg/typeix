@@ -15,7 +15,7 @@ import {getModule} from "./bootstrap";
 import {ControllerResolver} from "./controller-resolver";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
-import {IRedirect, getCodeByStatus, StatusCode} from "./status-code";
+import {IRedirect, Status} from "./status-code";
 import {clean} from "../logger/inspect";
 
 /**
@@ -116,7 +116,7 @@ export class RequestResolver implements IAfterConstruct {
    * ControllerResolver status code default 200
    */
   @Inject("statusCode", true)
-  private statusCode: StatusCode;
+  private statusCode: Status;
 
   /**
    * @param {String} contentType
@@ -170,7 +170,7 @@ export class RequestResolver implements IAfterConstruct {
     // force HttpError to be thrown
     if (!(data instanceof HttpError)) {
       let _error: Error = data;
-      data = new HttpError(StatusCode.Bad_Request, _error.message, {});
+      data = new HttpError(Status.Bad_Request, _error.message, {});
       data.stack = _error.stack;
     }
     // log error message
@@ -211,7 +211,7 @@ export class RequestResolver implements IAfterConstruct {
             response: response,
             type: typeof response
           });
-          throw new HttpError(StatusCode.Bad_Request, "ResponseType must be string or buffer", {
+          throw new HttpError(Status.Bad_Request, "ResponseType must be string or buffer", {
             response
           });
         }
@@ -230,7 +230,7 @@ export class RequestResolver implements IAfterConstruct {
         break;
       case RenderType.REDIRECT:
         this.response.setHeader("Location", this.redirectTo.url);
-        this.response.writeHead(getCodeByStatus(this.redirectTo.code));
+        this.response.writeHead(this.redirectTo.code);
         this.response.end();
         break;
       default:
@@ -264,7 +264,7 @@ export class RequestResolver implements IAfterConstruct {
         return metadata.name === resolvedModule.controller;
       });
     if (!isPresent(controllerProvider)) {
-      throw new HttpError(StatusCode.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
+      throw new HttpError(Status.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
         controllerName: resolvedModule.controller,
         actionName: resolvedModule.action,
         resolvedRoute: resolvedModule.resolvedRoute

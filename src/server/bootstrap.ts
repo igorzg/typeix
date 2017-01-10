@@ -9,7 +9,7 @@ import {RequestResolver} from "./request-resolver";
 import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
-import {StatusCode} from "./status-code";
+import {Status} from "./status-code";
 
 export const BOOTSTRAP_MODULE = "root";
 
@@ -103,7 +103,7 @@ export function fireRequest(modules: Array<IModule>,
       {provide: "UUID", useValue: uuid()},
       {provide: "data", useValue: []},
       {provide: "contentType", useValue: "text/html"},
-      {provide: "statusCode", useValue: StatusCode.OK},
+      {provide: "statusCode", useValue: Status.OK},
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
       {provide: "modules", useValue: modules},

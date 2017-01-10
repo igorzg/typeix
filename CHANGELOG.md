@@ -1,3 +1,7 @@
+## 1.0.0-alpha-33
+- StatusCode renamed to Status
+- fix status code bug while redirect
+
 ## 1.0.0-alpha-32
 - Exchanged status code api
 - Added redirect to request

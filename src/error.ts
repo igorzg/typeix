@@ -1,5 +1,5 @@
 import {inspect} from "./logger/inspect";
-import {StatusCode} from "./server/status-code";
+import {Status} from "./server/status-code";
 /**
  * @since 1.0.0
  * @class
@@ -12,13 +12,13 @@ import {StatusCode} from "./server/status-code";
  * HttpException use it in controller actions
  */
 export class HttpError extends Error {
-  constructor(private code: StatusCode | number, message, data) {
+  constructor(private code: Status | number, message, data) {
     super(message);
     this.stack += "\n\nDATA: " + inspect(data, 5);
     this.stack += "\n\nCODE: " + inspect(code, 5);
   }
 
-  getCode(): StatusCode {
+  getCode(): Status {
     return this.code;
   }
 

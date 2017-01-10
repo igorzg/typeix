@@ -10,7 +10,7 @@ import {Inject} from "../decorators/inject";
 import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/fake-http";
 import {Chain} from "../decorators/chain";
 import {Request} from "../server/controller-resolver";
-import {StatusCode} from "../server/status-code";
+import {Status} from "../server/status-code";
 import {isEqual} from "../core";
 
 // use chai spies
@@ -47,7 +47,7 @@ describe("fakeHttpServer", () => {
 
       @Action("redirect")
       actionRedirect() {
-        return this.request.redirectTo("/mypage", StatusCode.Temporary_Redirect);
+        return this.request.redirectTo("/mypage", Status.Temporary_Redirect);
       }
     }
 
@@ -111,7 +111,7 @@ describe("fakeHttpServer", () => {
   it("Should do OPTIONS index", (done) => {
     server.OPTIONS("/").then((api: FakeResponseApi) => {
       assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
-      assert.equal(api.getStatusCode(), StatusCode.OK);
+      assert.equal(api.getStatusCode(), Status.OK);
       done();
     }).catch(done);
   });
