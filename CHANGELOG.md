@@ -1,3 +1,8 @@
+## 1.0.0-alpha-31
+- Added fake http api for testing 
+- Remove demo app from framework repo
+
+
 ## 1.0.0-alpha-30
 - Changed @Chain @BeforeEach @AfterEach to not be function calls
 - Updated tests for controller 

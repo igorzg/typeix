@@ -7,7 +7,7 @@
 * Typeix has dependency injection inspired by Angular 2
 
 
-[View demo application](https://github.com/igorzg/typeix/tree/master/demo-app)
+[View demo application](https://github.com/igorzg/typeix-demo-app)
 
 ## Features
 * Dependency Injection - similar to JSR 330 standard
