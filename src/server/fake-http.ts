@@ -167,7 +167,7 @@ export class FakeServerApi {
     setTimeout(() => {
       request.emit("data", data);
       request.emit("end");
-    }, 100);
+    });
     return this.request(request, new FakeServerResponse());
   }
 
@@ -253,12 +253,9 @@ class FakeIncomingMessage extends Readable implements IncomingMessage {
 
   protected _read(size: number): void {};
 
-  setTimeout(msecs: number, callback: Function): NodeJS.Timer {
-    return null;
-  };
+  setTimeout(msecs: number, callback: Function): NodeJS.Timer { return null; };
 
-  destroy(error?: Error) {
-  };
+  destroy(error?: Error) {};
 }
 
 
@@ -283,44 +280,29 @@ class FakeServerResponse extends Writable implements ServerResponse {
   sendDate: boolean;
   finished: boolean;
 
-  writeContinue() {
-
-  }
+  writeContinue() {}
 
 
-  addTrailers(headers: any) {
-
-  }
+  addTrailers(headers: any) {}
 
   end() {
     this.emit("finish");
   }
 
-  writeHead(statusCode: number, headers?: any) {
-
-  }
+  writeHead(statusCode: number, headers?: any) {}
 
 
-  setHeader(name: string, value: string | string[]) {
+  setHeader(name: string, value: string | string[]) {};
 
-  };
+  setTimeout(msecs: number, callback: Function): ServerResponse { return null; };
 
-  setTimeout(msecs: number, callback: Function): ServerResponse {
-    return null;
-  };
+  getHeader(name: string): string { return null; }
 
-  getHeader(name: string): string {
-    return null;
-  }
-
-  removeHeader(name: string) {
-    return null;
-  }
+  removeHeader(name: string) { return null; }
 
   write(value: Buffer | string,
         encoding?: string | Function,
         cb?: Function | string): boolean {
-
     return false;
   }
 
