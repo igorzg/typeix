@@ -53,12 +53,12 @@ describe("fakeHttpServer", () => {
       afterConstruct(): void {
         this.router.addRules([
           {
-            methods: [Methods.GET],
+            methods: [Methods.GET, Methods.OPTIONS, Methods.CONNECT, Methods.DELETE, Methods.HEAD, Methods.TRACE],
             url: "/",
             route: "core/index"
           },
           {
-            methods: [Methods.POST],
+            methods: [Methods.POST, Methods.PUT, Methods.PATCH],
             url: "/ajax/call",
             route: "core/call"
           }
@@ -80,6 +80,40 @@ describe("fakeHttpServer", () => {
     }).catch(done);
   });
 
+  it("Should do OPTIONS index", (done) => {
+    server.OPTIONS("/").then(data => {
+      assert.equal(data, "VALUE <- BEFORE");
+      done();
+    }).catch(done);
+  });
+
+  it("Should do CONNECT index", (done) => {
+    server.CONNECT("/").then(data => {
+      assert.equal(data, "VALUE <- BEFORE");
+      done();
+    }).catch(done);
+  });
+
+  it("Should do DELETE index", (done) => {
+    server.DELETE("/").then(data => {
+      assert.equal(data, "VALUE <- BEFORE");
+      done();
+    }).catch(done);
+  });
+
+  it("Should do HEAD index", (done) => {
+    server.HEAD("/").then(data => {
+      assert.equal(data, "VALUE <- BEFORE");
+      done();
+    }).catch(done);
+  });
+
+  it("Should do TRACE index", (done) => {
+    server.TRACE("/").then(data => {
+      assert.equal(data, "VALUE <- BEFORE");
+      done();
+    }).catch(done);
+  });
 
   it("Should do POST index", (done) => {
     server.POST("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
@@ -88,4 +122,17 @@ describe("fakeHttpServer", () => {
     }).catch(done);
   });
 
+  it("Should do PUT index", (done) => {
+    server.PUT("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
+      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+      done();
+    }).catch(done);
+  });
+
+  it("Should do PATCH index", (done) => {
+    server.PATCH("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
+      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+      done();
+    }).catch(done);
+  });
 });
