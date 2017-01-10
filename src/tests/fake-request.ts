@@ -7,9 +7,10 @@ import {Controller} from "../decorators/controller";
 import {Action, Before} from "../decorators/action";
 import {IAfterConstruct} from "../interfaces/iprovider";
 import {Inject} from "../decorators/inject";
-import {fakeHttpServer, FakeServerApi} from "../server/fake-http";
+import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/fake-http";
 import {Chain} from "../decorators/chain";
 import {Request} from "../server/controller-resolver";
+import {StatusCode} from "../server/status-code";
 
 // use chai spies
 use(sinonChai);
@@ -42,6 +43,11 @@ describe("fakeHttpServer", () => {
       actionAjax() {
         return "CALL=" + this.request.getBody();
       }
+
+      @Action("redirect")
+      actionRedirect() {
+        return this.request.redirectTo("/mypage", StatusCode.Temporary_Redirect);
+      }
     }
 
     @Module({
@@ -61,6 +67,11 @@ describe("fakeHttpServer", () => {
             methods: [Methods.POST, Methods.PUT, Methods.PATCH],
             url: "/ajax/call",
             route: "core/call"
+          },
+          {
+            methods: [Methods.GET],
+            url: "/redirect",
+            route: "core/redirect"
           }
         ]);
       }
@@ -74,71 +85,74 @@ describe("fakeHttpServer", () => {
 
 
   it("Should do GET not found", (done) => {
-    server.GET("/abc").then((data: string) => {
-      assert.isTrue(data.indexOf("Error: Router.parseRequest: /abc no route found, method: GET") > -1);
+    server.GET("/abc").then((api: FakeResponseApi) => {
+      assert.isTrue(api.getBody().toString().indexOf("Error: Router.parseRequest: /abc no route found, method: GET") > -1);
+      assert.equal(api.getStatusCode(), 404);
       done();
     }).catch(done);
   });
 
   it("Should do GET index", (done) => {
-    server.GET("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.GET("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
+      assert.equal(api.getStatusCode(), 200);
       done();
     }).catch(done);
   });
 
   it("Should do OPTIONS index", (done) => {
-    server.OPTIONS("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.OPTIONS("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
+      assert.equal(api.getStatusCode(), StatusCode.OK);
       done();
     }).catch(done);
   });
 
   it("Should do CONNECT index", (done) => {
-    server.CONNECT("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.CONNECT("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
       done();
     }).catch(done);
   });
 
   it("Should do DELETE index", (done) => {
-    server.DELETE("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.DELETE("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
       done();
     }).catch(done);
   });
 
   it("Should do HEAD index", (done) => {
-    server.HEAD("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.HEAD("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
       done();
     }).catch(done);
   });
 
   it("Should do TRACE index", (done) => {
-    server.TRACE("/").then(data => {
-      assert.equal(data, "VALUE <- BEFORE");
+    server.TRACE("/").then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "VALUE <- BEFORE");
       done();
     }).catch(done);
   });
 
   it("Should do POST index", (done) => {
-    server.POST("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
-      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+    server.POST("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "CALL=SENT_FROM_CLIENT");
       done();
     }).catch(done);
   });
 
   it("Should do PUT index", (done) => {
-    server.PUT("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
-      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+    server.PUT("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "CALL=SENT_FROM_CLIENT");
       done();
     }).catch(done);
   });
 
   it("Should do PATCH index", (done) => {
-    server.PATCH("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then(data => {
-      assert.equal(data, "CALL=SENT_FROM_CLIENT");
+    server.PATCH("/ajax/call", Buffer.from("SENT_FROM_CLIENT")).then((api: FakeResponseApi) => {
+      assert.equal(api.getBody().toString(), "CALL=SENT_FROM_CLIENT");
       done();
     }).catch(done);
   });

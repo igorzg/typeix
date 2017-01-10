@@ -1,3 +1,7 @@
+## 1.0.0-alpha-32
+- Exchanged status code api
+- Added redirect to request
+
 ## 1.0.0-alpha-31
 - Added fake http api for testing 
 - Remove demo app from framework repo

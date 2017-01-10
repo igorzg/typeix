@@ -61,7 +61,11 @@ export {
   httpServer,
   getModule,
   Request,
-  Redirect
+  StatusCode,
+  fakeHttpServer,
+  FakeServerApi,
+  FakeResponseApi,
+  IFakeServerConfig
 } from "./server/index";
 /**
  * Export all from core
