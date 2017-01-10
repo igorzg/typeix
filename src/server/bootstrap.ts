@@ -106,7 +106,6 @@ export function fireRequest(modules: Array<IModule>,
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
       {provide: "modules", useValue: modules},
-      {provide: "isRedirected", useValue: false},
       EventEmitter
     ]
   );

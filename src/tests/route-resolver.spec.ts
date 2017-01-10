@@ -6,7 +6,7 @@ import {Methods, Router} from "../router/router";
 import {uuid} from "../core";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
-import {RequestResolver} from "../server/request-resolver";
+import {RequestResolver, RenderType} from "../server/request-resolver";
 import {parse} from "url";
 import {Logger} from "../logger/logger";
 import {IResolvedModule, IModule} from "../interfaces/imodule";
@@ -67,7 +67,6 @@ describe("RequestResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: []},
-        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );
@@ -84,7 +83,7 @@ describe("RequestResolver", () => {
     let aSpy = spy(response, "writeHead");
     let a2Spy = spy(response, "write");
     let a3Spy = spy(response, "end");
-    let rendered = routeResolver.render(toRender);
+    let rendered = routeResolver.render(toRender, RenderType.DATA_HANDLER);
     assertSpy.calledWith(aSpy, 200, {"Content-Type": "text/html"});
     assertSpy.calledWith(a2Spy, toRender);
     assertSpy.called(a3Spy);
@@ -93,7 +92,7 @@ describe("RequestResolver", () => {
 
   it("Should render throws error", () => {
     assert.throws(() => {
-      routeResolver.render(Reflect.get(response, "invalid").call());
+      routeResolver.render(Reflect.get(response, "invalid").call(), RenderType.DATA_HANDLER);
     }, "ResponseType must be string or buffer");
   });
 
@@ -256,7 +255,6 @@ describe("RequestResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: modules},
-        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );
@@ -324,7 +322,6 @@ describe("RequestResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: modules},
-        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );

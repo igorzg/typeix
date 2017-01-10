@@ -70,19 +70,6 @@ describe("ControllerResolver", () => {
     assert.isTrue(controllerResolver instanceof ControllerResolver);
   });
 
-  it("ControllerResolver.setStatusCode", () => {
-    let aSpy = spy(eventEmitter, "emit");
-    controllerResolver.setStatusCode(400);
-    assertSpy.calledWith(aSpy, "statusCode", 400);
-  });
-
-  it("ControllerResolver.setContentType", () => {
-    let contentType = "application/json";
-    let aSpy = spy(eventEmitter, "emit");
-    controllerResolver.setContentType(contentType);
-    assertSpy.calledWith(aSpy, "contentType", contentType);
-  });
-
   it("ControllerResolver.stopChain", () => {
     assert.isFalse(Reflect.get(controllerResolver, "isChainStopped"));
     controllerResolver.stopChain();

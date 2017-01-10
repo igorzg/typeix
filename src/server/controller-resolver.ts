@@ -15,6 +15,7 @@ import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {IParam} from "../interfaces/iparam";
+import {Redirect} from "./redirect";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -153,33 +154,6 @@ export class ControllerResolver {
   static isControllerInherited(a: Function, b: Function) {
     return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
   }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setStatusCode
-   * @private
-   * @description
-   * Set request status code
-   */
-  setStatusCode(value: number) {
-    this.eventEmitter.emit("statusCode", value);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setContentType
-   * @private
-   * @param {String} value
-   *
-   * @description
-   * Set response content type
-   */
-  setContentType(value: string) {
-    this.eventEmitter.emit("contentType", value);
-  }
-
   /**
    * @since 1.0.0
    * @function
@@ -402,7 +376,7 @@ export class ControllerResolver {
     let contentType: IParam = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "Produces");
 
     if (isPresent(contentType)) {
-      this.setContentType(contentType.value);
+      this.getEventEmitter().emit("contentType", contentType.value);
     }
     // resolve action params
     let actionParams = [];
@@ -810,7 +784,7 @@ export class Request {
    * Set response content type
    */
   setContentType(value: string) {
-    this.controllerResolver.setContentType(value);
+    this.controllerResolver.getEventEmitter().emit("contentType", value);
   }
 
   /**
@@ -884,7 +858,7 @@ export class Request {
    * Set status code
    */
   setStatusCode(code: number) {
-    this.controllerResolver.setStatusCode(code);
+    this.controllerResolver.getEventEmitter().emit("statusCode", code);
   }
 
   /**
@@ -897,5 +871,19 @@ export class Request {
    */
   stopChain() {
     this.controllerResolver.stopChain();
+  }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#redirectTo
+   *
+   * @description
+   * Stops action chain
+   */
+  redirectTo(url: string, code: Redirect) {
+    this.stopChain();
+    this.controllerResolver.getEventEmitter().emit("redirectTo", {
+      url, code
+    });
   }
 }

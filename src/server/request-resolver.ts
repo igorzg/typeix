@@ -7,7 +7,7 @@ import {Router, Methods} from "../router/router";
 import {Url} from "url";
 import {IResolvedModule, IModule, IModuleMetadata} from "../interfaces/imodule";
 import {ResolvedRoute} from "../interfaces/iroute";
-import {isPresent, isString, isClass} from "../core";
+import {isPresent, isString, isFalsy} from "../core";
 import {HttpError} from "../error";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
@@ -15,8 +15,24 @@ import {getModule} from "./bootstrap";
 import {ControllerResolver} from "./controller-resolver";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
+import {IRedirect, getRedirectCode} from "./redirect";
 import {clean} from "../logger/inspect";
 
+/**
+ * @since 1.0.0
+ * @enum
+ * @name Renderer
+ * @description
+ * RenderType types
+ *
+ * @private
+ */
+export enum RenderType {
+  REDIRECT,
+  DATA_HANDLER,
+  CUSTOM_ERROR_HANDLER,
+  DEFAULT_ERROR_HANDLER
+}
 /**
  * @since 1.0.0
  * @class
@@ -109,15 +125,6 @@ export class RequestResolver implements IAfterConstruct {
    */
   @Inject("contentType", true)
   private contentType: String;
-
-  /**
-   * @param {String} contentType
-   * @description
-   * Content type
-   */
-  @Inject("isRedirected", true)
-  private isRedirected: boolean;
-
   /**
    * @param {EventEmitter} eventEmitter
    * @description
@@ -125,6 +132,13 @@ export class RequestResolver implements IAfterConstruct {
    */
   @Inject(EventEmitter)
   private eventEmitter: EventEmitter;
+
+  /**
+   * @param {String} redirectTo
+   * @description
+   * Set redirect to
+   */
+  private redirectTo: IRedirect;
 
   /**
    * @since 1.0.0
@@ -138,34 +152,96 @@ export class RequestResolver implements IAfterConstruct {
   afterConstruct() {
     this.eventEmitter.on("statusCode", value => this.statusCode = value);
     this.eventEmitter.on("contentType", value => this.contentType = value);
+    this.eventEmitter.on("redirectTo", value => this.redirectTo = value);
   }
 
   /**
    * @since 1.0.0
    * @function
+   * @name RequestResolver#processError
+   * @param {Object} data
+   *
+   * @private
+   * @description
+   * Process error handling
+   */
+  processError(data: any): string {
+    // force HttpError to be thrown
+    if (!(data instanceof HttpError)) {
+      let _error: Error = data;
+      data = new HttpError(500, _error.message, {});
+      data.stack = _error.stack;
+    }
+    // log error message
+    this.logger.error(data.message, {
+      id: this.id,
+      method: this.request.method,
+      request: this.url,
+      url: this.request.url,
+      data
+    });
+    // status code is mutable
+    this.statusCode = data.getCode();
+
+    return clean(data.toString());
+  }
+  /**
+   * @since 1.0.0
+   * @function
    * @name RequestResolver#render
    * @param {Buffer|String} response
+   * @param {RenderType} type
    *
    * @private
    * @description
    * This method sends data to client
    */
-  render(response: string | Buffer): string | Buffer {
-    if (isString(response) || (response instanceof Buffer)) {
-      this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
-      this.response.write(response);
-      this.response.end();
-      return response;
+  render(response: string | Buffer, type: RenderType) {
+    switch (type) {
+      case RenderType.DATA_HANDLER:
+        if (isString(response) || (response instanceof Buffer)) {
+          this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+          this.response.write(response);
+          this.response.end();
+
+        } else {
+          this.logger.error("Invalid response type", {
+            id: this.id,
+            response: response,
+            type: typeof response
+          });
+          throw new HttpError(500, "ResponseType must be string or buffer", {
+            response
+          });
+        }
+        break;
+      case RenderType.CUSTOM_ERROR_HANDLER:
+        response = this.processError(response);
+        this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+        this.response.write(response);
+        this.response.end();
+        break;
+      case RenderType.DEFAULT_ERROR_HANDLER:
+        response = this.processError(response);
+        this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+        this.response.write(response);
+        this.response.end();
+        break;
+      case RenderType.REDIRECT:
+        this.response.setHeader("Location", this.redirectTo.url);
+        this.response.writeHead(getRedirectCode(this.redirectTo.code));
+        this.response.end();
+        break;
+      default:
+        this.response.writeHead(500);
+        this.response.write(`Invalid RenderType provided ${isPresent(response) ? response.toString() : ""}`);
+        this.response.end();
+        break;
     }
-    this.logger.error("Invalid response type", {
-      id: this.id,
-      response: response,
-      type: typeof response
-    });
-    throw new HttpError(500, "ResponseType must be string or buffer", {
-      response
-    });
+
+    return response;
   }
+
 
   /**
    * @since 1.0.0
@@ -281,72 +357,8 @@ export class RequestResolver implements IAfterConstruct {
         };
       })
       .then((resolvedModule: IResolvedModule) => this.processModule(resolvedModule))
-      .then(data => this.render(data))
-      .catch((error: HttpError) => {
-        // force HttpError to be thrown
-        if (!(error instanceof HttpError)) {
-          let _error: HttpError = error;
-          error = new HttpError(500, _error.message, {});
-          error.stack = _error.stack;
-        }
-        // log error message
-        this.logger.error(error.message, {
-          id: this.id,
-          method: this.request.method,
-          request: this.url,
-          url: this.request.url,
-          error
-        });
-        //
-        // if (isPresent(this.reflectionInjector)) {
-        //   // define module controller action
-        //   let resolvedRoute: ResolvedRoute = this.reflectionInjector.get("resolvedRoute");
-        //
-        //   let [module, controller, action] = resolvedRoute.route.split("/");
-        //
-        //   if (!isPresent(action)) {
-        //     // find controller
-        //     let controllerProvider = this.getControllerProvider(module, controller, resolvedRoute);
-        //     // get mapped action metadata
-        //     let mappedAction: any = this.getMappedAction(controllerProvider, controller, resolvedRoute);
-        //     // get on error
-        //     let onError = this.getDecoratorByMappedAction(controllerProvider, mappedAction, "OnError");
-        //     // if on error is present define custom error
-        //     if (isPresent(onError)) {
-        //       // set code from it
-        //       this.statusCode = onError.value.status;
-        //       // get custom message
-        //       return onError.value.message;
-        //     }
-        //
-        //   }
-        // }
-        // status code is mutable
-        this.statusCode = error.getCode();
-        // render error
-        return this.render(clean(error.toString()));
-      })
-      .catch((error: HttpError) => {
-
-        if (!(error instanceof HttpError)) {
-          let _error: HttpError = error;
-          error = new HttpError(500, _error.message, {});
-          error.stack = _error.stack;
-        }
-        // log error message
-        this.logger.error(error.message, {
-          id: this.id,
-          method: this.request.method,
-          request: this.url,
-          url: this.request.url,
-          error
-        });
-        // set status code
-        this.statusCode = error.getCode();
-        // clean log output
-        return this.render(clean(error.toString()));
-      });
-
-
+      .then(data => this.render(data, isFalsy(this.redirectTo) ? RenderType.DATA_HANDLER : RenderType.REDIRECT))
+      .catch(data => this.render(data, RenderType.CUSTOM_ERROR_HANDLER))
+      .catch(data => this.render(data, RenderType.DEFAULT_ERROR_HANDLER));
   }
 }

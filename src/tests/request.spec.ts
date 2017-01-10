@@ -16,7 +16,7 @@ describe("Request", () => {
 
 
   let resolvedRoute: ResolvedRoute;
-  let eventEmitter = new EventEmitter();
+  let eventEmitter;
 
   let incommingMessage = Object.create({
     headers: {}
@@ -27,6 +27,7 @@ describe("Request", () => {
   let request: Request;
 
   beforeEach(() => {
+    eventEmitter = new EventEmitter();
     resolvedRoute = {
       method: Methods.GET,
       params: {
@@ -206,9 +207,9 @@ describe("Request", () => {
   });
 
   it("Request.setContentType", () => {
-    let aSpy = stub(controllerResolver, "setContentType");
+    let aSpy = spy(eventEmitter, "emit");
     request.setContentType("application/javascript");
-    assertSpy.calledWith(aSpy, "application/javascript");
+    assertSpy.calledWith(aSpy, "contentType", "application/javascript");
   });
 
 
@@ -235,9 +236,9 @@ describe("Request", () => {
   });
 
   it("Request.setStatusCode", () => {
-    let aSpy = stub(controllerResolver, "setStatusCode");
+    let aSpy = spy(eventEmitter, "emit");
     request.setStatusCode(400);
-    assertSpy.calledWith(aSpy, 400);
+    assertSpy.calledWith(aSpy, "statusCode", 400);
   });
 
   it("Request.stopChain", () => {

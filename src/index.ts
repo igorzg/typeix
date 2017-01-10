@@ -60,7 +60,8 @@ export {
 export {
   httpServer,
   getModule,
-  Request
+  Request,
+  Redirect
 } from "./server/index";
 /**
  * Export all from core
