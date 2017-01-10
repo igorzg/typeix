@@ -164,6 +164,7 @@ export class RequestResolver implements IAfterConstruct {
    * @private
    * @description
    * Process error handling
+   * @todo fix custom error handling
    */
   processError(data: any): string {
     // force HttpError to be thrown

@@ -11,6 +11,7 @@ import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/fake-htt
 import {Chain} from "../decorators/chain";
 import {Request} from "../server/controller-resolver";
 import {StatusCode} from "../server/status-code";
+import {isEqual} from "../core";
 
 // use chai spies
 use(sinonChai);
@@ -83,6 +84,13 @@ describe("fakeHttpServer", () => {
     server = fakeHttpServer(MyModule);
   });
 
+  it("Should do GET redirect", (done) => {
+    server.GET("/redirect").then((api: FakeResponseApi) => {
+      assert.equal(api.getStatusCode(), 307);
+      assert.isTrue(isEqual(api.getHeaders(), {"Location": "/mypage"}));
+      done();
+    }).catch(done);
+  });
 
   it("Should do GET not found", (done) => {
     server.GET("/abc").then((api: FakeResponseApi) => {

@@ -154,6 +154,7 @@ export class ControllerResolver {
   static isControllerInherited(a: Function, b: Function) {
     return b.isPrototypeOf(a.prototype) || Object.is(a.prototype, b);
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -857,7 +858,7 @@ export class Request {
    * @description
    * Set status code
    */
-  setStatusCode(code: StatusCode) {
+  setStatusCode(code: StatusCode | number) {
     this.controllerResolver.getEventEmitter().emit("statusCode", code);
   }
 
@@ -872,6 +873,7 @@ export class Request {
   stopChain() {
     this.controllerResolver.stopChain();
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -880,7 +882,7 @@ export class Request {
    * @description
    * Stops action chain
    */
-  redirectTo(url: string, code: StatusCode) {
+  redirectTo(url: string, code: StatusCode | number) {
     this.stopChain();
     this.controllerResolver.getEventEmitter().emit("redirectTo", {
       url, code
