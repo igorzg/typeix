@@ -1,11 +1,11 @@
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {IncomingMessage, ServerResponse} from "http";
-import {ControllerResolver} from "./request";
+import {ControllerResolver} from "./controller-resolver";
 import {uuid, isArray} from "../core";
 import {IModuleMetadata, IModule} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
-import {RouteResolver} from "./route-resolver";
+import {RequestResolver} from "./request-resolver";
 import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
@@ -92,11 +92,11 @@ export function fireRequest(modules: Array<IModule>,
   let rootInjector = getModule(modules).injector;
   let logger = rootInjector.get(Logger);
   /**
-   * Create RouteResolver injector
+   * Create RequestResolver injector
    */
   let routeResolverInjector = Injector.createAndResolveChild(
     rootInjector,
-    RouteResolver,
+    RequestResolver,
     [
       {provide: "url", useValue: parse(request.url, true)},
       {provide: "UUID", useValue: uuid()},
@@ -106,13 +106,14 @@ export function fireRequest(modules: Array<IModule>,
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
       {provide: "modules", useValue: modules},
+      {provide: "isRedirected", useValue: false},
       EventEmitter
     ]
   );
   /**
-   * Get RouteResolver instance
+   * Get RequestResolver instance
    */
-  let rRouteResolver: RouteResolver = routeResolverInjector.get(RouteResolver);
+  let rRouteResolver: RequestResolver = routeResolverInjector.get(RequestResolver);
 
   /**
    * On finish destroy injector

@@ -1,7 +1,7 @@
 import {Methods} from "../router/router";
 import {Injector} from "../injector/injector";
 import {ResolvedRoute} from "../interfaces/iroute";
-import {Request, ControllerResolver} from "../server/request";
+import {Request, ControllerResolver} from "../server/controller-resolver";
 import {assert, expect, use} from "chai";
 import * as sinonChai from "sinon-chai";
 import {spy, stub, assert as assertSpy} from "sinon";

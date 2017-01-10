@@ -9,7 +9,7 @@ import {IAfterConstruct} from "../interfaces/iprovider";
 import {Inject} from "../decorators/inject";
 import {fakeHttpServer, FakeServerApi} from "../server/fake-http";
 import {Chain} from "../decorators/chain";
-import {Request} from "../server/request";
+import {Request} from "../server/controller-resolver";
 
 // use chai spies
 use(sinonChai);
@@ -73,6 +73,13 @@ describe("fakeHttpServer", () => {
   });
 
 
+  it("Should do GET not found", (done) => {
+    server.GET("/abc").then((data: string) => {
+      assert.isTrue(data.indexOf("Error: Router.parseRequest: /abc no route found, method: GET") > -1);
+      done();
+    }).catch(done);
+  });
+
   it("Should do GET index", (done) => {
     server.GET("/").then(data => {
       assert.equal(data, "VALUE <- BEFORE");
@@ -135,4 +142,7 @@ describe("fakeHttpServer", () => {
       done();
     }).catch(done);
   });
+
+
+
 });

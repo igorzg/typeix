@@ -12,7 +12,7 @@ import {HttpError} from "../error";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {getModule} from "./bootstrap";
-import {ControllerResolver} from "./request";
+import {ControllerResolver} from "./controller-resolver";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
 import {clean} from "../logger/inspect";
@@ -20,7 +20,7 @@ import {clean} from "../logger/inspect";
 /**
  * @since 1.0.0
  * @class
- * @name RouteResolver
+ * @name RequestResolver
  * @constructor
  * @description
  * Get current request and resolve module and route
@@ -28,7 +28,7 @@ import {clean} from "../logger/inspect";
  * @private
  */
 @Injectable()
-export class RouteResolver implements IAfterConstruct {
+export class RequestResolver implements IAfterConstruct {
 
   /**
    * @param IncomingMessage
@@ -111,6 +111,14 @@ export class RouteResolver implements IAfterConstruct {
   private contentType: String;
 
   /**
+   * @param {String} contentType
+   * @description
+   * Content type
+   */
+  @Inject("isRedirected", true)
+  private isRedirected: boolean;
+
+  /**
    * @param {EventEmitter} eventEmitter
    * @description
    * Responsible for handling events
@@ -121,7 +129,7 @@ export class RouteResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteResolver#afterConstruct
+   * @name RequestResolver#afterConstruct
    *
    * @private
    * @description
@@ -135,7 +143,7 @@ export class RouteResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteResolver#render
+   * @name RequestResolver#render
    * @param {Buffer|String} response
    *
    * @private
@@ -162,7 +170,7 @@ export class RouteResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteResolver#getControllerProvider
+   * @name RequestResolver#getControllerProvider
    * @private
    * @description
    * Returns a controller provider
@@ -191,7 +199,7 @@ export class RouteResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteResolver#processModule
+   * @name RequestResolver#processModule
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -210,9 +218,6 @@ export class RouteResolver implements IAfterConstruct {
         {provide: "controllerProvider", useValue: this.getControllerProvider(resolvedModule)},
         {provide: "actionName", useValue: resolvedModule.action},
         {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
-
-        {provide: "isRedirected", useValue: false},
-        {provide: "isCustomError", useValue: false},
         {provide: "isForwarded", useValue: false},
         {provide: "isForwarder", useValue: false},
         {provide: "isChainStopped", useValue: false},
@@ -237,7 +242,7 @@ export class RouteResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
-   * @name RouteResolver#process
+   * @name RequestResolver#process
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -340,14 +345,7 @@ export class RouteResolver implements IAfterConstruct {
         this.statusCode = error.getCode();
         // clean log output
         return this.render(clean(error.toString()));
-      })
-      .catch((error: HttpError) => this.logger.error(error.message, {
-        id: this.id,
-        method: this.request.method,
-        request: this.url,
-        url: this.request.url,
-        error
-      }));
+      });
 
 
   }

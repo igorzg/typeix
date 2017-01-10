@@ -6,7 +6,7 @@ import {Methods, Router} from "../router/router";
 import {uuid} from "../core";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
-import {RouteResolver} from "../server/route-resolver";
+import {RequestResolver} from "../server/request-resolver";
 import {parse} from "url";
 import {Logger} from "../logger/logger";
 import {IResolvedModule, IModule} from "../interfaces/imodule";
@@ -22,9 +22,9 @@ import {setTimeout} from "timers";
 // use chai spies
 use(sinonChai);
 
-describe("RouteResolver", () => {
+describe("RequestResolver", () => {
   let resolvedRoute: ResolvedRoute;
-  let routeResolver: RouteResolver;
+  let routeResolver: RequestResolver;
   let request, response, data, id = uuid();
 
   beforeEach(() => {
@@ -55,7 +55,7 @@ describe("RouteResolver", () => {
     data = [new Buffer(1), new Buffer(1)];
     let injector = Injector.createAndResolveChild(
       new Injector(),
-      RouteResolver,
+      RequestResolver,
       [
         Logger,
         Router,
@@ -67,10 +67,11 @@ describe("RouteResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: []},
+        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );
-    routeResolver = injector.get(RouteResolver);
+    routeResolver = injector.get(RequestResolver);
   });
 
 
@@ -245,7 +246,7 @@ describe("RouteResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let injector = Injector.createAndResolveChild(
       getModule(modules).injector,
-      RouteResolver,
+      RequestResolver,
       [
         {provide: "url", useValue: parse("/", true)},
         {provide: "UUID", useValue: id},
@@ -255,10 +256,11 @@ describe("RouteResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: modules},
+        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );
-    let myRouteResolver = injector.get(RouteResolver);
+    let myRouteResolver = injector.get(RequestResolver);
 
 
     let aSpy = spy(myRouteResolver, "render");
@@ -312,7 +314,7 @@ describe("RouteResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let injector = Injector.createAndResolveChild(
       getModule(modules).injector,
-      RouteResolver,
+      RequestResolver,
       [
         {provide: "url", useValue: parse("/", true)},
         {provide: "UUID", useValue: id},
@@ -322,10 +324,11 @@ describe("RouteResolver", () => {
         {provide: "request", useValue: request},
         {provide: "response", useValue: response},
         {provide: "modules", useValue: modules},
+        {provide: "isRedirected", useValue: false},
         EventEmitter
       ]
     );
-    let myRouteResolver = injector.get(RouteResolver);
+    let myRouteResolver = injector.get(RequestResolver);
 
     let a = [Buffer.from("a"), Buffer.from("b"), Buffer.from("c")];
 

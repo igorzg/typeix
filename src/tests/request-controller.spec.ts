@@ -1,7 +1,7 @@
 import {Methods} from "../router/router";
 import {Injector} from "../injector/injector";
 import {ResolvedRoute} from "../interfaces/iroute";
-import {Request, ControllerResolver} from "../server/request";
+import {Request, ControllerResolver} from "../server/controller-resolver";
 import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
 import {spy, stub, assert as assertSpy} from "sinon";
@@ -56,9 +56,6 @@ describe("ControllerResolver", () => {
       {provide: "controllerProvider", useValue: controllerProvider},
       {provide: "actionName", useValue: actionName},
       {provide: "resolvedRoute", useValue: resolvedRoute},
-
-      {provide: "isRedirected", useValue: false},
-      {provide: "isCustomError", useValue: false},
       {provide: "isForwarded", useValue: false},
       {provide: "isForwarder", useValue: false},
       {provide: "isChainStopped", useValue: false},

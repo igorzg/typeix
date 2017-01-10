@@ -52,22 +52,6 @@ export class ControllerResolver {
   private response: ServerResponse;
 
   /**
-   * @param {Boolean} isCustomError
-   * @description
-   * Value provided by injector which handles custom error responses
-   */
-  @Inject("isCustomError")
-  private isCustomError: boolean;
-
-  /**
-   * @param {Boolean} isForwarded
-   * @description
-   * Information internally used by request itself on forwarded requests
-   */
-  @Inject("isRedirected")
-  private isRedirected: boolean;
-
-  /**
    * @param {Boolean} isForwarded
    * @description
    * Information internally used by request itself on forwarded requests
@@ -600,7 +584,7 @@ export class ControllerResolver {
       injector.set(CHAIN_KEY, result);
     }
 
-    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isFalsy(this.isRedirected) && isArray(metadata.filters)) {
+    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isArray(metadata.filters)) {
       // set filter result
       injector.set(CHAIN_KEY, await this.processFilters(injector, metadata, true));
     }
