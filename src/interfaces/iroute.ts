@@ -2,12 +2,12 @@ import {Methods} from "../router/router";
 /**
  * @since 1.0.0
  * @interface
- * @name ResolvedRoute
+ * @name IResolvedRoute
  *
  * @description
  * If we match route we resolve it with this interface
  */
-export interface ResolvedRoute {
+export interface IResolvedRoute {
   method: Methods;
   params: Object;
   route: string;
@@ -45,7 +45,7 @@ export interface Headers {}
  * Route definition
  */
 export interface Route {
-  parseRequest(pathName: string, method: string, headers: Headers): Promise<ResolvedRoute|boolean>;
+  parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute|boolean>;
   createUrl(routeName: string, params: Object): Promise<string|boolean>;
 }
 /**

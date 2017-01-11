@@ -1,17 +1,24 @@
 import {Methods, Router} from "../router/router";
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
-import {assert, expect} from "chai";
+import {assert} from "chai";
 import {isEqual} from "../core";
 
 describe("Router", () => {
-  it("Parse request and create url", () => {
+
+  let router: Router;
+
+  beforeEach(() => {
     let rootInjector = new Injector();
     let injector = Injector.createAndResolve(Router, [
       {provide: Injector, useValue: rootInjector},
       {provide: Logger, useClass: Logger}
     ]);
-    let router: Router = injector.get(Router);
+    router = injector.get(Router);
+  });
+
+  it("Parse request and create url", () => {
+
     router.addRules([
       {
         methods: [Methods.OPTIONS],
@@ -79,4 +86,17 @@ describe("Router", () => {
     });
 
   });
+
+
+  it("Should invoke getError|hasError|setError", () => {
+    let route = "core/error";
+    router.setError(route);
+    assert.isTrue(router.hasError());
+    assert.equal(route, router.getError());
+    router.setError("ABC/D"); // ignore second global route definition
+    assert.equal(route, router.getError());
+    router.setError("admin/error/index");
+    assert.equal("admin/error/index", router.getError("admin"));
+  });
+
 });

@@ -1,5 +1,5 @@
 import {IProvider} from "./iprovider";
-import {RouteRuleConfig, ResolvedRoute} from "./iroute";
+import {RouteRuleConfig, IResolvedRoute} from "./iroute";
 import {Injector} from "../injector/injector";
 /**
  * @since 1.0.0
@@ -55,7 +55,7 @@ export interface IModule {
 export interface IResolvedModule {
   module: IModule;
   data?: Array<Buffer>;
-  resolvedRoute: ResolvedRoute;
+  resolvedRoute: IResolvedRoute;
   controller: string;
   action: string;
 }

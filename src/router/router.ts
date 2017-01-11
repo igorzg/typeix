@@ -1,7 +1,7 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
-import {Route, Headers, RouteRuleConfig, ResolvedRoute, TRoute} from "../interfaces/iroute";
-import {isTruthy} from "../core";
+import {Route, Headers, RouteRuleConfig, IResolvedRoute, TRoute} from "../interfaces/iroute";
+import {isTruthy, isString} from "../core";
 import {Injector} from "../injector/injector";
 import {RouteRule} from "./route-rule";
 import {Injectable} from "../decorators/injectable";
@@ -84,20 +84,24 @@ export function getMethod(method: string): Methods {
 export class Router {
 
   /**
-   * Inject logger
+   * @param {Logger} logger
    */
   @Inject(Logger)
   private logger: Logger;
   /**
-   * Inject injector
+   * @param {Injector} injector
    */
   @Inject(Injector)
   private injector: Injector;
   /**
-   * Array of routes definition
-   * @type {Array}
+   * @param {Array<Route>} routes
    */
   private routes: Array<Route> = [];
+  /**
+   * Error route definition
+   * @param {String} errorRoute
+   */
+  private errorRoutes: Array<string> = [];
 
   /**
    * @since 1.0.0
@@ -112,6 +116,57 @@ export class Router {
    */
   static prefixSlash(value: string): string {
     return value.charAt(0) === "/" ? value : "/" + value;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Router#getError
+   *
+   * @description
+   * Returns error route string
+   */
+  getError(module?: string): string {
+    let routes = this.errorRoutes.slice();
+    let item: string;
+    while (routes.length > 0) {
+      item = routes.pop();
+      if (item.startsWith(module + "/")) {
+        return item;
+      }
+    }
+    return item;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Router#hasErrorRoute
+   *
+   * @description
+   * Check if error route is provided
+   */
+  hasError(): boolean {
+    return isTruthy(this.errorRoutes.length > 0);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Router#setError
+   * @param {string} route
+   *
+   * @description
+   * Add error route
+   */
+  setError(route: string): void {
+    if (this.errorRoutes.indexOf(route) === -1 && isString(route)) {
+      let list = route.split("/");
+      if (list.length < 2) {
+        throw new Error(`Invalid route structure: "${route}"! Valid are controller/action or module/controller/action!`);
+      }
+      this.errorRoutes.push(route);
+    }
   }
 
   /**
@@ -161,12 +216,12 @@ export class Router {
    * @description
    * Parse request based on pathName and method
    */
-  async parseRequest(pathName: string, method: string, headers: Headers): Promise<ResolvedRoute> {
+  async parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute> {
     for (let route of this.routes) {
       let result = await route.parseRequest(pathName, method, headers);
       if (isTruthy(result)) {
         this.logger.info("Router.parseRequest", result);
-        return Promise.resolve(<ResolvedRoute> result);
+        return Promise.resolve(<IResolvedRoute> result);
       }
     }
     throw new HttpError(Status.Not_Found, `Router.parseRequest: ${pathName} no route found, method: ${method}`, {

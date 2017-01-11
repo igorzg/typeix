@@ -6,7 +6,7 @@ import {Injector} from "../injector/injector";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 import {Url} from "url";
-import {ResolvedRoute} from "../interfaces/iroute";
+import {IResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
@@ -16,6 +16,7 @@ import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
+import {ERROR_KEY} from "./request-resolver";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -136,12 +137,12 @@ export class ControllerResolver {
   private isChainStopped: boolean;
 
   /**
-   * @param {ResolvedRoute} resolvedRoute
+   * @param {IResolvedRoute} resolvedRoute
    * @description
    * Resolved route from injector
    */
   @Inject("resolvedRoute")
-  private resolvedRoute: ResolvedRoute;
+  private resolvedRoute: IResolvedRoute;
 
   /**
    * @since 1.0.0
@@ -398,7 +399,8 @@ export class ControllerResolver {
         switch (param.type) {
           case "Param":
             if (
-              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(this.resolvedRoute.params)
+              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) ||
+              !isPresent(this.resolvedRoute.params)
             ) {
               throw new TypeError(`Property ${param.value} is not defined on route ${toString(this.resolvedRoute)}`);
             }
@@ -409,6 +411,9 @@ export class ControllerResolver {
             break;
           case "Inject":
             actionParams.push(injector.get(param.value));
+            break;
+          case "Error":
+            actionParams.push(injector.get(ERROR_KEY));
             break;
         }
       });
@@ -596,7 +601,7 @@ export class Request {
    * Current internal resolved route
    */
   @Inject("resolvedRoute")
-  private resolvedRoute: ResolvedRoute;
+  private resolvedRoute: IResolvedRoute;
   /**
    * @param cookies
    * @description

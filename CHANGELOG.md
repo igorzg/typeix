@@ -1,3 +1,7 @@
+## 1.0.0-alpha-34
+- Implemented global error route handler , every module can have own error handler route
+
+
 ## 1.0.0-alpha-33
 - StatusCode renamed to Status
 - fix status code bug while redirect

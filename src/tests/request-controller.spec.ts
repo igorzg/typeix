@@ -1,6 +1,6 @@
 import {Methods} from "../router/router";
 import {Injector} from "../injector/injector";
-import {ResolvedRoute} from "../interfaces/iroute";
+import {IResolvedRoute} from "../interfaces/iroute";
 import {Request, ControllerResolver} from "../server/controller-resolver";
 import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
@@ -26,7 +26,7 @@ use(sinonChai);
 describe("ControllerResolver", () => {
 
 
-  let resolvedRoute: ResolvedRoute;
+  let resolvedRoute: IResolvedRoute;
   let eventEmitter;
   let controllerResolver: ControllerResolver;
   let controllerProvider, IRequest, request, response, data, id = uuid(), url = "/";

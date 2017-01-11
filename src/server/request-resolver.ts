@@ -6,8 +6,8 @@ import {Logger} from "../logger/logger";
 import {Router, Methods} from "../router/router";
 import {Url} from "url";
 import {IResolvedModule, IModule, IModuleMetadata} from "../interfaces/imodule";
-import {ResolvedRoute} from "../interfaces/iroute";
-import {isPresent, isString, isFalsy} from "../core";
+import {IResolvedRoute} from "../interfaces/iroute";
+import {isPresent, isString, isFalsy, isTruthy} from "../core";
 import {HttpError} from "../error";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
@@ -18,6 +18,8 @@ import {Injector} from "../injector/injector";
 import {IRedirect, Status} from "./status-code";
 import {clean} from "../logger/inspect";
 
+export const MODULE_KEY = "__module__";
+export const ERROR_KEY = "__error__";
 /**
  * @since 1.0.0
  * @enum
@@ -62,6 +64,13 @@ export class RequestResolver implements IAfterConstruct {
   @Inject("response")
   private response: ServerResponse;
 
+  /**
+   * @param {Injector} injector
+   * @description
+   * Current injector
+   */
+  @Inject(Injector)
+  private injector: Injector;
   /**
    * @param {Logger} logger
    * @description
@@ -160,17 +169,18 @@ export class RequestResolver implements IAfterConstruct {
    * @function
    * @name RequestResolver#processError
    * @param {Object} data
+   * @param {Boolean} isCustom
    *
    * @private
    * @description
    * Process error handling
    * @todo fix custom error handling
    */
-  processError(data: any): string {
+  async processError(data: any, isCustom: boolean): Promise<Buffer | string> {
     // force HttpError to be thrown
     if (!(data instanceof HttpError)) {
       let _error: Error = data;
-      data = new HttpError(Status.Bad_Request, _error.message, {});
+      data = new HttpError(Status.Internal_Server_Error, _error.message, {});
       data.stack = _error.stack;
     }
     // log error message
@@ -181,11 +191,36 @@ export class RequestResolver implements IAfterConstruct {
       url: this.request.url,
       data
     });
+
     // status code is mutable
     this.statusCode = data.getCode();
 
-    return clean(data.toString());
+    if (isTruthy(isCustom) && this.router.hasError()) {
+
+      let route: string;
+
+      if (this.injector.has(MODULE_KEY)) {
+        let iResolvedModule: IResolvedModule = this.injector.get(MODULE_KEY);
+        route = this.router.getError(iResolvedModule.module.name);
+      } else {
+        route = this.router.getError();
+      }
+
+      let iResolvedErrorModule = this.getResolvedModule({
+        method: Methods.GET,
+        params: {},
+        route
+      });
+
+      if (isTruthy(iResolvedErrorModule)) {
+        return await this.processModule(iResolvedErrorModule, data);
+      }
+
+    }
+
+    return await clean(data.toString());
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -197,7 +232,7 @@ export class RequestResolver implements IAfterConstruct {
    * @description
    * This method sends data to client
    */
-  render(response: string | Buffer, type: RenderType) {
+  async render(response: string | Buffer, type: RenderType): Promise<string | Buffer> {
     switch (type) {
       case RenderType.DATA_HANDLER:
         if (isString(response) || (response instanceof Buffer)) {
@@ -217,13 +252,13 @@ export class RequestResolver implements IAfterConstruct {
         }
         break;
       case RenderType.CUSTOM_ERROR_HANDLER:
-        response = this.processError(response);
+        response = await this.processError(response, true);
         this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
         this.response.write(response);
         this.response.end();
         break;
       case RenderType.DEFAULT_ERROR_HANDLER:
-        response = this.processError(response);
+        response = await this.processError(response, false);
         this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
         this.response.write(response);
         this.response.end();
@@ -281,25 +316,30 @@ export class RequestResolver implements IAfterConstruct {
    * @description
    * Resolve route and deliver resolved module
    */
-  processModule(resolvedModule: IResolvedModule): Promise<string|Buffer> {
+  processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string|Buffer> {
 
+    let providers = [
+      {provide: "data", useValue: this.data},
+      {provide: "request", useValue: this.request},
+      {provide: "response", useValue: this.response},
+      {provide: "url", useValue: this.url},
+      {provide: "UUID", useValue: this.id},
+      {provide: "controllerProvider", useValue: this.getControllerProvider(resolvedModule)},
+      {provide: "actionName", useValue: resolvedModule.action},
+      {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
+      {provide: "isForwarded", useValue: false},
+      {provide: "isForwarder", useValue: false},
+      {provide: "isChainStopped", useValue: false},
+      {provide: ERROR_KEY, useValue: isTruthy(error) ? error : new HttpError(500)},
+      {provide: EventEmitter, useValue: this.eventEmitter}
+    ];
+    /**
+     * Create and resolve
+     */
     let childInjector = Injector.createAndResolveChild(
       resolvedModule.module.injector,
       ControllerResolver,
-      [
-        {provide: "data", useValue: this.data},
-        {provide: "request", useValue: this.request},
-        {provide: "response", useValue: this.response},
-        {provide: "url", useValue: this.url},
-        {provide: "UUID", useValue: this.id},
-        {provide: "controllerProvider", useValue: this.getControllerProvider(resolvedModule)},
-        {provide: "actionName", useValue: resolvedModule.action},
-        {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
-        {provide: "isForwarded", useValue: false},
-        {provide: "isForwarder", useValue: false},
-        {provide: "isChainStopped", useValue: false},
-        {provide: EventEmitter, useValue: this.eventEmitter}
-      ]
+      providers
     );
     /**
      * On finish destroy injector
@@ -319,6 +359,25 @@ export class RequestResolver implements IAfterConstruct {
   /**
    * @since 1.0.0
    * @function
+   * @name RequestResolver#getResolvedModule
+   * @private
+   * @description
+   * Resolve route and deliver resolved module
+   */
+  getResolvedModule(resolvedRoute: IResolvedRoute): IResolvedModule {
+    let [module, controller, action] = resolvedRoute.route.split("/");
+    return {
+      module: !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module),
+      controller: !isPresent(action) ? module : controller,
+      action: !isPresent(action) ? controller : action,
+      resolvedRoute,
+      data: this.data
+    };
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name RequestResolver#process
    * @private
    * @description
@@ -329,13 +388,12 @@ export class RequestResolver implements IAfterConstruct {
     // process request
     return this.router
       .parseRequest(this.url.pathname, this.request.method, this.request.headers)
-      .then((resolvedRoute: ResolvedRoute) => {
+      .then((resolvedRoute: IResolvedRoute) => {
         this.logger.info("Route.parseRequest", {
           method: this.request.method,
           path: this.url.pathname,
           route: resolvedRoute
         });
-
         if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1) {
           this.request.on("data", item => this.data.push(<Buffer> item));
           return new Promise((resolve, reject) => {
@@ -345,17 +403,10 @@ export class RequestResolver implements IAfterConstruct {
         }
         return resolvedRoute;
       })
-      .then((resolvedRoute: ResolvedRoute) => {
-
-        // define module controller action
-        let [module, controller, action] = resolvedRoute.route.split("/");
-        return {
-          module: !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module),
-          controller: !isPresent(action) ? module : controller,
-          action: !isPresent(action) ? controller : action,
-          resolvedRoute,
-          data: this.data
-        };
+      .then((resolvedRoute: IResolvedRoute) => {
+        let resolvedModule = this.getResolvedModule(resolvedRoute);
+        this.injector.set(MODULE_KEY, resolvedModule);
+        return resolvedModule;
       })
       .then((resolvedModule: IResolvedModule) => this.processModule(resolvedModule))
       .then(data => this.render(data, isFalsy(this.redirectTo) ? RenderType.DATA_HANDLER : RenderType.REDIRECT))

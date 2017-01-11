@@ -1,4 +1,4 @@
-import {Route, Headers, RouteRuleConfig, ResolvedRoute} from "../interfaces/iroute";
+import {Route, Headers, RouteRuleConfig, IResolvedRoute} from "../interfaces/iroute";
 import {RouteParser} from "./route-parser";
 import {getMethod} from "./router";
 import {IAfterConstruct} from "../interfaces/iprovider";
@@ -43,13 +43,13 @@ export class RouteRule implements Route, IAfterConstruct {
    * @param {Headers} headers
    * @private
    *
-   * @return {Promise<ResolvedRoute>}
+   * @return {Promise<IResolvedRoute>}
    * @static
    *
    * @description
    * Parse request is used internally by Router to be able to parse request
    */
-  parseRequest(path: string, method: string, headers: Headers): Promise<ResolvedRoute|boolean> {
+  parseRequest(path: string, method: string, headers: Headers): Promise<IResolvedRoute|boolean> {
     if (!this.routeParser.isValid(path) || this.config.methods.indexOf(getMethod(method)) === -1) {
       return Promise.resolve(false);
     }

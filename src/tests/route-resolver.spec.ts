@@ -1,7 +1,7 @@
 import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
 import {spy, assert as assertSpy} from "sinon";
-import {ResolvedRoute} from "../interfaces/iroute";
+import {IResolvedRoute} from "../interfaces/iroute";
 import {Methods, Router} from "../router/router";
 import {uuid} from "../core";
 import {EventEmitter} from "events";
@@ -23,7 +23,7 @@ import {setTimeout} from "timers";
 use(sinonChai);
 
 describe("RequestResolver", () => {
-  let resolvedRoute: ResolvedRoute;
+  let resolvedRoute: IResolvedRoute;
   let routeResolver: RequestResolver;
   let request, response, data, id = uuid();
 
@@ -78,22 +78,26 @@ describe("RequestResolver", () => {
     assert.isNotNull(routeResolver);
   });
 
-  it("Should render", () => {
+  it("Should render", (done) => {
     let toRender = "RENDER";
     let aSpy = spy(response, "writeHead");
     let a2Spy = spy(response, "write");
     let a3Spy = spy(response, "end");
-    let rendered = routeResolver.render(toRender, RenderType.DATA_HANDLER);
-    assertSpy.calledWith(aSpy, 200, {"Content-Type": "text/html"});
-    assertSpy.calledWith(a2Spy, toRender);
-    assertSpy.called(a3Spy);
-    assert.equal(rendered, toRender);
+    let resolve = routeResolver.render(toRender, RenderType.DATA_HANDLER);
+    resolve.then(rendered => {
+      assertSpy.calledWith(aSpy, 200, {"Content-Type": "text/html"});
+      assertSpy.calledWith(a2Spy, toRender);
+      assertSpy.called(a3Spy);
+      assert.equal(rendered, toRender);
+      done();
+    }).catch(done);
   });
 
-  it("Should render throws error", () => {
-    assert.throws(() => {
-      routeResolver.render(Reflect.get(response, "invalid").call(), RenderType.DATA_HANDLER);
-    }, "ResponseType must be string or buffer");
+  it("Should render throws error", (done) => {
+    let resolve = routeResolver.render(Reflect.get(response, "invalid").call(), RenderType.DATA_HANDLER);
+    resolve.catch(result => {
+      assert.equal(result.message, "ResponseType must be string or buffer");
+    }).then(done).catch(done);
   });
 
 

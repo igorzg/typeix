@@ -16,6 +16,7 @@ export {
   Param,
   Produces,
   Provider,
+  Error,
   OnError
 } from "./decorators/index";
 /**
@@ -35,7 +36,7 @@ export {
   IFilter,
   Route,
   RouteRuleConfig,
-  ResolvedRoute
+  IResolvedRoute
 } from "./interfaces/index";
 
 /**

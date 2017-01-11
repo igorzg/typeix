@@ -12,6 +12,8 @@ import {Chain} from "../decorators/chain";
 import {Request} from "../server/controller-resolver";
 import {Status} from "../server/status-code";
 import {isEqual} from "../core";
+import {HttpError} from "../error";
+import {Error} from "../decorators/error";
 
 // use chai spies
 use(sinonChai);
@@ -29,6 +31,18 @@ describe("fakeHttpServer", () => {
 
       @Inject(Request)
       private request: Request;
+
+
+      @Action("error")
+      actionError(@Error message: HttpError) {
+        return "ERROR=" + message.getMessage();
+      }
+
+
+      @Action("fire")
+      actionFireError() {
+        throw new HttpError(500, "FIRE ERROR CASE");
+      }
 
       @Before("index")
       beforeIndex() {
@@ -73,8 +87,14 @@ describe("fakeHttpServer", () => {
             methods: [Methods.GET],
             url: "/redirect",
             route: "core/redirect"
+          },
+          {
+            methods: [Methods.GET],
+            url: "/fire-error",
+            route: "core/fire"
           }
         ]);
+        this.router.setError("core/error");
       }
 
       @Inject(Router)
@@ -84,6 +104,7 @@ describe("fakeHttpServer", () => {
     server = fakeHttpServer(MyModule);
   });
 
+
   it("Should do GET redirect", (done) => {
     server.GET("/redirect").then((api: FakeResponseApi) => {
       assert.equal(api.getStatusCode(), 307);
@@ -92,9 +113,18 @@ describe("fakeHttpServer", () => {
     }).catch(done);
   });
 
+  it("Should do GET found error", (done) => {
+    server.GET("/fire-error").then((api: FakeResponseApi) => {
+      assert.isTrue(api.getBody().toString().indexOf("ERROR=FIRE ERROR CASE") > -1);
+      assert.equal(api.getStatusCode(), 500);
+      done();
+    }).catch(done);
+  });
+
+
   it("Should do GET not found", (done) => {
     server.GET("/abc").then((api: FakeResponseApi) => {
-      assert.isTrue(api.getBody().toString().indexOf("Error: Router.parseRequest: /abc no route found, method: GET") > -1);
+      assert.isTrue(api.getBody().toString().indexOf("ERROR=Router.parseRequest: /abc no route found, method: GET") > -1);
       assert.equal(api.getStatusCode(), 404);
       done();
     }).catch(done);

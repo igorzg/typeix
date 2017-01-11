@@ -5,7 +5,7 @@ import {Metadata, FUNCTION_PARAMS} from "../injector/metadata";
  * @since 1.0.0
  * @decorator
  * @function
- * @name Chain
+ * @name Error
  *
  * @description
  * Chain propagate data from FilterBefore -> BeforeEach -> Before -> Action -> After -> AfterEach -> FilterAfter
@@ -14,23 +14,18 @@ import {Metadata, FUNCTION_PARAMS} from "../injector/metadata";
  * import {Chain, Param, Controller, Action, Inject} from "typeix";
  *
  * \@Controller({
- *    name: "myController"
+ *    name: "core"
  * })
  * class MyController{
  *
- *     \@Before("index")
- *     actionIndex() {
- *        return "My Index";
- *     }
- *
- *     \@Action("index")
- *     actionIndex(@Chain data, @Param("file") file: string) {
+ *     \@Action("error")
+ *     actionIndex(@Error data) {
  *        return "My Index " + data;
  *     }
  * }
  */
-export let Chain = (Class: any, key?: any, paramIndex?: any): any => {
-  let type = "Chain";
+export let Error = (Class: any, key?: any, paramIndex?: any): any => {
+  let type = "Error";
   let metadata: Array<any> = [];
   if (Metadata.hasMetadata(Class, FUNCTION_PARAMS)) {
     metadata = Metadata.getMetadata(Class, FUNCTION_PARAMS);
