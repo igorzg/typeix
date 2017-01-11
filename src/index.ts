@@ -16,7 +16,7 @@ export {
   Param,
   Produces,
   Provider,
-  Error,
+  ErrorMessage,
   OnError
 } from "./decorators/index";
 /**

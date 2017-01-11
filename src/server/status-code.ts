@@ -42,7 +42,7 @@ export enum Status {
   Switch_Proxy = 306,
   Temporary_Redirect = 307,
   Permanent_Redirect = 308,
-  // 4xx Client Error
+  // 4xx Client ErrorMessage
   Bad_Request = 400,
   Unauthorized = 401,
   Payment_Required = 402,
@@ -70,7 +70,7 @@ export enum Status {
   Too_Many_Requests = 429,
   Request_Header_Fields_Too_Large = 431,
   Unavailable_For_Legal_Reasons = 451,
-  // 5xx Server Error
+  // 5xx Server ErrorMessage
   Internal_Server_Error = 500,
   Not_Implemented = 501,
   Bad_Gateway = 502,

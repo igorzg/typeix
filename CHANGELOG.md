@@ -1,3 +1,6 @@
+## 1.0.0-alpha-35
+- Rename Error to ErrorMessage decorator
+
 ## 1.0.0-alpha-34
 - Implemented global error route handler , every module can have own error handler route
 

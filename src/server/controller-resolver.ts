@@ -412,7 +412,7 @@ export class ControllerResolver {
           case "Inject":
             actionParams.push(injector.get(param.value));
             break;
-          case "Error":
+          case "ErrorMessage":
             actionParams.push(injector.get(ERROR_KEY));
             break;
         }

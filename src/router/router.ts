@@ -98,7 +98,7 @@ export class Router {
    */
   private routes: Array<Route> = [];
   /**
-   * Error route definition
+   * ErrorMessage route definition
    * @param {String} errorRoute
    */
   private errorRoutes: Array<string> = [];

@@ -9,4 +9,4 @@ export {Provider} from "./provider";
 export {Param} from "./param";
 export {OnError} from "./on-error";
 export {Chain} from "./chain";
-export {Error} from "./error";
+export {ErrorMessage} from "./error";

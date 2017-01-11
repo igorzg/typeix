@@ -13,7 +13,7 @@ import {Request} from "../server/controller-resolver";
 import {Status} from "../server/status-code";
 import {isEqual} from "../core";
 import {HttpError} from "../error";
-import {Error} from "../decorators/error";
+import {ErrorMessage} from "../decorators/error";
 
 // use chai spies
 use(sinonChai);
@@ -34,7 +34,7 @@ describe("fakeHttpServer", () => {
 
 
       @Action("error")
-      actionError(@Error message: HttpError) {
+      actionError(@ErrorMessage message: HttpError) {
         return "ERROR=" + message.getMessage();
       }
 

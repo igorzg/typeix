@@ -6,7 +6,7 @@
  * @param {string} message
  *
  * @description
- * Error message
+ * ErrorMessage message
  */
 export interface ErrorMessage {
   status: number;

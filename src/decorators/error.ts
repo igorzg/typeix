@@ -19,13 +19,13 @@ import {Metadata, FUNCTION_PARAMS} from "../injector/metadata";
  * class MyController{
  *
  *     \@Action("error")
- *     actionIndex(@Error data) {
+ *     actionIndex(@ErrorMessage data) {
  *        return "My Index " + data;
  *     }
  * }
  */
-export let Error = (Class: any, key?: any, paramIndex?: any): any => {
-  let type = "Error";
+export let ErrorMessage = (Class: any, key?: any, paramIndex?: any): any => {
+  let type = "ErrorMessage";
   let metadata: Array<any> = [];
   if (Metadata.hasMetadata(Class, FUNCTION_PARAMS)) {
     metadata = Metadata.getMetadata(Class, FUNCTION_PARAMS);
