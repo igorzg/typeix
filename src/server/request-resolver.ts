@@ -149,6 +149,35 @@ export class RequestResolver implements IAfterConstruct {
    */
   private redirectTo: IRedirect;
 
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RequestResolver#getControllerProvider
+   * @private
+   * @description
+   * Returns a controller provider
+   */
+  static getControllerProvider(resolvedModule: IResolvedModule): IProvider {
+
+    let provider: IProvider = Metadata.verifyProvider(resolvedModule.module.provider);
+    let moduleMetadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
+
+    let controllerProvider: IProvider = moduleMetadata.controllers
+      .map(item => Metadata.verifyProvider(item))
+      .find((Class: IProvider) => {
+        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        return metadata.name === resolvedModule.controller;
+      });
+    if (!isPresent(controllerProvider)) {
+      throw new HttpError(Status.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
+        controllerName: resolvedModule.controller,
+        actionName: resolvedModule.action,
+        resolvedRoute: resolvedModule.resolvedRoute
+      });
+    }
+    return controllerProvider;
+  }
   /**
    * @since 1.0.0
    * @function
@@ -279,34 +308,6 @@ export class RequestResolver implements IAfterConstruct {
   }
 
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name RequestResolver#getControllerProvider
-   * @private
-   * @description
-   * Returns a controller provider
-   */
-  getControllerProvider(resolvedModule: IResolvedModule): IProvider {
-
-    let provider: IProvider = Metadata.verifyProvider(resolvedModule.module.provider);
-    let moduleMetadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
-
-    let controllerProvider: IProvider = moduleMetadata.controllers
-      .map(item => Metadata.verifyProvider(item))
-      .find((Class: IProvider) => {
-        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === resolvedModule.controller;
-      });
-    if (!isPresent(controllerProvider)) {
-      throw new HttpError(Status.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
-        controllerName: resolvedModule.controller,
-        actionName: resolvedModule.action,
-        resolvedRoute: resolvedModule.resolvedRoute
-      });
-    }
-    return controllerProvider;
-  }
 
   /**
    * @since 1.0.0
@@ -324,7 +325,7 @@ export class RequestResolver implements IAfterConstruct {
       {provide: "response", useValue: this.response},
       {provide: "url", useValue: this.url},
       {provide: "UUID", useValue: this.id},
-      {provide: "controllerProvider", useValue: this.getControllerProvider(resolvedModule)},
+      {provide: "controllerProvider", useValue: RequestResolver.getControllerProvider(resolvedModule)},
       {provide: "actionName", useValue: resolvedModule.action},
       {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
       {provide: "isForwarded", useValue: false},

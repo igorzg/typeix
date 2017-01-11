@@ -64,6 +64,7 @@ export {
   Request,
   Status,
   fakeHttpServer,
+  fakeControllerActionCall,
   FakeServerApi,
   FakeResponseApi,
   IFakeServerConfig

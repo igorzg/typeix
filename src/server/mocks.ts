@@ -6,7 +6,16 @@ import {Inject} from "../decorators/inject";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
 import {ServerResponse, IncomingMessage} from "http";
-import {isObject} from "../core";
+import {isObject, uuid} from "../core";
+import {ControllerResolver} from "./controller-resolver";
+import {ERROR_KEY} from "./request-resolver";
+import {EventEmitter} from "events";
+import {HttpError} from "../error";
+import {IResolvedRoute} from "../interfaces/iroute";
+import {IProvider} from "../interfaces/iprovider";
+import {IControllerMetadata} from "../interfaces/icontroller";
+import {Methods} from "../router/router";
+import {Logger} from "../logger/logger";
 
 export interface IFakeServerConfig {
 }
@@ -19,7 +28,7 @@ export interface IFakeServerConfig {
  * @returns {Injector}
  *
  * @description
- * Use httpServer function to httpServer an Module.
+ * Use fakeHttpServer for testing only
  */
 export function fakeHttpServer(Class: Function, config?: IFakeServerConfig): FakeServerApi {
 
@@ -33,6 +42,79 @@ export function fakeHttpServer(Class: Function, config?: IFakeServerConfig): Fak
     {provide: "modules", useValue: modules}
   ]);
   return fakeServerInjector.get(FakeServerApi);
+}
+/**
+ * @since 1.0.0
+ * @function
+ * @name fakeControllerActionCall
+ * @param {Injector} injector
+ * @param {Function | IProvider} controller
+ * @param {String} action name to fire action
+ * @param {Object} params
+ * @param {Object} headers
+ *
+ * @returns {Promise<string|Buffer>}
+ *
+ * @description
+ * Use fakeControllerCall for testing only
+ */
+export function fakeControllerActionCall(injector: Injector,
+                                   controller: Function | IProvider,
+                                   action: string,
+                                   params?: Object,
+                                   headers?: Object): Promise<string|Buffer> {
+  let request = new FakeIncomingMessage();
+  request.method = "GET";
+  request.headers = isObject(headers) ? headers : {};
+  request.url = "/";
+  let response = new FakeServerResponse();
+  let controllerProvider: IProvider = Metadata.verifyProvider(controller);
+  let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
+  let route: IResolvedRoute = {
+    method: Methods.GET,
+    params: isObject(params) ? params : {},
+    route: metadata.name + "/" + action,
+  };
+  let providers: Array<IProvider> = [
+    {provide: "data", useValue: []},
+    {provide: "request", useValue: request},
+    {provide: "response", useValue: response},
+    {provide: "url", useValue: request.url},
+    {provide: "UUID", useValue: uuid()},
+    {provide: "controllerProvider", useValue: controllerProvider},
+    {provide: "actionName", useValue: action},
+    {provide: "resolvedRoute", useValue: route},
+    {provide: "isForwarded", useValue: false},
+    {provide: "isForwarder", useValue: false},
+    {provide: "isChainStopped", useValue: false},
+    {provide: ERROR_KEY, useValue: new HttpError(500)},
+    {provide: EventEmitter, useValue: new EventEmitter()}
+  ];
+ // if there is no logger provide it
+  if (!injector.has(Logger)) {
+    providers.push(Metadata.verifyProvider(Logger));
+  }
+  /**
+   * Create and resolve
+   */
+  let childInjector = Injector.createAndResolveChild(
+    injector,
+    ControllerResolver,
+    providers
+  );
+  /**
+   * On finish destroy injector
+   */
+  response.on("finish", () => childInjector.destroy());
+  /**
+   * Get request instance
+   * @type {any}
+   */
+  let pRequest: ControllerResolver = childInjector.get(ControllerResolver);
+  /**
+   * Process request
+   */
+  return pRequest.process();
 }
 /**
  * @since 1.0.0

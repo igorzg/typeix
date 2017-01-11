@@ -19,6 +19,7 @@ import {Controller} from "../decorators/controller";
 import {IFilter} from "../interfaces/ifilter";
 import {Filter} from "../decorators/filter";
 import {IControllerMetadata} from "../interfaces/icontroller";
+import {fakeControllerActionCall} from "../server/mocks";
 
 // use chai spies
 use(sinonChai);
@@ -432,9 +433,13 @@ describe("ControllerResolver", () => {
       }
 
     }
-    let aProvider = Metadata.verifyProvider(A);
-    // process controller
-    let result = controllerResolver.processController(new Injector(), aProvider, "index");
+
+    let injector = Injector.createAndResolve(Logger, []);
+    let result = fakeControllerActionCall(
+      injector,
+      Metadata.verifyProvider(A),
+      "index"
+    );
     assert.instanceOf(result, Promise);
 
     result.then(data => {
@@ -507,9 +512,13 @@ describe("ControllerResolver", () => {
       }
 
     }
-    let aProvider = Metadata.verifyProvider(A);
-    // process controller
-    let result = controllerResolver.processController(new Injector(), aProvider, "index");
+
+    let injector = Injector.createAndResolve(Logger, []);
+    let result = fakeControllerActionCall(
+      injector,
+      Metadata.verifyProvider(A),
+      "index"
+    );
     assert.instanceOf(result, Promise);
 
     result.then(data => {
@@ -591,14 +600,13 @@ describe("ControllerResolver", () => {
       }
 
     }
-    let aProvider = Metadata.verifyProvider(A);
 
-    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
-      {provide: ControllerResolver, useValue: controllerResolver},
-      {provide: "resolvedRoute", useValue: resolvedRoute}
-    ]);
-    // process controller
-    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+    let injector = Injector.createAndResolve(Logger, []);
+    let result = fakeControllerActionCall(
+      injector,
+      Metadata.verifyProvider(A),
+      "index"
+    );
     assert.instanceOf(result, Promise);
 
     result.then(data => {
@@ -681,14 +689,13 @@ describe("ControllerResolver", () => {
       }
 
     }
-    let aProvider = Metadata.verifyProvider(A);
 
-    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
-      {provide: ControllerResolver, useValue: controllerResolver},
-      {provide: "resolvedRoute", useValue: resolvedRoute}
-    ]);
-    // process controller
-    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+    let injector = Injector.createAndResolve(Logger, []);
+    let result = fakeControllerActionCall(
+      injector,
+      Metadata.verifyProvider(A),
+      "index"
+    );
     assert.instanceOf(result, Promise);
 
     result.then(data => {
@@ -776,19 +783,19 @@ describe("ControllerResolver", () => {
       }
 
     }
-    let aProvider = Metadata.verifyProvider(A);
-
-    let reflectionInjector = Injector.createAndResolveChild(new Injector, Request, [
-      {provide: ControllerResolver, useValue: controllerResolver},
-      {provide: "resolvedRoute", useValue: resolvedRoute}
-    ]);
     // process controller
-    let result = controllerResolver.processController(reflectionInjector, aProvider, "index");
+
+    let result = fakeControllerActionCall(
+      new Injector,
+      A,
+      "index"
+    );
+
     assert.instanceOf(result, Promise);
 
-    result.then(data => {
-      assert.isNotNull(data);
-      assert.deepEqual(data, "bFilter <- null");
+    result.then(resolved => {
+      assert.isNotNull(resolved);
+      assert.deepEqual(resolved, "bFilter <- null");
       done();
     })
       .catch(done);

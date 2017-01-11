@@ -1,3 +1,6 @@
+## 1.0.0-alpha-36
+- Added fakeControllerActionCall for better testing purposes
+
 ## 1.0.0-alpha-35
 - Rename Error to ErrorMessage decorator
 

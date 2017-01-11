@@ -7,7 +7,7 @@ import {Controller} from "../decorators/controller";
 import {Action, Before} from "../decorators/action";
 import {IAfterConstruct} from "../interfaces/iprovider";
 import {Inject} from "../decorators/inject";
-import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/fake-http";
+import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/mocks";
 import {Chain} from "../decorators/chain";
 import {Request} from "../server/controller-resolver";
 import {Status} from "../server/status-code";

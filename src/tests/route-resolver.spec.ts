@@ -130,7 +130,7 @@ describe("RequestResolver", () => {
     };
 
     let provider = Metadata.verifyProvider(MyController);
-    let controllerProvider: IProvider = routeResolver.getControllerProvider(module);
+    let controllerProvider: IProvider = RequestResolver.getControllerProvider(module);
     assert.deepEqual(provider, controllerProvider);
   });
 
@@ -164,7 +164,7 @@ describe("RequestResolver", () => {
     };
 
     assert.throws(() => {
-      routeResolver.getControllerProvider(module);
+      RequestResolver.getControllerProvider(module);
     }, "You must define controller within current route: core/index");
   });
 
