@@ -1,7 +1,7 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
 import {Route, Headers, RouteRuleConfig, IResolvedRoute, TRoute} from "../interfaces/iroute";
-import {isTruthy, isString} from "../core";
+import {isTruthy, isString, isEqual} from "../core";
 import {Injector} from "../injector/injector";
 import {RouteRule} from "./route-rule";
 import {Injectable} from "../decorators/injectable";
@@ -25,6 +25,37 @@ export enum Methods {
   POST,
   PUT,
   PATCH
+}
+
+/**
+ * @since 1.0.0
+ * @function
+ * @name getMethodName
+ * @param {string} method
+ *
+ * @description
+ * Get method name from Methods enum
+ */
+export function getMethodName(method: Methods): string {
+  if (isEqual(Methods.GET, method)) {
+    return "GET";
+  } else if (isEqual(Methods.HEAD, method)) {
+    return "HEAD";
+  } else if (isEqual(Methods.DELETE, method)) {
+    return "DELETE";
+  } else if (isEqual(Methods.TRACE, method)) {
+    return "TRACE";
+  } else if (isEqual(Methods.OPTIONS, method)) {
+    return "OPTIONS";
+  } else if (isEqual(Methods.CONNECT, method)) {
+    return "CONNECT";
+  } else if (isEqual(Methods.POST, method)) {
+    return "POST";
+  } else if (isEqual(Methods.PUT, method)) {
+    return "PUT";
+  } else if (isEqual(Methods.PATCH, method)) {
+    return "PATCH";
+  }
 }
 /**
  * @since 1.0.0

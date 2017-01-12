@@ -1,8 +1,23 @@
 import {Level} from "./level";
 import {Log} from "./log";
 import {Injectable} from "../decorators/injectable";
+import {isEqual} from "../core";
+
 /**
- * @license Mit Licence 2015
+ * @since 1.0.0
+ * @enum
+ * @name LogLevels
+ */
+export enum LogLevels {
+  TRACE = 10,
+  INFO = 20,
+  DEBUG = 30,
+  BENCHMARK = 40,
+  WARN = 60,
+  ERROR = 80,
+  FATAL = 100
+}
+/**
  * @since 1.0.0
  * @name Logger
  *
@@ -20,16 +35,29 @@ export class Logger {
   private hooks: Set<any> = new Set();
   private levels: Array<Level> = [];
   private enabled: boolean = false;
-  private debugLevel: number = 10;
+  private debugLevel: LogLevels = LogLevels.ERROR;
 
   constructor() {
-    this.levels.push(new Level("TRACE", 10, console.info));
-    this.levels.push(new Level("INFO", 20, console.info));
-    this.levels.push(new Level("DEBUG", 30, console.info));
-    this.levels.push(new Level("WARN", 40, console.warn));
-    this.levels.push(new Level("ERROR", 50, console.error));
-    this.levels.push(new Level("FATAL", 60, console.error));
+    this.levels.push(new Level("TRACE", LogLevels.TRACE, console.info));
+    this.levels.push(new Level("INFO", LogLevels.INFO, console.info));
+    this.levels.push(new Level("DEBUG", LogLevels.DEBUG, console.info));
+    this.levels.push(new Level("WARN", LogLevels.WARN, console.warn));
+    this.levels.push(new Level("BENCHMARK", LogLevels.BENCHMARK, console.info));
+    this.levels.push(new Level("ERROR", LogLevels.ERROR, console.error));
+    this.levels.push(new Level("FATAL", LogLevels.FATAL, console.error));
   }
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Logger#isDebugLevel
+   *
+   * @description
+   * Check if is certian log level
+   */
+  isDebugLevel(logLevel: LogLevels): boolean {
+    return isEqual(this.debugLevel, logLevel);
+  }
+
   /**
    * @since 1.0.0
    * @function
@@ -38,9 +66,10 @@ export class Logger {
    * @description
    * Set debug level
    */
-  setDebugLevel(value: number) {
+  setDebugLevel(value: LogLevels) {
     this.debugLevel = value;
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -52,6 +81,7 @@ export class Logger {
   enable() {
     this.enabled = true;
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -69,6 +99,7 @@ export class Logger {
       })
     );
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -78,7 +109,7 @@ export class Logger {
    * Trace
    */
   trace(message, ...args): boolean {
-    return this.log(message, args, this.filter(10));
+    return this.log(message, args, this.filter(LogLevels.TRACE));
   }
 
   /**
@@ -90,7 +121,7 @@ export class Logger {
    * Log info case
    */
   info(message, ...args): boolean {
-    return this.log(message, args, this.filter(20));
+    return this.log(message, args, this.filter(LogLevels.INFO));
   }
 
   /**
@@ -102,7 +133,7 @@ export class Logger {
    * Debug
    */
   debug(message, ...args): boolean {
-    return this.log(message, args, this.filter(30));
+    return this.log(message, args, this.filter(LogLevels.DEBUG));
   }
 
   /**
@@ -114,7 +145,19 @@ export class Logger {
    * Log warn case
    */
   warn(message, ...args): boolean {
-    return this.log(message, args, this.filter(40));
+    return this.log(message, args, this.filter(LogLevels.WARN));
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Logger#benchmark
+   *
+   * @description
+   * Benchmarking pourposes
+   */
+  benchmark(message, ...args): boolean {
+    return this.log(message, args, this.filter(LogLevels.BENCHMARK));
   }
 
   /**
@@ -126,7 +169,7 @@ export class Logger {
    * Log error case
    */
   error(message, ...args): boolean {
-    return this.log(message, args, this.filter(50));
+    return this.log(message, args, this.filter(LogLevels.ERROR));
   }
 
   /**
@@ -138,7 +181,7 @@ export class Logger {
    * Fatal error
    */
   fatal(message, ...args): boolean {
-    return this.log(message, args, this.filter(60));
+    return this.log(message, args, this.filter(LogLevels.FATAL));
   }
 
   /**
@@ -150,7 +193,7 @@ export class Logger {
    * Get level name
    * This is used internally by logger class
    */
-  filter(level: number): Level {
+  filter(level: LogLevels): Level {
     return <Level> this.levels.find((item: Level) => {
       return item.getLevel() === level;
     });

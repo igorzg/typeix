@@ -23,7 +23,7 @@ export {
  * Export logger
  */
 export {
-  Logger
+  Logger, LogLevels
 } from "./logger/logger";
 /**
  * Export interfaces

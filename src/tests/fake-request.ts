@@ -1,7 +1,7 @@
 import {use, assert} from "chai";
 import * as sinonChai from "sinon-chai";
 import {Methods, Router} from "../router/router";
-import {Logger} from "../logger/logger";
+import {Logger, LogLevels} from "../logger/logger";
 import {Module} from "../decorators/module";
 import {Controller} from "../decorators/controller";
 import {Action, Before} from "../decorators/action";
@@ -95,7 +95,13 @@ describe("fakeHttpServer", () => {
           }
         ]);
         this.router.setError("core/error");
+        this.logger.printToConsole();
+        this.logger.enable();
+        this.logger.setDebugLevel(LogLevels.BENCHMARK);
       }
+
+      @Inject(Logger)
+      private logger: Logger;
 
       @Inject(Router)
       private router: Router;

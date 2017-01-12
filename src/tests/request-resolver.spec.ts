@@ -339,7 +339,7 @@ describe("RequestResolver", () => {
       request.emit("data", a[1]);
       request.emit("data", a[2]);
       request.emit("end");
-    }, 100);
+    }, 0);
 
     let aSpy = spy(myRouteResolver, "render");
     let bSpy = spy(myRouteResolver, "processModule");

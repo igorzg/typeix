@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Methods} from "../router/router";
+import {Methods, getMethod, getMethodName} from "../router/router";
 import {isString, isPresent, toString, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
@@ -462,11 +462,15 @@ export class ControllerResolver {
 
       if (isFalsy(this.isChainStopped)) {
         if (!isAfter) {
+          let start = Date.now();
           let result = await filter.before(injector.get(CHAIN_KEY));
           injector.set(CHAIN_KEY, result);
+          this.benchmark(`Filter.before: ${Metadata.getName(filter, "on filter ")}`, start);
         } else {
+          let start = Date.now();
           let result = await filter.after(injector.get(CHAIN_KEY));
           injector.set(CHAIN_KEY, result);
+          this.benchmark(`Filter.after: ${Metadata.getName(filter, "on filter ")}`, start);
         }
       }
 
@@ -493,7 +497,8 @@ export class ControllerResolver {
     // limit controller api
     let limitApi = ["request", "response", "controllerProvider", "modules"];
     limitApi.forEach(item => providers.push({provide: item, useValue: {}}));
-
+    // benchmark
+    let requestStart = Date.now();
     // create controller injector
     let injector = new Injector(reflectionInjector, [CHAIN_KEY]);
 
@@ -514,6 +519,7 @@ export class ControllerResolver {
 
     // process @BeforeEach action
     if (this.hasMappedAction(controllerProvider, null, "BeforeEach") && isFalsy(this.isChainStopped)) {
+      let start = Date.now();
       let result = await this.processAction(
         injector,
         controllerProvider,
@@ -521,47 +527,55 @@ export class ControllerResolver {
       );
 
       injector.set(CHAIN_KEY, result);
+      this.benchmark("BeforeEach", start);
     }
 
     // process @Before action
     if (this.hasMappedAction(controllerProvider, actionName, "Before") && isFalsy(this.isChainStopped)) {
+      let start = Date.now();
       let result = await this.processAction(
         injector,
         controllerProvider,
         this.getMappedAction(controllerProvider, actionName, "Before")
       );
-
       injector.set(CHAIN_KEY, result);
+      this.benchmark("Before", start);
     }
 
     // Action
     if (isFalsy(this.isChainStopped)) {
+      let start = Date.now();
       let result = await this.processAction(
         injector,
         controllerProvider,
         this.getMappedAction(controllerProvider, actionName)
       );
       injector.set(CHAIN_KEY, result);
+      this.benchmark("Action", start);
     }
 
     // process @After action
     if (this.hasMappedAction(controllerProvider, actionName, "After") && isFalsy(this.isChainStopped)) {
+      let start = Date.now();
       let result = await this.processAction(
         injector,
         controllerProvider,
         this.getMappedAction(controllerProvider, actionName, "After")
       );
       injector.set(CHAIN_KEY, result);
+      this.benchmark("After", start);
     }
 
     // process @AfterEach action
     if (this.hasMappedAction(controllerProvider, null, "AfterEach") && isFalsy(this.isChainStopped)) {
+      let start = Date.now();
       let result = await this.processAction(
         injector,
         controllerProvider,
         this.getMappedAction(controllerProvider, null, "AfterEach")
       );
       injector.set(CHAIN_KEY, result);
+      this.benchmark("AfterEach", start);
     }
 
     if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isArray(metadata.filters)) {
@@ -569,8 +583,26 @@ export class ControllerResolver {
       injector.set(CHAIN_KEY, await this.processFilters(injector, metadata, true));
     }
 
+    this.benchmark("Request", requestStart);
+
     // render action call
     return await injector.get(CHAIN_KEY);
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#benchmark
+   * @private
+   * @description
+   * Print benchmark
+   */
+  private benchmark(message: string, start: number) {
+    this.logger.benchmark(`${message}: ${(Date.now() - start)}ms`, {
+      url: this.request.url,
+      route: this.resolvedRoute.route,
+      method: getMethodName(this.resolvedRoute.method)
+    });
   }
 }
 

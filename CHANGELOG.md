@@ -1,3 +1,6 @@
+## 1.0.0-alpha-37
+- Added benchmark to logger
+
 ## 1.0.0-alpha-36
 - Added fakeControllerActionCall for better testing purposes
 
