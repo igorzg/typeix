@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Methods, getMethod, getMethodName} from "../router/router";
+import {Methods, getMethodName} from "../router/router";
 import {isString, isPresent, toString, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
@@ -52,22 +52,6 @@ export class ControllerResolver {
    */
   @Inject("response")
   private response: ServerResponse;
-
-  /**
-   * @param {Boolean} isForwarded
-   * @description
-   * Information internally used by request itself on forwarded requests
-   */
-  @Inject("isForwarded")
-  private isForwarded: boolean;
-
-  /**
-   * @param {Boolean} isForwarder
-   * @description
-   * Information internally used by request itself on forwarded requests
-   */
-  @Inject("isForwarder")
-  private isForwarder: boolean;
 
   /**
    * @param {Array<Buffer>} data
@@ -259,11 +243,9 @@ export class ControllerResolver {
   process(): Promise<string|Buffer> {
 
     // destroy on end
-    if (!this.isForwarded) {
-      this.response.once("finish", () => this.destroy());
-      // destroy if connection was terminated before end
-      this.response.once("close", () => this.destroy());
-    }
+    this.response.once("finish", () => this.destroy());
+    // destroy if connection was terminated before end
+    this.response.once("close", () => this.destroy());
 
     // set request reflection
     let reflectionInjector = Injector.createAndResolveChild(this.injector, Request, [
@@ -399,8 +381,7 @@ export class ControllerResolver {
         switch (param.type) {
           case "Param":
             if (
-              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) ||
-              !isPresent(this.resolvedRoute.params)
+              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(this.resolvedRoute.params)
             ) {
               throw new TypeError(`Property ${param.value} is not defined on route ${toString(this.resolvedRoute)}`);
             }
@@ -578,7 +559,7 @@ export class ControllerResolver {
       this.benchmark("AfterEach", start);
     }
 
-    if (isFalsy(this.isChainStopped) && isFalsy(this.isForwarder) && isArray(metadata.filters)) {
+    if (isFalsy(this.isChainStopped) && isArray(metadata.filters)) {
       // set filter result
       injector.set(CHAIN_KEY, await this.processFilters(injector, metadata, true));
     }

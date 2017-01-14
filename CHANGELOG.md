@@ -1,3 +1,7 @@
+## 1.0.0-beta.1
+- Remove forwarder / forwarded
+- Since beta no major API changes will happen.
+
 ## 1.0.0-alpha-37
 - Added benchmark to logger
 

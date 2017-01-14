@@ -328,8 +328,6 @@ export class RequestResolver implements IAfterConstruct {
       {provide: "controllerProvider", useValue: RequestResolver.getControllerProvider(resolvedModule)},
       {provide: "actionName", useValue: resolvedModule.action},
       {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
-      {provide: "isForwarded", useValue: false},
-      {provide: "isForwarder", useValue: false},
       {provide: "isChainStopped", useValue: false},
       {provide: ERROR_KEY, useValue: isTruthy(error) ? error : new HttpError(500)},
       {provide: EventEmitter, useValue: this.eventEmitter}
