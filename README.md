@@ -28,6 +28,7 @@ npm init
 
 ```npm
 npm install typeix --save
+npm install @types/node --save
 ```
 
 #### create controllers/core.controller.ts
@@ -41,7 +42,7 @@ import { normalize } from "path";
   name: "core" // route controller
 })
 export class CoreController {
-  
+
   @Action("favicon") // route action
   async faviconLoader() {
     return await <Promise<Buffer>> new Promise(
@@ -52,7 +53,7 @@ export class CoreController {
         )
     );
   }
-  
+
   @Action("index")
   myIndexAction() {
     return "Hello world"; // accepts - string // buffer // Promise<string|Buffer>
@@ -63,12 +64,12 @@ export class CoreController {
 
 #### create application.module.ts
 ```typescript
-import { Module, Router, Inject, IAfterConstruct, Methods } from "typeix"
+import { Module, Router, Logger, Inject, IAfterConstruct, Methods } from "typeix"
 import { CoreController } from "./controllers/core.controller"
 
 @Module({
   controllers: [CoreController],
-  providers: [Router]
+  providers: [Router, Logger]
 })
 class Application implements IAfterConstruct {
   
