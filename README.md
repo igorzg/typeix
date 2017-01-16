@@ -69,7 +69,7 @@ import { CoreController } from "./controllers/core.controller"
 
 @Module({
   controllers: [CoreController],
-  providers: [Router, Logger]
+  providers: [Logger, Router]
 })
 class Application implements IAfterConstruct {
   
