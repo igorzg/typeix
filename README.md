@@ -10,7 +10,7 @@
 [View demo application](https://github.com/igorzg/typeix-demo-app)
 
 ## Features
-* Dependency Injection - @Inject JSR 330 standard
+* Dependency Injection - partial JSR 330 standard
 * Modular design
 * MVC structure
 * Component driven -> singletons -> depends on injection level
