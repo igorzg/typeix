@@ -16,8 +16,7 @@ export {
   Param,
   Produces,
   Provider,
-  ErrorMessage,
-  OnError
+  ErrorMessage
 } from "./decorators/index";
 /**
  * Export logger

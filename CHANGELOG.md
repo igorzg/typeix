@@ -1,3 +1,6 @@
+## 1.0.0-beta.2
+- Remove OnError decorator since is not used anymore
+
 ## 1.0.0-beta.1
 - Remove forwarder / forwarded
 - Since beta no major API changes will happen.
