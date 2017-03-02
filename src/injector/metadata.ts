@@ -231,7 +231,8 @@ export class Metadata {
    * Merge two provider definitions, this is used by Injector internally to know what to deliver at what time
    */
   static mergeProviders(a: Array<IProvider>, b: Array<IProvider>) {
-    return a.concat(b.filter(i => a.indexOf(i) === -1));
+    // this might look confusing but it does copy only from b if does't exist in a and b is added to beginning of sequence and it must be like that because module nesting
+    return b.filter(i => a.indexOf(i) === -1).concat(a);
   }
 
   /**

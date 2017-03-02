@@ -224,6 +224,7 @@ export class Injector {
    */
   createAndResolve(provider: IProvider, providers: Array<IProvider>): any {
     // merge _providers
+    // we need to keep merge algorithm in this order because we want to copy correct order do not change this :)
     providers = Metadata.mergeProviders(Metadata.getConstructorProviders(provider.provide), providers);
     // create _providers first
     providers.forEach(item => this.createAndResolve(item, Metadata.getConstructorProviders(item.provide)));
