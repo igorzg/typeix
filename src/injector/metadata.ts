@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {isPresent, isFunction, isObject, isString, toString, isArray} from "../core";
+import {isPresent, isFunction, isObject, isString, toString, isArray, isFalsy, isEqual} from "../core";
 import {IProvider} from "../interfaces/iprovider";
 
 export const INJECT_KEYS = "inject:paramtypes";
@@ -228,11 +228,16 @@ export class Metadata {
    * @param {Array<IProvider>} b
    *
    * @description
-   * Merge two provider definitions, this is used by Injector internally to know what to deliver at what time
+   * Merge two provider definitions, this is used by Injector internally to know what to deliver at what time.
+   *
+   * This might look confusing but it does copy only from b if does't exist in a and b is added to beginning of
+   * sequence.
+   *
+   * It must be like that because module nesting issue.
+   *
    */
   static mergeProviders(a: Array<IProvider>, b: Array<IProvider>) {
-    // this might look confusing but it does copy only from b if does't exist in a and b is added to beginning of sequence and it must be like that because module nesting
-    return b.filter(i => a.indexOf(i) === -1).concat(a);
+    return b.filter((bI: IProvider) => isFalsy(a.find((aI: IProvider) => aI.provide === bI.provide))).concat(a);
   }
 
   /**

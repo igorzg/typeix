@@ -1,3 +1,6 @@
+## 1.0.0-beta.4
+- Improve merging IProvider algorithm
+
 ## 1.0.0-beta.3
 - Fix merge algorithm on nested modules which have wrong execution order for providers
 
