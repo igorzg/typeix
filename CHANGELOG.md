@@ -1,3 +1,6 @@
+## 1.0.0-beta.5
+- Update router addRule second parameter as optional
+
 ## 1.0.0-beta.4
 - Improve merging IProvider algorithm
 

@@ -1,7 +1,7 @@
 import {Logger} from "../logger/logger";
 import {HttpError} from "../error";
 import {Route, Headers, RouteRuleConfig, IResolvedRoute, TRoute} from "../interfaces/iroute";
-import {isTruthy, isString, isEqual} from "../core";
+import {isTruthy, isString, isEqual, isPresent} from "../core";
 import {Injector} from "../injector/injector";
 import {RouteRule} from "./route-rule";
 import {Injectable} from "../decorators/injectable";
@@ -225,13 +225,11 @@ export class Router {
    * @description
    * Add rule to router
    */
-  addRule(Class: TRoute, config: RouteRuleConfig): Route {
+  addRule(Class: TRoute, config?: RouteRuleConfig): Route {
     let injector = Injector.createAndResolveChild(
       this.injector,
       Class,
-      [
-        {provide: "config", useValue: config}
-      ]
+      isPresent(config) ? [{provide: "config", useValue: config}] : []
     );
     return injector.get(Class);
   }
