@@ -1,3 +1,6 @@
+## 1.0.0-beta.7
+- Export Headers interface from route
+
 ## 1.0.0-beta.6
 - Fix router addRule 
 

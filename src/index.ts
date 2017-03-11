@@ -35,7 +35,8 @@ export {
   IFilter,
   Route,
   RouteRuleConfig,
-  IResolvedRoute
+  IResolvedRoute,
+  Headers
 } from "./interfaces/index";
 
 /**
