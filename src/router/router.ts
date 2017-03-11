@@ -212,7 +212,7 @@ export class Router {
    */
   addRules(rules: Array<RouteRuleConfig>): void {
     this.logger.info("Router.addRules", rules);
-    rules.forEach(config => this.routes.push(this.addRule(RouteRule, config)));
+    rules.forEach(config => this.routes.push(this.createRule(RouteRule, config)));
   }
 
   /**
@@ -223,9 +223,24 @@ export class Router {
    * @param {RouteRuleConfig} config
    *
    * @description
-   * Add rule to router
+   * Create rule and add rule to list
    */
-  addRule(Class: TRoute, config?: RouteRuleConfig): Route {
+  addRule(Class: TRoute, config?: RouteRuleConfig): void {
+    this.logger.info("Router.addRule", Class);
+    this.routes.push(this.createRule(Class, config));
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Router#createRule
+   * @param {Function} Class
+   * @param {RouteRuleConfig} config
+   *
+   * @description
+   * Initialize rule
+   */
+  private createRule(Class: TRoute, config?: RouteRuleConfig): Route {
     let injector = Injector.createAndResolveChild(
       this.injector,
       Class,
@@ -233,7 +248,6 @@ export class Router {
     );
     return injector.get(Class);
   }
-
   /**
    * @since 1.0.0
    * @function

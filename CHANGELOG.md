@@ -1,3 +1,6 @@
+## 1.0.0-beta.6
+- Fix router addRule 
+
 ## 1.0.0-beta.5
 - Update router addRule second parameter as optional
 
