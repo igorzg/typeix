@@ -1,3 +1,6 @@
+## 1.0.0-beta.8
+- Fix router rule resolution issue only false or IResolvedRoute is allowed
+
 ## 1.0.0-beta.7
 - Export Headers interface from route
 

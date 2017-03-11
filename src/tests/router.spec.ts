@@ -3,6 +3,8 @@ import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {assert} from "chai";
 import {isEqual} from "../core";
+import {Route, IResolvedRoute} from "../interfaces/iroute";
+import {HttpError} from "../error";
 
 describe("Router", () => {
 
@@ -18,6 +20,17 @@ describe("Router", () => {
   });
 
   it("Parse request and create url", () => {
+
+    class DynamicRule implements Route {
+      parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute|boolean> {
+        return Promise.resolve(true);
+      }
+
+      createUrl(routeName: string, params: Object): Promise<string|boolean> {
+        return null;
+      }
+
+    }
 
     router.addRules([
       {
@@ -41,6 +54,8 @@ describe("Router", () => {
         url: "/home/<id:(\\d+)>"
       }
     ]);
+
+    router.addRule(DynamicRule);
 
 
     return Promise.all([
@@ -83,7 +98,12 @@ describe("Router", () => {
       ];
 
       assert.isTrue(isEqual(data, result));
-    });
+    })
+      .then(() => router.parseRequest("/not-found", "GET", {}))
+      .catch((error: HttpError) => {
+        assert.equal(error.getMessage(), "Router.parseRequest: /not-found no route found, method: GET");
+      });
+
 
   });
 

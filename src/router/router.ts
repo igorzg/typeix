@@ -248,6 +248,7 @@ export class Router {
     );
     return injector.get(Class);
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -262,7 +263,7 @@ export class Router {
   async parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute> {
     for (let route of this.routes) {
       let result = await route.parseRequest(pathName, method, headers);
-      if (isTruthy(result)) {
+      if (isTruthy(result) && !isEqual(true, result)) {
         this.logger.info("Router.parseRequest", result);
         return Promise.resolve(<IResolvedRoute> result);
       }
@@ -286,7 +287,7 @@ export class Router {
   async createUrl(routeName: string, params: Object): Promise<string> {
     for (let route of this.routes) {
       let result = await <Promise<string>> route.createUrl(routeName, params);
-      if (isTruthy(result)) {
+      if (isTruthy(result) && !isEqual(true, result)) {
         this.logger.info("Router.createUrl", result);
         return Promise.resolve(Router.prefixSlash(result));
       }
