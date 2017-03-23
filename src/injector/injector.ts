@@ -233,9 +233,12 @@ export class Injector {
     if (!this.has(Injector)) {
       this.set(Injector, this); // set local injector
     }
-
-    // if provider.useValue is present return value
-    if (isPresent(provider.useValue)) {
+    /**
+     * If provider is already resolved return resolved one
+     */
+    if (this.has(provider.provide)) {
+      return this.get(provider.provide);
+    } else if (isPresent(provider.useValue)) { // if provider.useValue is present return value
       this.set(provider.provide, provider.useValue);
       return this.get(provider.provide);
     // if it's factory invoke it and set invoked factory as value

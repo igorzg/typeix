@@ -1,3 +1,7 @@
+## 1.0.0-beta.9
+- Fix module imports -> Imported modules should export it's exports to module which imports them not only to it's imports
+- IModuleMetadata no longer requires controller as default type
+
 ## 1.0.0-beta.8
 - Fix router rule resolution issue only false or IResolvedRoute is allowed
 

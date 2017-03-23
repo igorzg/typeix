@@ -21,7 +21,7 @@ export interface IModuleMetadata {
   exports?: Array<Function|IProvider>;
   name?: string;
   routes?: Array<RouteRuleConfig>;
-  controllers: Array<IProvider|Function>;
+  controllers?: Array<IProvider|Function>;
   providers?: Array<IProvider|Function>;
 }
 

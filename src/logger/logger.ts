@@ -9,9 +9,9 @@ import {isEqual} from "../core";
  * @name LogLevels
  */
 export enum LogLevels {
-  TRACE = 10,
-  INFO = 20,
-  DEBUG = 30,
+  DEBUG = 10,
+  TRACE = 20,
+  INFO = 30,
   BENCHMARK = 40,
   WARN = 60,
   ERROR = 80,

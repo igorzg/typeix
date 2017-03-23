@@ -2,7 +2,7 @@ import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {IncomingMessage, ServerResponse} from "http";
 import {ControllerResolver} from "./controller-resolver";
-import {uuid, isArray} from "../core";
+import {uuid, isArray, isPresent, isTruthy, isFalsy} from "../core";
 import {IModuleMetadata, IModule} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import {RequestResolver} from "./request-resolver";
@@ -10,6 +10,7 @@ import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 import {Status} from "./status-code";
+import {Router} from "../router/router";
 
 export const BOOTSTRAP_MODULE = "root";
 
@@ -36,28 +37,81 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  *
  * @description
  * Bootstrap modules recursive
+ *
+ * I know this logic looks very weird but logic should be like this:
+ *
+ * 1. Each module must have own unique injector
+ * 2. Root module must initialize Logger and Router first if thy are defined as providers because we want to share same instance to all modules
+ * 3. Create imported modules and expose exports to parents
+ * 4. All imports must be initialized before module which imports them
+ * 5. Root module must be initialized last because it's last on import chain
  */
 export function createModule(Class: IProvider|Function, parent?: Injector, exp?: Array<IProvider|Function>): Array<IModule> {
   let modules = [];
   let provider = Metadata.verifyProvider(Class);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
-  // inject shared instance
-  let injector = Injector.createAndResolve(Class, isArray(exp) ? exp.map(iClass => {
+  let providers = [];
+  let injector = new Injector();
+  /**
+   * Handle parent exports
+   */
+  if (isArray(exp) && isPresent(parent)) {
+    providers = exp.map(iClass => {
       return {
         provide: iClass,
         useValue: parent.get(iClass)
       };
-    }) : []);
+    });
+  }
+  /**
+   * Initialize Logger and router only if thy are defined!
+   */
+  if (isArray(metadata.providers) && isFalsy(parent)) {
+    Metadata.verifyProviders(metadata.providers).forEach((provider: IProvider) => {
+      if ([Logger, Router].indexOf(provider.provide) > -1) {
+        injector.createAndResolve(provider, providers);
+      }
+    });
+  }
+  /**
+   * Imports must be initialized before first
+   */
+  if (isArray(metadata.imports)) {
+    metadata.imports.forEach(importModule => {
+      let importProvider = Metadata.verifyProvider(importModule);
+      let importMetadata: IModuleMetadata = Metadata.getComponentConfig(importProvider.provide);
+      /**
+       * Create module first
+       * @type {Array<IModule>}
+       */
+      let importModules = createModule(importModule, injector, metadata.exports);
+      let module = getModule(importModules, importMetadata.name);
+      /**
+       * Export it's exports to child modules to not only to parents!
+       * Handler for child exports
+       */
+      if (isArray(importMetadata.exports)) {
+        providers = providers.concat(importMetadata.exports.map(iClass => {
+          return {
+            provide: iClass,
+            useValue: module.injector.get(iClass)
+          };
+        }));
+      }
+      modules = modules.concat(importModules);
+    });
+  }
+
+  /**
+   * Create module after imports are initialized
+   */
+  injector.createAndResolve(Metadata.verifyProvider(Class), providers);
 
   modules.push({
     injector,
     provider: Class,
     name: metadata.name
   });
-
-  if (isArray(metadata.imports)) {
-    metadata.imports.forEach(importModule => modules = modules.concat(createModule(importModule, injector, metadata.exports)));
-  }
 
   let duplicates = [];
   //@todo fix duplicates algorithm
