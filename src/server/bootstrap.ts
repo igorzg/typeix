@@ -62,6 +62,10 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
         useValue: parent.get(iClass)
       };
     });
+    /**
+     * Expose exports to importers
+     */
+    providers.forEach(item => injector.set(item.provide, item.useValue));
   }
   /**
    * Initialize Logger and router only if thy are defined!
@@ -80,25 +84,45 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
     metadata.imports.forEach(importModule => {
       let importProvider = Metadata.verifyProvider(importModule);
       let importMetadata: IModuleMetadata = Metadata.getComponentConfig(importProvider.provide);
+
       /**
-       * Create module first
-       * @type {Array<IModule>}
+       * Create module only if is not already created
        */
-      let importModules = createModule(importModule, injector, metadata.exports);
-      let module = getModule(importModules, importMetadata.name);
-      /**
-       * Export it's exports to child modules to not only to parents!
-       * Handler for child exports
-       */
-      if (isArray(importMetadata.exports)) {
-        providers = providers.concat(importMetadata.exports.map(iClass => {
-          return {
-            provide: iClass,
-            useValue: module.injector.get(iClass)
-          };
-        }));
+      if (isFalsy(getModule(modules, importMetadata.name))) {
+        /**
+         * Create module first
+         * @type {Array<IModule>}
+         */
+        let importModules = createModule(importModule, injector, metadata.exports);
+        let module = getModule(importModules, importMetadata.name);
+        /**
+         * Export it's exports to child modules to not only to parents!
+         * Handler for child exports
+         */
+        if (isArray(importMetadata.exports)) {
+          providers = providers.concat(importMetadata.exports.map(iClass => {
+            return {
+              provide: iClass,
+              useValue: module.injector.get(iClass)
+            };
+          }));
+        }
+        modules = modules.concat(importModules);
+      } else {
+        let module = getModule(modules, importMetadata.name);
+        /**
+         * Export it's exports to child modules to not only to parents!
+         * Handler for child exports
+         */
+        if (isArray(importMetadata.exports)) {
+          providers = providers.concat(importMetadata.exports.map(iClass => {
+            return {
+              provide: iClass,
+              useValue: module.injector.get(iClass)
+            };
+          }));
+        }
       }
-      modules = modules.concat(importModules);
     });
   }
 

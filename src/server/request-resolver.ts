@@ -388,11 +388,26 @@ export class RequestResolver implements IAfterConstruct {
     return this.router
       .parseRequest(this.url.pathname, this.request.method, this.request.headers)
       .then((resolvedRoute: IResolvedRoute) => {
+
         this.logger.info("Route.parseRequest", {
           method: this.request.method,
           path: this.url.pathname,
           route: resolvedRoute
         });
+
+        /**
+         * Copy query params to params if thy are not defined in path
+         */
+        if (isPresent(this.url.query)) {
+          Object.keys(this.url.query).forEach(key => {
+            if (!resolvedRoute.params.hasOwnProperty(key)) {
+              resolvedRoute.params[key] = this.url.query[key];
+            }
+          });
+        }
+        /**
+         * ON POST, PATCH, PUT process body
+         */
         if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1) {
           this.request.on("data", item => this.data.push(<Buffer> item));
           return new Promise((resolve, reject) => {
@@ -400,6 +415,7 @@ export class RequestResolver implements IAfterConstruct {
             this.request.on("end", resolve.bind(this, resolvedRoute));
           });
         }
+
         return resolvedRoute;
       })
       .then((resolvedRoute: IResolvedRoute) => {

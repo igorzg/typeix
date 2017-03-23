@@ -380,12 +380,11 @@ export class ControllerResolver {
       params.forEach(param => {
         switch (param.type) {
           case "Param":
-            if (
-              (isPresent(this.resolvedRoute.params) && !this.resolvedRoute.params.hasOwnProperty(param.value)) || !isPresent(this.resolvedRoute.params)
-            ) {
-              throw new TypeError(`Property ${param.value} is not defined on route ${toString(this.resolvedRoute)}`);
+            if (isPresent(this.resolvedRoute.params) && this.resolvedRoute.params.hasOwnProperty(param.value)) {
+              actionParams.push(this.resolvedRoute.params[param.value]);
+            } else {
+              actionParams.push(null);
             }
-            actionParams.push(this.resolvedRoute.params[param.value]);
             break;
           case "Chain":
             actionParams.push(injector.get(CHAIN_KEY));
