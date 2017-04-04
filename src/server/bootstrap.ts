@@ -1,9 +1,8 @@
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {IncomingMessage, ServerResponse} from "http";
-import {ControllerResolver} from "./controller-resolver";
-import {uuid, isArray, isPresent, isTruthy, isFalsy} from "../core";
-import {IModuleMetadata, IModule} from "../interfaces/imodule";
+import {isArray, isFalsy, isPresent, isTruthy, uuid} from "../core";
+import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import {RequestResolver} from "./request-resolver";
 import {parse} from "url";
@@ -12,6 +11,7 @@ import {EventEmitter} from "events";
 import {Status} from "./status-code";
 import {Router} from "../router/router";
 
+export const BOOTSTRAP_PROVIDERS = [Logger, Router];
 export const BOOTSTRAP_MODULE = "root";
 
 /**
@@ -71,12 +71,16 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
    * Initialize Logger and router only if thy are defined!
    */
   if (isArray(metadata.providers) && isFalsy(parent)) {
-    Metadata.verifyProviders(metadata.providers).forEach((provider: IProvider) => {
-      if ([Logger, Router].indexOf(provider.provide) > -1) {
-        injector.createAndResolve(provider, providers);
+    Metadata.verifyProviders(metadata.providers)
+      .forEach((cProvider: IProvider) => injector.createAndResolve(cProvider, providers));
+  } else if (isArray(metadata.providers) && isTruthy(parent)) {
+    Metadata.verifyProviders(metadata.providers).forEach((cProvider: IProvider) => {
+      if (BOOTSTRAP_PROVIDERS.indexOf(cProvider.provide) === -1) {
+        injector.createAndResolve(cProvider, providers);
       }
     });
   }
+
   /**
    * Imports must be initialized before first
    */

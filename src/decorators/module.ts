@@ -1,18 +1,10 @@
 import {IModuleMetadata} from "../interfaces/imodule";
-import {isArray, isClass} from "../core";
+import {inArray, isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
 import {Router} from "../router/router";
 import {Logger} from "../logger/logger";
 
-/**
- * Check if data is in array
- * @param data
- * @param token
- * @return {boolean}
- */
-function inArray(data: Array<any>, token: any): boolean {
-  return data.indexOf(token) === -1;
-}
+
 /**
  * Module decorator
  * @decorator

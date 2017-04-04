@@ -13,6 +13,15 @@ export function uuid(): string {
 }
 
 /**
+ * Check if token is in array
+ * @param arr
+ * @param token
+ * @return {boolean}
+ */
+export function inArray(arr: Array<any>, token: any): boolean {
+  return arr.indexOf(token) === -1;
+}
+/**
  * @since 1.0.0
  * @author Igor Ivanovic
  * @function toString
