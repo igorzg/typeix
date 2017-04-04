@@ -1,6 +1,6 @@
 import {
   isString, isBoolean, isUndefined, isArray, isNull, isFunction, isDate, isRegExp, isObject,
-  isPresent
+  isPresent, isFalsy
 } from "../core";
 import {isNumber} from "util";
 import {assert} from "chai";
@@ -105,6 +105,20 @@ describe("Core functions", () => {
     assert.isFalse(isPresent(undefined));
     assert.isTrue(isPresent(true));
     assert.isFalse(isPresent(null));
+  });
+
+
+  it("Is Falsy", () => {
+    assert.isTrue(isFalsy(null));
+    assert.isTrue(isFalsy(0));
+    assert.isTrue(isFalsy(false));
+    assert.isTrue(isFalsy(""));
+    assert.isTrue(isFalsy(undefined));
+    assert.isTrue(isFalsy(NaN));
+    assert.isFalse(isFalsy([]));
+    assert.isFalse(isFalsy(1));
+    assert.isFalse(isFalsy({}));
+    assert.isFalse(isFalsy("abc"));
   });
 
 });

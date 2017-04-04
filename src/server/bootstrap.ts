@@ -1,7 +1,7 @@
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {IncomingMessage, ServerResponse} from "http";
-import {isArray, isFalsy, isPresent, isTruthy, uuid} from "../core";
+import {isArray, isFalsy, isFunction, isPresent, isTruthy, toString, uuid} from "../core";
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import {RequestResolver} from "./request-resolver";
@@ -33,7 +33,7 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  * @name createModule
  * @param {Provider|Function} Class
  * @param {Injector} parent
- * @param {Provider|Function} exp
+ * @param {Provider|Function} moduleExports
  *
  * @description
  * Bootstrap modules recursive
@@ -46,13 +46,14 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  * 4. All imports must be initialized before module which imports them
  * 5. Root module must be initialized last because it's last on import chain
  */
-export function createModule(Class: IProvider|Function, parent?: Injector, exp?: Array<IProvider|Function>): Array<IModule> {
+export function createModule(Class: IProvider | Function, parent?: Injector, moduleExports?: Array<IProvider | Function>): Array<IModule> {
   let modules = [];
   let provider = Metadata.verifyProvider(Class);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
   let providers = [];
   let injector = new Injector();
-
+  // Set name for provider
+  injector.setName(provider);
   /**
    * Initialize Logger and router only if thy are defined!
    */
@@ -63,26 +64,6 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
     Metadata.verifyProviders(metadata.providers).forEach((cProvider: IProvider) => {
       if (BOOTSTRAP_PROVIDERS.indexOf(cProvider.provide) === -1) {
         injector.createAndResolve(cProvider, providers);
-      }
-    });
-  }
-
-  /**
-   * Handle parent exports
-   */
-  if (isArray(exp) && isPresent(parent)) {
-    providers = exp.map(iClass => {
-      return {
-        provide: iClass,
-        useValue: parent.get(iClass)
-      };
-    });
-    /**
-     * Expose exports to importers
-     */
-    providers.forEach(item => {
-      if (!injector.has(item.provide)) {
-        injector.set(item.provide, item.useValue);
       }
     });
   }
@@ -136,6 +117,25 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
     });
   }
 
+  /**
+   * Handle parent exports
+   */
+  if (isArray(moduleExports) && isPresent(parent)) {
+    providers = providers.concat(moduleExports.map(iClass => {
+      return {
+        provide: iClass,
+        useValue: parent.get(iClass)
+      };
+    }));
+    /**
+     * Expose exports to importers
+     */
+    providers.forEach(item => {
+      if (!injector.has(item.provide)) {
+        injector.set(item.provide, item.useValue);
+      }
+    });
+  }
   /**
    * Create module after imports are initialized
    */

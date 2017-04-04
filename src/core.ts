@@ -29,12 +29,15 @@ export function inArray(arr: Array<any>, token: any): boolean {
  * @description
  * Try to serialize object
  */
-export function toString(value): string {
-  try {
-    return JSON.stringify(value);
-  } catch (e) {
-    return value.toString();
+export function toString(value: any): string {
+  if (!isString(value)) {
+    try {
+      return JSON.stringify(value);
+    } catch (e) {
+      return value.toString();
+    }
   }
+  return value;
 }
 /**
  * @since 1.0.0
@@ -169,7 +172,7 @@ export function isPresent(value): boolean {
  * we are doing data type conversion to see if value is considered true value
  */
 export function isTruthy(value): boolean {
-  return !!value;
+  return !isFalsy(value);
 }
 
 /**
@@ -181,7 +184,8 @@ export function isTruthy(value): boolean {
  * we are doing data type conversion to see if value is considered false value
  */
 export function isFalsy(value): boolean {
-  return !value;
+  return isNull(value) || isUndefined(value) || value === "" || value === false || value === 0 ||
+    (typeof value === "number" && isNaN(value));
 }
 
 /**

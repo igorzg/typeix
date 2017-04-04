@@ -1,4 +1,4 @@
-import {isFunction, toString, isPresent, uuid, isArray, isClass} from "../core";
+import {isArray, isClass, isFunction, isPresent, isUndefined, toString, uuid} from "../core";
 import {Metadata} from "./metadata";
 import {IProvider} from "../interfaces/iprovider";
 import {IInjectKey} from "../interfaces/idecorators";
@@ -118,8 +118,9 @@ class ProviderList {
  *
  */
 export class Injector {
-  // injector indentifier
+  // injector identifier
   private _uid: string = uuid();
+  private _name: string;
   private _providers: ProviderList;
   private _children: Array<Injector> = [];
 
@@ -155,7 +156,9 @@ export class Injector {
    */
   static createAndResolveChild(parent: Injector, Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
     let child = new Injector(parent);
-    child.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
+    let provider = Metadata.verifyProvider(Class);
+    child.setName(provider);
+    child.createAndResolve(provider, Metadata.verifyProviders(providers));
     parent.setChild(child);
     return child;
   }
@@ -189,7 +192,9 @@ export class Injector {
    */
   static createAndResolve(Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
     let injector = new Injector();
-    injector.createAndResolve(Metadata.verifyProvider(Class), Metadata.verifyProviders(providers));
+    let provider = Metadata.verifyProvider(Class);
+    injector.setName(provider);
+    injector.createAndResolve(provider, Metadata.verifyProviders(providers));
     return injector;
   }
 
@@ -223,6 +228,8 @@ export class Injector {
    * This method is used internally in most cases you should use static method Injector.createAndResolve or Injector.createAndResolveChild
    */
   createAndResolve(provider: IProvider, providers: Array<IProvider>): any {
+    // first initializer will assign name to injector for better debugging purposes
+    this.setName(provider);
     // merge _providers
     // we need to keep merge algorithm in this order because we want to copy correct order do not change this :)
     providers = Metadata.mergeProviders(Metadata.getConstructorProviders(provider.provide), providers);
@@ -263,7 +270,7 @@ export class Injector {
     // assign injected values
     if (isArray(protoKeys)) {
       protoKeys.forEach((item: IInjectKey) => {
-        let value = this.get(item.value);
+        let value = this.get(item.value, provider);
         Reflect.defineProperty(instance, item.key, {
           value: value,
           writable: item.isMutable
@@ -332,9 +339,9 @@ export class Injector {
     if (isPresent(Class)) {
       throw new Error(`No provider for ${
         isFunction(provider) ? provider.name : toString(provider)
-        } on class ${isFunction(Class.provide) ? Class.provide.name : Class.provide} , injector: ${this._uid}`);
+        } on class ${isFunction(Class.provide) ? Class.provide.name : Class.provide} , injector: ${this._uid} on provider ${this._name}`);
     }
-    throw new Error(`No provider for ${isFunction(provider) ? provider.name : toString(provider)}, injector: ${this._uid}`);
+    throw new Error(`No provider for ${isFunction(provider) ? provider.name : toString(provider)}, injector: ${this._uid} on provider ${this._name}`);
   }
 
   /**
@@ -360,8 +367,27 @@ export class Injector {
    * @description
    * Get injector id
    */
-  getId() {
+  getId(): string {
     return this._uid;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Injector#setName
+   * @private
+   *
+   * @description
+   * Set injector name
+   */
+  setName(provider: IProvider): void {
+    if (isUndefined(this._name)) {
+      if (isFunction(provider.provide)) {
+        this._name = provider.provide.name;
+      } else {
+        this._name = toString(provider.provide);
+      }
+    }
   }
   /**
    * @since 1.0.0
