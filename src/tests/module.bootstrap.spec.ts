@@ -155,7 +155,7 @@ describe("Modules", () => {
     let iModuleB = getModule(_modules, name);
     assert.isDefined(iModuleB);
     assert.isDefined(iModuleB.injector.get(ServiceB));
-
+    assert.equal(iModuleC.injector.get(ServiceB), iModuleB.injector.get(ServiceB));
 
     let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
     assert.isDefined(iModuleA);
@@ -163,5 +163,52 @@ describe("Modules", () => {
     assert.isDefined(iModuleA.injector.get(ServiceB));
   });
 
+  it("Module C nested imports test Different service B", () => {
+    let name = "moduleb";
+    let name2 = "modulec";
 
+    @Module({
+      exports: [ServiceC],
+      name: name2,
+      providers: [ServiceC, ServiceB]
+    })
+    class ModuleC {}
+
+
+    @Module({
+      exports: [ServiceB],
+      imports: [ModuleC],
+      name: name,
+      providers: [ServiceB]
+    })
+    class ModuleB {}
+
+
+    @Module({
+      imports: [ModuleB],
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA]
+    })
+    class ModuleA {
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+
+    let iModuleC = getModule(_modules, name2);
+    assert.isDefined(iModuleC);
+    assert.isDefined(iModuleC.injector.get(ServiceC));
+    assert.isDefined(iModuleC.injector.get(ServiceB));
+
+
+    let iModuleB = getModule(_modules, name);
+    assert.isDefined(iModuleB);
+    assert.isDefined(iModuleB.injector.get(ServiceB));
+    assert.notEqual(iModuleC.injector.get(ServiceB), iModuleB.injector.get(ServiceB));
+
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    assert.isDefined(iModuleA);
+    assert.isDefined(iModuleA.injector.get(ServiceA));
+    assert.isDefined(iModuleA.injector.get(ServiceB));
+  });
 });

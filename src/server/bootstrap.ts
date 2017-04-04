@@ -52,6 +52,21 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
   let providers = [];
   let injector = new Injector();
+
+  /**
+   * Initialize Logger and router only if thy are defined!
+   */
+  if (isArray(metadata.providers) && isFalsy(parent)) {
+    Metadata.verifyProviders(metadata.providers)
+      .forEach((cProvider: IProvider) => injector.createAndResolve(cProvider, providers));
+  } else if (isArray(metadata.providers) && isTruthy(parent)) {
+    Metadata.verifyProviders(metadata.providers).forEach((cProvider: IProvider) => {
+      if (BOOTSTRAP_PROVIDERS.indexOf(cProvider.provide) === -1) {
+        injector.createAndResolve(cProvider, providers);
+      }
+    });
+  }
+
   /**
    * Handle parent exports
    */
@@ -65,18 +80,9 @@ export function createModule(Class: IProvider|Function, parent?: Injector, exp?:
     /**
      * Expose exports to importers
      */
-    providers.forEach(item => injector.set(item.provide, item.useValue));
-  }
-  /**
-   * Initialize Logger and router only if thy are defined!
-   */
-  if (isArray(metadata.providers) && isFalsy(parent)) {
-    Metadata.verifyProviders(metadata.providers)
-      .forEach((cProvider: IProvider) => injector.createAndResolve(cProvider, providers));
-  } else if (isArray(metadata.providers) && isTruthy(parent)) {
-    Metadata.verifyProviders(metadata.providers).forEach((cProvider: IProvider) => {
-      if (BOOTSTRAP_PROVIDERS.indexOf(cProvider.provide) === -1) {
-        injector.createAndResolve(cProvider, providers);
+    providers.forEach(item => {
+      if (!injector.has(item.provide)) {
+        injector.set(item.provide, item.useValue);
       }
     });
   }
