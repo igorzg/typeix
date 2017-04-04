@@ -213,4 +213,48 @@ describe("Modules", () => {
     assert.isDefined(iModuleA.injector.get(ServiceA));
     assert.isDefined(iModuleA.injector.get(ServiceB));
   });
+
+
+  it("Module C nested imports chain exports not allowed", () => {
+    let name = "moduleb";
+    let name2 = "modulec";
+
+    @Module({
+      exports: [ServiceC],
+      name: name2,
+      providers: [ServiceC, ServiceB]
+    })
+    class ModuleC {}
+
+
+    @Module({
+      exports: [ServiceB, ServiceC],
+      imports: [ModuleC],
+      name: name,
+      providers: [ServiceB]
+    })
+    class ModuleB {}
+
+
+    @Module({
+      imports: [ModuleB],
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA]
+    })
+    class ModuleA {
+
+    }
+
+    try {
+      let _modules: Array<IModule> = createModule(ModuleA);
+      let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+      assert.isDefined(iModuleA);
+      assert.isDefined(iModuleA.injector.get(ServiceA));
+      assert.isDefined(iModuleA.injector.get(ServiceB));
+      iModuleA.injector.get(ServiceC);
+      throw new Error("SHOULD NOT HAPPEN");
+    } catch (e) {
+      assert.isTrue(e.toString().indexOf("No provider for ServiceC, injector: ") > -1);
+    }
+  });
 });
