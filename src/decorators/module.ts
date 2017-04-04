@@ -5,6 +5,15 @@ import {Router} from "../router/router";
 import {Logger} from "../logger/logger";
 
 /**
+ * Check if data is in array
+ * @param data
+ * @param token
+ * @return {boolean}
+ */
+function inArray(data: Array<any>, token: any): boolean {
+  return data.indexOf(token) === -1;
+}
+/**
  * Module decorator
  * @decorator
  * @function
@@ -38,10 +47,10 @@ export let Module = (config: IModuleMetadata) => (Class) => {
   if (!isArray(config.exports)) {
     config.exports = [];
   }
-  if (config.exports.indexOf(Logger) === -1) {
+  if (inArray(config.providers, Logger) && !inArray(config.exports, Logger)) {
     config.exports.unshift(Logger);
   }
-  if (config.exports.indexOf(Router) === -1) {
+  if (inArray(config.providers, Router) && !inArray(config.exports, Router)) {
     config.exports.unshift(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));

@@ -71,11 +71,12 @@ describe("Modules", () => {
     }
 
     let _modules: Array<IModule> = createModule(ModuleA);
+
     let iModuleB = getModule(_modules, name);
     assert.isDefined(iModuleB.injector.get(ServiceB));
     assert.isDefined(iModuleB);
 
-    let iModuleA = getModule(_modules, name);
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
     assert.isDefined(iModuleA.injector.get(ServiceA));
     assert.isDefined(iModuleA);
   });
