@@ -31,4 +31,19 @@ describe("Modules", () => {
     assert.isDefined(iModule);
   });
 
+
+  it("Simple module service check", () => {
+
+    @Module({
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA]
+    })
+    class ModuleA {
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+    let iModule = getModule(_modules, BOOTSTRAP_MODULE);
+    assert.isDefined(iModule.injector.get(ModuleA));
+  });
 });
