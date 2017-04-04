@@ -80,4 +80,36 @@ describe("Modules", () => {
     assert.isDefined(iModuleA.injector.get(ServiceA));
     assert.isDefined(iModuleA);
   });
+
+
+  it("Module B exports test", () => {
+    let name = "moduleb";
+    @Module({
+      exports: [ServiceB],
+      name: name,
+      providers: [ServiceB]
+    })
+    class ModuleB {}
+
+
+    @Module({
+      imports: [ModuleB],
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA]
+    })
+    class ModuleA {
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+
+    let iModuleB = getModule(_modules, name);
+    assert.isDefined(iModuleB.injector.get(ServiceB));
+    assert.isDefined(iModuleB);
+
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    assert.isDefined(iModuleA.injector.get(ServiceA));
+    assert.isDefined(iModuleA.injector.get(ServiceB));
+    assert.isDefined(iModuleA);
+  });
 });
