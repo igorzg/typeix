@@ -354,6 +354,18 @@ export class Injector {
   /**
    * @since 1.0.0
    * @function
+   * @name Injector#getId
+   * @private
+   *
+   * @description
+   * Get injector id
+   */
+  getId() {
+    return this._uid;
+  }
+  /**
+   * @since 1.0.0
+   * @function
    * @name Injector#setChild
    * @param {Injector} injector
    * @private

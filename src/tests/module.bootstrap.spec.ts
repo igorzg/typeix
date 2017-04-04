@@ -1,6 +1,5 @@
-import {assert, expect, use} from "chai";
+import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
-import {spy, stub, assert as assertSpy} from "sinon";
 import {Module} from "../decorators/module";
 import {Injectable} from "../decorators/injectable";
 import {BOOTSTRAP_MODULE, createModule, getModule} from "../server/bootstrap";
@@ -161,6 +160,9 @@ describe("Modules", () => {
     assert.isDefined(iModuleA);
     assert.isDefined(iModuleA.injector.get(ServiceA));
     assert.isDefined(iModuleA.injector.get(ServiceB));
+    assert.throws(() => {
+      iModuleA.injector.get(ServiceC);
+    }, "No provider for ServiceC, injector: " + iModuleA.injector.getId());
   });
 
   it("Module C nested imports test Different service B", () => {
