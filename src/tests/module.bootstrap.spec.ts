@@ -12,11 +12,15 @@ use(sinonChai);
 describe("Modules", () => {
 
   @Injectable()
-  class ServiceA {
+  class ServiceA {}
 
-  }
+  @Injectable()
+  class ServiceB {}
 
-  it("Simple module", () => {
+  @Injectable()
+  class ServiceC {}
+
+  it("ModuleA initialized", () => {
 
     @Module({
       name: BOOTSTRAP_MODULE,
@@ -32,7 +36,7 @@ describe("Modules", () => {
   });
 
 
-  it("Simple module service check", () => {
+  it("ModuleA service check", () => {
 
     @Module({
       name: BOOTSTRAP_MODULE,
@@ -45,5 +49,34 @@ describe("Modules", () => {
     let _modules: Array<IModule> = createModule(ModuleA);
     let iModule = getModule(_modules, BOOTSTRAP_MODULE);
     assert.isDefined(iModule.injector.get(ModuleA));
+  });
+
+
+  it("Module B import test", () => {
+    let name = "moduleb";
+    @Module({
+      name: name,
+      providers: [ServiceB]
+    })
+    class ModuleB {}
+
+
+    @Module({
+      imports: [ModuleB],
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA]
+    })
+    class ModuleA {
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+    let iModuleB = getModule(_modules, name);
+    assert.isDefined(iModuleB.injector.get(ServiceB));
+    assert.isDefined(iModuleB);
+
+    let iModuleA = getModule(_modules, name);
+    assert.isDefined(iModuleA.injector.get(ServiceA));
+    assert.isDefined(iModuleA);
   });
 });
