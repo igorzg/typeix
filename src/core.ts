@@ -1,3 +1,4 @@
+import {inspect} from "util";
 /**
  * Create unique id
  *
@@ -29,12 +30,15 @@ export function inArray(arr: Array<any>, token: any): boolean {
  * @description
  * Try to serialize object
  */
-export function toString(value: any): string {
+export function toString(value: any, toJsonString = true): string {
   if (!isString(value)) {
     try {
-      return JSON.stringify(value);
+      if (toJsonString) {
+        return JSON.stringify(value);
+      }
+      return inspect(value, {depth: 10});
     } catch (e) {
-      return value.toString();
+      return inspect(value, {depth: 10});
     }
   }
   return value;

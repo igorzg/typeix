@@ -22,18 +22,24 @@ describe("Modules", () => {
 
 
   @Injectable()
-  class ServiceC1 {}
+  class ServiceC1 {
+
+  }
 
   @Injectable()
   class ServiceB1 {
+
     @Inject(ServiceC1)
     service: ServiceC1;
+
   }
 
   @Injectable()
   class ServiceA1 {
+
     @Inject(ServiceB1)
     service: ServiceB1;
+
   }
 
 
@@ -167,54 +173,56 @@ describe("Modules", () => {
     let iModuleC = getModule(_modules, name2);
     assert.isDefined(iModuleC);
     assert.isDefined(iModuleC.injector.get(ServiceC));
-    assert.isDefined(iModuleC.injector.get(ServiceB));
 
 
     let iModuleB = getModule(_modules, name);
     assert.isDefined(iModuleB);
     assert.isDefined(iModuleB.injector.get(ServiceB));
-    assert.equal(iModuleC.injector.get(ServiceB), iModuleB.injector.get(ServiceB));
+
 
     let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
     assert.isDefined(iModuleA);
     assert.isDefined(iModuleA.injector.get(ServiceA));
     assert.isDefined(iModuleA.injector.get(ServiceB));
+
+    assert.equal(iModuleA.injector.get(ServiceB), iModuleB.injector.get(ServiceB));
+
     assert.throws(() => {
       iModuleA.injector.get(ServiceC);
     }, "No provider for ServiceC, injector: " + iModuleA.injector.getId());
+
+    assert.throws(() => {
+      iModuleC.injector.get(ServiceB);
+    }, "No provider for ServiceB, injector: " + iModuleC.injector.getId());
   });
 
-  xit("Module C nested imports test has own ServiceB instance", () => {
+  it("Module C nested imports test has own ServiceB instance", () => {
     let name = "moduleb";
     let name2 = "modulec";
 
     @Module({
-      exports: [ServiceC],
+      exports: [ServiceC1],
       name: name2,
       providers: [ServiceC1, ServiceB1]
     })
-    class ModuleC {}
-
+    class ModuleC1 {}
 
     @Module({
       exports: [ServiceB1],
-      imports: [ModuleC],
+      imports: [ModuleC1],
       name: name,
       providers: [ServiceB1]
     })
-    class ModuleB {}
-
+    class ModuleB1 {}
 
     @Module({
-      imports: [ModuleB],
+      imports: [ModuleB1],
       name: BOOTSTRAP_MODULE,
       providers: [ServiceA1]
     })
-    class ModuleA {
+    class ModuleA1 {}
 
-    }
-
-    let _modules: Array<IModule> = createModule(ModuleA);
+    let _modules: Array<IModule> = createModule(ModuleA1);
 
     let iModuleC = getModule(_modules, name2);
     assert.isDefined(iModuleC);
@@ -234,7 +242,7 @@ describe("Modules", () => {
   });
 
 
-  xit("Module C nested imports, chain exports are allowed", () => {
+  it("Module C nested imports, chain exports are not allowed and thy have to be imported", () => {
     let name = "moduleb";
     let name2 = "modulec";
 
@@ -247,7 +255,7 @@ describe("Modules", () => {
 
 
     @Module({
-      exports: [ServiceB1, ServiceC1],
+      exports: [ServiceB1],
       imports: [ModuleC],
       name: name,
       providers: [ServiceB1]
@@ -256,7 +264,7 @@ describe("Modules", () => {
 
 
     @Module({
-      imports: [ModuleB],
+      imports: [ModuleB, ModuleC],
       name: BOOTSTRAP_MODULE,
       providers: [ServiceA1]
     })
@@ -266,10 +274,16 @@ describe("Modules", () => {
 
     let _modules: Array<IModule> = createModule(ModuleA);
     let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    let iModuleB = getModule(_modules, name);
+    let iModuleC = getModule(_modules, name2);
     assert.isDefined(iModuleA);
-    assert.isDefined(iModuleA.injector.get(ServiceA));
-    assert.isDefined(iModuleA.injector.get(ServiceB));
-    assert.isDefined(iModuleA.injector.get(ServiceC));
+    assert.isDefined(iModuleA.injector.get(ServiceA1));
+    assert.isDefined(iModuleA.injector.get(ServiceB1));
+    assert.isDefined(iModuleA.injector.get(ServiceC1));
+    assert.equal(iModuleA.injector.get(ServiceC1), iModuleC.injector.get(ServiceC1));
+    assert.equal(iModuleB.injector.get(ServiceC1), iModuleC.injector.get(ServiceC1));
+    assert.notEqual(iModuleA.injector.get(ServiceB1), iModuleC.injector.get(ServiceB1));
+    assert.notEqual(iModuleB.injector.get(ServiceB1), iModuleC.injector.get(ServiceB1));
   });
 
 

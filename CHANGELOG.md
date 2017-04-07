@@ -1,8 +1,10 @@
+## 1.0.0-beta.11
+- Fix nested module imports
+
 ## 1.0.0-beta.10
 - Copy query params to params if thy are not defined from path param
 - Don't throw exception if @Param is not defined in route!
 - Injector -> Expose exports to importers
-
 
 ## 1.0.0-beta.9
 - Fix module imports -> Imported modules should export it's exports to module which imports them not only to it's imports
