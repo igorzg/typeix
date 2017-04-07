@@ -282,6 +282,7 @@ describe("Modules", () => {
     assert.isDefined(iModuleA.injector.get(ServiceC1));
     assert.equal(iModuleA.injector.get(ServiceC1), iModuleC.injector.get(ServiceC1));
     assert.equal(iModuleB.injector.get(ServiceC1), iModuleC.injector.get(ServiceC1));
+    assert.equal(iModuleA.injector.get(ServiceB1), iModuleB.injector.get(ServiceB1));
     assert.notEqual(iModuleA.injector.get(ServiceB1), iModuleC.injector.get(ServiceB1));
     assert.notEqual(iModuleB.injector.get(ServiceB1), iModuleC.injector.get(ServiceB1));
   });
