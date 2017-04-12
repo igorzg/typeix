@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {isPresent, isFunction, isObject, isString, toString, isArray, isFalsy, isEqual} from "../core";
+import {isArray, isClass, isFalsy, isFunction, isObject, isPresent, isString, toString} from "../core";
 import {IProvider} from "../interfaces/iprovider";
 
 export const INJECT_KEYS = "inject:paramtypes";
@@ -33,6 +33,9 @@ export class Metadata {
    * Get class name
    */
   static getName(Class: any, prefix?: string): string {
+    if (Metadata.isProvider(Class)) {
+      return Metadata.getName(Class.provide);
+    }
     let message = "";
     if (prefix) {
       message += prefix;
@@ -46,6 +49,25 @@ export class Metadata {
     }
     return message;
   };
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#isProvider
+   * @param token
+   * @returns {boolean}
+   *
+   * @description
+   * Check if token is provider
+   */
+  static isProvider(token: any): boolean {
+    return isPresent(token) &&
+      isObject(token) &&
+      isPresent(token.provide) &&
+      (isString(token.provide) || isClass(token.provide)) &&
+      (isPresent(token.useValue) || isClass(token.useClass) || isFunction(token.useFactory));
+  }
 
   /**
    * @since 1.0.0
