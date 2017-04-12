@@ -390,4 +390,73 @@ describe("Modules", () => {
     assert.equal(iModuleA.injector.get(Router), iModuleC.injector.get(Router));
   });
 
+
+
+  it("Modules must have same Logger and Router Inject different Router Reference on ModuleC", () => {
+    let name = "moduleb";
+    let name2 = "modulec";
+
+    @Module({
+      exports: [ServiceC1],
+      name: name2,
+      providers: [ServiceC1, ServiceB1, Router]
+    })
+    class ModuleC {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+
+    @Module({
+      exports: [ServiceB1],
+      imports: [ModuleC],
+      name: name,
+      providers: [ServiceB1]
+    })
+    class ModuleB {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+
+    @Module({
+      imports: [ModuleB, ModuleC],
+      name: BOOTSTRAP_MODULE,
+      providers: [Logger, Router, ServiceA1]
+    })
+    class ModuleA {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    let iModuleB = getModule(_modules, name);
+    let iModuleC = getModule(_modules, name2);
+    assert.isDefined(iModuleA);
+    assert.isDefined(iModuleB);
+    assert.isDefined(iModuleC);
+
+    assert.equal(iModuleA.injector.get(Logger), iModuleB.injector.get(Logger));
+    assert.equal(iModuleA.injector.get(Logger), iModuleC.injector.get(Logger));
+
+    assert.equal(iModuleA.injector.get(Router), iModuleB.injector.get(Router));
+    assert.notEqual(iModuleA.injector.get(Router), iModuleC.injector.get(Router));
+  });
+
 });

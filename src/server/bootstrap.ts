@@ -76,20 +76,14 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
   injector.setName(provider);
 
   // Create instance of Router && Logger if thy are provided
-  if (isFalsy(sibling) && isArray(metadata.providers)) {
-    metadata.providers.forEach((item: IProvider) => {
-      if (BOOTSTRAP_PROVIDERS.indexOf(item.provide) > -1) {
-        injector.createAndResolve(item, [])
-      }
-    });
-    // Reference Logger and router to it's siblings
-  } else if (isTruthy(sibling)) {
-    BOOTSTRAP_PROVIDERS.forEach(iClass => {
-      if (sibling.has(iClass)) {
-        injector.set(iClass, sibling.get(iClass));
-      }
-    });
-  }
+
+  BOOTSTRAP_PROVIDERS.forEach(iClass => {
+    if (Metadata.inProviders(metadata.providers, iClass)) {
+      injector.createAndResolve(Metadata.verifyProvider(iClass), []);
+    } else if (isTruthy(sibling) && sibling.has(iClass)) {
+      injector.set(iClass, sibling.get(iClass));
+    }
+  });
   /**
    * Imports must be initialized before first
    */

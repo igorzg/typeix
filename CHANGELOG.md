@@ -1,3 +1,7 @@
+## 1.0.0-beta.12
+- Fix Logger, Router references
+- Added module name duplication check
+
 ## 1.0.0-beta.11
 - Fix nested module imports
 
