@@ -17,6 +17,33 @@ export const BOOTSTRAP_MODULE = "root";
 /**
  * @since 1.0.0
  * @function
+ * @name doModulesDuplicationCheck
+ * @param {Array<IModule>} modules
+ * @param {IModuleMetadata} metadata
+ * @param {IProvider} provider
+ */
+export function doModulesDuplicationCheck(modules: Array<IModule>, metadata: IModuleMetadata, provider: IProvider) {
+  let duplicationCheck = modules.slice();
+  /**
+   * Duplication check
+   */
+  while (duplicationCheck.length) {
+    let importedModule: IModule = duplicationCheck.pop();
+    /**
+     * Provider duplication check
+     */
+    if (!isEqual(provider, importedModule) && isEqual(metadata.name, importedModule.name)) {
+      let message = "Multiple modules with same name detected! Module name: ";
+      message += importedModule.name + " is defined in modules: [" + Metadata.getName(provider) + ", ";
+      message += Metadata.getName(importedModule) + "]";
+      message += " Please provide unique names to modules!";
+      throw new Error(message);
+    }
+  }
+}
+/**
+ * @since 1.0.0
+ * @function
  * @name getModule
  * @param {Array<IModule>} modules
  * @param {String} name
@@ -55,7 +82,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
         injector.createAndResolve(item, [])
       }
     });
-  // Reference Logger and router to it's siblings
+    // Reference Logger and router to it's siblings
   } else if (isTruthy(sibling)) {
     BOOTSTRAP_PROVIDERS.forEach(iClass => {
       if (sibling.has(iClass)) {
@@ -96,13 +123,6 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
       } else {
         let module: IModule = getModule(modules, importMetadata.name);
         /**
-         * Provider duplication check
-         */
-        if (!isEqual(module.provider, importProvider)) {
-          throw new Error(`Two different modules with same name detected! Module name: ${importMetadata.name}
-          with provider: [${Metadata.getName(module.provider)}, ${Metadata.getName(importProvider)}]`);
-        }
-        /**
          * Export providers to importers
          */
         if (isArray(importMetadata.exports)) {
@@ -122,6 +142,10 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
    */
   injector.createAndResolve(provider, providers);
   /**
+   * Check duplicates
+   */
+  doModulesDuplicationCheck(modules, metadata, provider);
+  /**
    * Add module to list
    */
   modules.push({
@@ -129,6 +153,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
     provider,
     name: metadata.name
   });
+
 
   return modules;
 }

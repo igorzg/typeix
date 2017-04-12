@@ -5,6 +5,8 @@ import {Injectable} from "../decorators/injectable";
 import {BOOTSTRAP_MODULE, createModule, getModule} from "../server/bootstrap";
 import {IModule} from "../interfaces/imodule";
 import {Inject} from "../decorators/inject";
+import {Router} from "../router/router";
+import {Logger} from "../logger/logger";
 
 // use chai spies
 use(sinonChai);
@@ -287,5 +289,105 @@ describe("Modules", () => {
     assert.notEqual(iModuleB.injector.get(ServiceB1), iModuleC.injector.get(ServiceB1));
   });
 
+
+  it("Modules must have unique names", () => {
+    @Module({
+      exports: [ServiceC1],
+      name: "moduleb",
+      providers: [ServiceC1, ServiceB1]
+    })
+    class ModuleC {}
+
+    @Module({
+      exports: [ServiceB1],
+      imports: [ModuleC],
+      name: "moduleb",
+      providers: [ServiceB1]
+    })
+    class ModuleB {}
+
+
+    @Module({
+      imports: [ModuleB, ModuleC],
+      name: BOOTSTRAP_MODULE,
+      providers: [ServiceA1]
+    })
+    class ModuleA {
+
+    }
+
+    assert.throws(() => {
+      createModule(ModuleA);
+    }, "Multiple modules with same name detected! Module name: moduleb is defined in modules: [ModuleB, moduleb] Please provide unique names to modules!");
+  });
+
+
+
+  it("Modules must have same Logger and Router reference", () => {
+    let name = "moduleb";
+    let name2 = "modulec";
+
+    @Module({
+      exports: [ServiceC1],
+      name: name2,
+      providers: [ServiceC1, ServiceB1]
+    })
+    class ModuleC {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+
+    @Module({
+      exports: [ServiceB1],
+      imports: [ModuleC],
+      name: name,
+      providers: [ServiceB1]
+    })
+    class ModuleB {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+
+    @Module({
+      imports: [ModuleB, ModuleC],
+      name: BOOTSTRAP_MODULE,
+      providers: [Logger, Router, ServiceA1]
+    })
+    class ModuleA {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    let iModuleB = getModule(_modules, name);
+    let iModuleC = getModule(_modules, name2);
+    assert.isDefined(iModuleA);
+    assert.isDefined(iModuleB);
+    assert.isDefined(iModuleC);
+
+    assert.equal(iModuleA.injector.get(Logger), iModuleB.injector.get(Logger));
+    assert.equal(iModuleA.injector.get(Logger), iModuleC.injector.get(Logger));
+
+    assert.equal(iModuleA.injector.get(Router), iModuleB.injector.get(Router));
+    assert.equal(iModuleA.injector.get(Router), iModuleC.injector.get(Router));
+  });
 
 });
