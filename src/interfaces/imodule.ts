@@ -1,5 +1,5 @@
 import {IProvider} from "./iprovider";
-import {RouteRuleConfig, IResolvedRoute} from "./iroute";
+import {IResolvedRoute, RouteRuleConfig} from "./iroute";
 import {Injector} from "../injector/injector";
 /**
  * @since 1.0.0
@@ -17,12 +17,12 @@ import {Injector} from "../injector/injector";
  * Bootstrap class config metadata
  */
 export interface IModuleMetadata {
-  imports?: Array<Function|IProvider>;
-  exports?: Array<Function|IProvider>;
+  imports?: Array<Function | IProvider>;
+  exports?: Array<Function | IProvider>;
   name?: string;
   routes?: Array<RouteRuleConfig>;
-  controllers?: Array<IProvider|Function>;
-  providers?: Array<IProvider|Function>;
+  controllers?: Array<IProvider | Function>;
+  providers?: Array<IProvider | Function>;
 }
 
 /**
@@ -37,7 +37,7 @@ export interface IModuleMetadata {
  */
 export interface IModule {
   injector: Injector;
-  provider: Array<Function|IProvider>;
+  provider: IProvider;
   name: string;
 }
 /**
