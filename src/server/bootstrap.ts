@@ -1,7 +1,7 @@
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {IncomingMessage, ServerResponse} from "http";
-import {isArray, isFalsy, uuid} from "../core";
+import {isArray, isEqual, isFalsy, isTruthy, uuid} from "../core";
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import {RequestResolver} from "./request-resolver";
@@ -24,7 +24,7 @@ export const BOOTSTRAP_MODULE = "root";
  * @description
  * Find root module
  */
-export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODULE) {
+export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODULE): IModule {
   return modules.find(item => item.name === name);
 }
 /**
@@ -32,20 +32,37 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  * @function
  * @name createModule
  * @param {Provider|Function} Class
+ * @param {Injector} sibling
  *
  * @description
  * Bootstrap modules recursive handler imported modules and export services which is needed
  *
  */
-export function createModule(Class: IProvider | Function): Array<IModule> {
+export function createModule(Class: IProvider | Function, sibling?: Injector): Array<IModule> {
   let modules = [];
-  let provider = Metadata.verifyProvider(Class);
+  let provider: IProvider = Metadata.verifyProvider(Class);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
-  let providers = [];
+  // Create new injector instance
   let injector = new Injector();
+  let providers: Array<IProvider> = [];
   // Set name for provider
   injector.setName(provider);
 
+  // Create instance of Router && Logger if thy are provided
+  if (isFalsy(sibling) && isArray(metadata.providers)) {
+    metadata.providers.forEach((item: IProvider) => {
+      if (BOOTSTRAP_PROVIDERS.indexOf(item.provide) > -1) {
+        injector.createAndResolve(item, [])
+      }
+    });
+  // Reference Logger and router to it's siblings
+  } else if (isTruthy(sibling)) {
+    BOOTSTRAP_PROVIDERS.forEach(iClass => {
+      if (sibling.has(iClass)) {
+        injector.set(iClass, sibling.get(iClass));
+      }
+    });
+  }
   /**
    * Imports must be initialized before first
    */
@@ -62,7 +79,7 @@ export function createModule(Class: IProvider | Function): Array<IModule> {
          * Create module first
          * @type {Array<IModule>}
          */
-        let importModules = createModule(importModule);
+        let importModules = createModule(importModule, injector);
         let module = getModule(importModules, importMetadata.name);
         /**
          * Export providers to importers
@@ -77,7 +94,14 @@ export function createModule(Class: IProvider | Function): Array<IModule> {
         }
         modules = modules.concat(importModules);
       } else {
-        let module = getModule(modules, importMetadata.name);
+        let module: IModule = getModule(modules, importMetadata.name);
+        /**
+         * Provider duplication check
+         */
+        if (!isEqual(module.provider, importProvider)) {
+          throw new Error(`Two different modules with same name detected! Module name: ${importMetadata.name}
+          with provider: [${Metadata.getName(module.provider)}, ${Metadata.getName(importProvider)}]`);
+        }
         /**
          * Export providers to importers
          */
@@ -97,22 +121,14 @@ export function createModule(Class: IProvider | Function): Array<IModule> {
    * Create module after imports are initialized
    */
   injector.createAndResolve(provider, providers);
-
+  /**
+   * Add module to list
+   */
   modules.push({
     injector,
-    provider: Class,
+    provider,
     name: metadata.name
   });
-
-  let duplicates = [];
-  //@todo fix duplicates algorithm
-
-  if (duplicates.indexOf(BOOTSTRAP_MODULE) > -1) {
-    throw new Error(`Only one ${BOOTSTRAP_MODULE}" module is allowed. Please make sure that all child modules have defined name
-     on @Module annotation and that any @Module name is not "${BOOTSTRAP_MODULE}"`);
-  } else if (duplicates.length > 0) {
-    throw new Error(`Modules must have unique names. Please make sure that all child modules have unique names duplicates: ${duplicates}`);
-  }
 
   return modules;
 }
