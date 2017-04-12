@@ -1,6 +1,6 @@
 {
   "name": "typeix",
-  "version": "1.0.0-beta.11",
+  "version": "1.0.0-beta.12",
   "dependencies": {
     "reflect-metadata": "^0.1.10"
   },
