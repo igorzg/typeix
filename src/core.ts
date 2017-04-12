@@ -20,7 +20,7 @@ export function uuid(): string {
  * @return {boolean}
  */
 export function inArray(arr: Array<any>, token: any): boolean {
-  return arr.indexOf(token) === -1;
+  return isArray(arr) && arr.indexOf(token) > -1;
 }
 /**
  * @since 1.0.0
