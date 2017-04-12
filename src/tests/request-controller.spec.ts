@@ -288,7 +288,7 @@ describe("ControllerResolver", () => {
 
     let cSpy = spy(controller, "actionIndex");
 
-    let result = controllerResolver.processAction(injector, aProvider, action);
+    let result: any = controllerResolver.processAction(injector, aProvider, action);
     assert.isNotNull(result);
     assertSpy.calledWith(aSpy, "contentType", "application/json");
     assertSpy.calledWith(cSpy, 1, injector.get(Logger), 2, "CHAIN", injector.get(Logger));
