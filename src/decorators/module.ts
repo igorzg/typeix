@@ -1,5 +1,5 @@
 import {IModuleMetadata} from "../interfaces/imodule";
-import {inArray, isArray, isClass} from "../core";
+import {isArray, isClass} from "../core";
 import {Metadata} from "../injector/metadata";
 import {Router} from "../router/router";
 import {Logger} from "../logger/logger";
@@ -39,10 +39,10 @@ export let Module = (config: IModuleMetadata) => (Class) => {
   if (!isArray(config.exports)) {
     config.exports = [];
   }
-  if (inArray(config.providers, Logger) && !inArray(config.exports, Logger)) {
+  if (Metadata.inProviders(config.providers, Logger) && !Metadata.inProviders(config.exports, Logger)) {
     config.exports.unshift(Logger);
   }
-  if (inArray(config.providers, Router) && !inArray(config.exports, Router)) {
+  if (Metadata.inProviders(config.providers, Router) && !Metadata.inProviders(config.exports, Router)) {
     config.exports.unshift(Router);
   }
   config.providers = config.providers.map(ProviderClass => Metadata.verifyProvider(ProviderClass));
