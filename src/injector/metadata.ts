@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {isArray, isClass, isFalsy, isFunction, isObject, isPresent, isString, toString} from "../core";
+import {isArray, isClass, isEqual, isFalsy, isFunction, isObject, isPresent, isString, toString} from "../core";
 import {IProvider} from "../interfaces/iprovider";
 
 export const INJECT_KEYS = "inject:paramtypes";
@@ -49,6 +49,40 @@ export class Metadata {
     }
     return message;
   };
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#inVerifiedProvider
+   *
+   * @param providers
+   * @param provider
+   * @returns {boolean}
+   *
+   * @description
+   * Check if provider is in array of providers
+   */
+  static inVerifiedProviders(providers: Array<IProvider>, provider: IProvider) {
+    return providers.some(item => isEqual(item, provider));
+  }
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#inProviders
+   *
+   * @param providers
+   * @param provider
+   * @returns {boolean}
+   *
+   * @description
+   * Check if provider is in array of providers
+   */
+  static inProviders(providers: Array<any>, provider: any): boolean {
+    return Metadata.inVerifiedProviders(Metadata.verifyProviders(providers), Metadata.verifyProvider(provider));
+  }
 
   /**
    * @since 1.0.0
