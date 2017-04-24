@@ -8,6 +8,7 @@
 
 
 [View demo application](http://www.igorivanovic.info/typeix-demo-app/)
+[Wiki docs](https://github.com/igorzg/typeix/wiki)
 
 ## Features
 * Dependency Injection - partial JSR 330 standard
