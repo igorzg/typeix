@@ -316,7 +316,7 @@ export class FakeServerApi {
    * Fire request
    */
   private request(request: FakeIncomingMessage, response: FakeServerResponse): Promise<FakeResponseApi> {
-    return fireRequest(this.getModules(), <IncomingMessage> request, response).then(data => {
+    return fireRequest(this.getModules(), request, response).then(data => {
       return {
         getBody: () => response.getBody(),
         getHeaders: () => response.getHeaders(),
@@ -353,7 +353,7 @@ class FakeIncomingMessage extends Readable implements IncomingMessage {
   statusMessage?: string;
   socket: Socket;
 
-  protected _read(size: number): void {
+  _read(size: number): void {
   };
 
   setTimeout(msecs: number, callback: Function): NodeJS.Timer {

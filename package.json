@@ -1,6 +1,6 @@
 {
   "name": "typeix",
-  "version": "1.0.0-beta.12",
+  "version": "1.0.0-beta.13",
   "dependencies": {
     "reflect-metadata": "^0.1.10"
   },
@@ -47,6 +47,6 @@
     "sinon-chai": "^2.8.0",
     "tslint": "3.6.0",
     "typedoc": "^0.5.1",
-    "typescript": "^2.2.0"
+    "typescript": "^2.3.0"
   }
 }

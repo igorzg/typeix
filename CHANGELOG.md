@@ -1,3 +1,6 @@
+## 1.0.0-beta.13
+- Update to typescript 2.3.x
+
 ## 1.0.0-beta.12
 - Fix Logger, Router references
 - Added module name duplication check
