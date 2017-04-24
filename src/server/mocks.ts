@@ -1,11 +1,11 @@
 import {Injector} from "../injector/injector";
-import {fireRequest, createModule, BOOTSTRAP_MODULE} from "./bootstrap";
-import {IModuleMetadata, IModule} from "../interfaces/imodule";
+import {BOOTSTRAP_MODULE, createModule, fireRequest} from "./bootstrap";
+import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import {Inject} from "../decorators/inject";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
-import {ServerResponse, IncomingMessage} from "http";
+import {IncomingMessage, ServerResponse} from "http";
 import {isObject, uuid} from "../core";
 import {ControllerResolver} from "./controller-resolver";
 import {ERROR_KEY} from "./request-resolver";
@@ -59,10 +59,10 @@ export function fakeHttpServer(Class: Function, config?: IFakeServerConfig): Fak
  * Use fakeControllerCall for testing only
  */
 export function fakeControllerActionCall(injector: Injector,
-                                   controller: Function | IProvider,
-                                   action: string,
-                                   params?: Object,
-                                   headers?: Object): Promise<string|Buffer> {
+                                         controller: Function | IProvider,
+                                         action: string,
+                                         params?: Object,
+                                         headers?: Object): Promise<string | Buffer> {
   let request = new FakeIncomingMessage();
   request.method = "GET";
   request.headers = isObject(headers) ? headers : {};
@@ -90,7 +90,7 @@ export function fakeControllerActionCall(injector: Injector,
     {provide: ERROR_KEY, useValue: new HttpError(500)},
     {provide: EventEmitter, useValue: new EventEmitter()}
   ];
- // if there is no logger provide it
+  // if there is no logger provide it
   if (!injector.has(Logger)) {
     providers.push(Metadata.verifyProvider(Logger));
   }
@@ -254,7 +254,7 @@ export class FakeServerApi {
    * @description
    * Fire POST Method
    */
-  POST(url: string, data?: string|Buffer, headers?: Object): Promise<FakeResponseApi> {
+  POST(url: string, data?: string | Buffer, headers?: Object): Promise<FakeResponseApi> {
     let request = new FakeIncomingMessage();
     request.method = "POST";
     request.url = url;
@@ -274,7 +274,7 @@ export class FakeServerApi {
    * @description
    * Fire PUT Method
    */
-  PUT(url: string, data?: string|Buffer, headers?: Object): Promise<FakeResponseApi> {
+  PUT(url: string, data?: string | Buffer, headers?: Object): Promise<FakeResponseApi> {
     let request = new FakeIncomingMessage();
     request.method = "PUT";
     request.url = url;
@@ -294,7 +294,7 @@ export class FakeServerApi {
    * @description
    * Fire PATCH Method
    */
-  PATCH(url: string, data?: string|Buffer, headers?: Object): Promise<FakeResponseApi> {
+  PATCH(url: string, data?: string | Buffer, headers?: Object): Promise<FakeResponseApi> {
     let request = new FakeIncomingMessage();
     request.method = "PATCH";
     request.url = url;
@@ -316,11 +316,11 @@ export class FakeServerApi {
    * Fire request
    */
   private request(request: FakeIncomingMessage, response: FakeServerResponse): Promise<FakeResponseApi> {
-    return fireRequest(this.getModules(), request, response).then(data => {
+    return fireRequest(this.getModules(), <IncomingMessage> request, response).then(data => {
       return {
-        getStatusCode: () => response.statusCode,
+        getBody: () => response.getBody(),
         getHeaders: () => response.getHeaders(),
-        getBody: () => response.getBody()
+        getStatusCode: () => response.statusCode
       };
     });
   }
@@ -489,7 +489,7 @@ class FakeServerResponse extends Writable implements ServerResponse {
    * @description
    * Get headers
    */
-  getHeaders(): {[key: string]: string | string[]} {
+  getHeaders(): { [key: string]: string | string[] } {
     return this.headers;
   }
 
