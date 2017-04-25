@@ -1,13 +1,13 @@
-import {IProvider, IAfterConstruct} from "../interfaces/iprovider";
+import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {IncomingMessage, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
-import {Router, Methods} from "../router/router";
+import {Methods, Router} from "../router/router";
 import {Url} from "url";
-import {IResolvedModule, IModule, IModuleMetadata} from "../interfaces/imodule";
+import {IModule, IModuleMetadata, IResolvedModule} from "../interfaces/imodule";
 import {IResolvedRoute} from "../interfaces/iroute";
-import {isPresent, isString, isFalsy, isTruthy} from "../core";
+import {isFalsy, isPresent, isString, isTruthy} from "../core";
 import {HttpError} from "../error";
 import {Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
@@ -178,6 +178,7 @@ export class RequestResolver implements IAfterConstruct {
     }
     return controllerProvider;
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -308,7 +309,6 @@ export class RequestResolver implements IAfterConstruct {
   }
 
 
-
   /**
    * @since 1.0.0
    * @function
@@ -317,7 +317,7 @@ export class RequestResolver implements IAfterConstruct {
    * @description
    * Resolve route and deliver resolved module
    */
-  processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string|Buffer> {
+  processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string | Buffer> {
 
     let providers = [
       {provide: "data", useValue: this.data},
@@ -365,12 +365,21 @@ export class RequestResolver implements IAfterConstruct {
    */
   getResolvedModule(resolvedRoute: IResolvedRoute): IResolvedModule {
     let [module, controller, action] = resolvedRoute.route.split("/");
+    let resolvedModule: IModule = !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module);
+    if (isFalsy(resolvedModule)) {
+      throw new HttpError(
+        500,
+        "Module with route " + resolvedRoute.route + " is not registered in system," +
+        " please check your route configuration!",
+        resolvedRoute
+      );
+    }
     return {
-      module: !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module),
-      controller: !isPresent(action) ? module : controller,
       action: !isPresent(action) ? controller : action,
-      resolvedRoute,
-      data: this.data
+      controller: !isPresent(action) ? module : controller,
+      data: this.data,
+      module: resolvedModule,
+      resolvedRoute
     };
   }
 

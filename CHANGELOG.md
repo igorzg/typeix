@@ -1,3 +1,6 @@
+## 1.0.0-beta.15
+- Added better error resolution for modules which are not registered in system
+
 ## 1.0.0-beta.14
 - Fix module duplication resolution 
 
