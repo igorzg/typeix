@@ -60,15 +60,22 @@ export function getModule(modules: Array<IModule>, name: string = BOOTSTRAP_MODU
  * @name createModule
  * @param {Provider|Function} Class
  * @param {Injector} sibling
+ * @param {Array<IModule>} modules list
  *
  * @description
  * Bootstrap modules recursive handler imported modules and export services which is needed
  *
  */
-export function createModule(Class: IProvider | Function, sibling?: Injector): Array<IModule> {
-  let modules = [];
+export function createModule(Class: IProvider | Function, sibling?: Injector, modules = []): Array<IModule> {
+
   let provider: IProvider = Metadata.verifyProvider(Class);
   let metadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
+
+  // Check if module is present then return module reference list
+  if (isTruthy(getModule(modules, metadata.name))) {
+    return modules;
+  }
+
   // Create new injector instance
   let injector = new Injector();
   let providers: Array<IProvider> = [];
@@ -100,7 +107,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
          * Create module first
          * @type {Array<IModule>}
          */
-        let importModules = createModule(importModule, injector);
+        let importModules = createModule(importModule, injector, modules);
         let module = getModule(importModules, importMetadata.name);
         /**
          * Export providers to importers
@@ -113,7 +120,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
             };
           }));
         }
-        modules = modules.concat(importModules);
+        modules = importModules.filter((bI: IModule) => isFalsy(modules.find((aI: IModule) => aI.name === bI.name))).concat(modules);
       } else {
         let module: IModule = getModule(modules, importMetadata.name);
         /**
@@ -147,7 +154,6 @@ export function createModule(Class: IProvider | Function, sibling?: Injector): A
     provider,
     name: metadata.name
   });
-
 
   return modules;
 }

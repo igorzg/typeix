@@ -22,11 +22,16 @@ describe("Modules", () => {
   @Injectable()
   class ServiceC {}
 
+  @Injectable()
+  class ServiceD {}
+
 
   @Injectable()
   class ServiceC1 {
 
   }
+
+
 
   @Injectable()
   class ServiceB1 {
@@ -457,6 +462,107 @@ describe("Modules", () => {
 
     assert.equal(iModuleA.injector.get(Router), iModuleB.injector.get(Router));
     assert.notEqual(iModuleA.injector.get(Router), iModuleC.injector.get(Router));
+  });
+
+
+  it("Module instance should be only one!", () => {
+    let name = "moduleb";
+    let name2 = "modulec";
+    let num = 0;
+
+    @Module({
+      name: "moduled",
+      providers: [ServiceD]
+    })
+    class ModuleD {
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+
+      @Inject(ServiceD)
+      service: ServiceD;
+
+      constructor() {
+        num += 1;
+      }
+
+    }
+
+
+    @Module({
+      imports: [ModuleD],
+      exports: [ServiceC1],
+      name: name2,
+      providers: [ServiceC1, ServiceB1, Router]
+    })
+    class ModuleC {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+      constructor() {
+        num += 1;
+      }
+    }
+
+
+    @Module({
+      exports: [ServiceB1],
+      imports: [ModuleC, ModuleD],
+      name: name,
+      providers: [ServiceB1]
+    })
+    class ModuleB {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+      constructor() {
+        num += 1;
+      }
+    }
+
+
+    @Module({
+      imports: [ModuleB, ModuleC, ModuleD],
+      name: BOOTSTRAP_MODULE,
+      providers: [Logger, Router, ServiceA1]
+    })
+    class ModuleA {
+
+      @Inject(Logger)
+      logger: Logger;
+
+      @Inject(Router)
+      router: Router;
+      constructor() {
+        num += 1;
+      }
+    }
+
+    let _modules: Array<IModule> = createModule(ModuleA);
+    let iModuleA = getModule(_modules, BOOTSTRAP_MODULE);
+    let iModuleB = getModule(_modules, name);
+    let iModuleC = getModule(_modules, name2);
+    assert.isDefined(iModuleA);
+    assert.isDefined(iModuleB);
+    assert.isDefined(iModuleC);
+
+    assert.equal(iModuleA.injector.get(Logger), iModuleB.injector.get(Logger));
+    assert.equal(iModuleA.injector.get(Logger), iModuleC.injector.get(Logger));
+
+    assert.equal(iModuleA.injector.get(Router), iModuleB.injector.get(Router));
+    assert.notEqual(iModuleA.injector.get(Router), iModuleC.injector.get(Router));
+
+    assert.equal(num, 4);
+    assert.equal(_modules.length, 4);
+    assert.equal(_modules.length, num);
   });
 
 });

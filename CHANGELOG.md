@@ -1,3 +1,6 @@
+## 1.0.0-beta.14
+- Fix module duplicated resolution 
+
 ## 1.0.0-beta.13
 - Update to typescript 2.3.x
 
