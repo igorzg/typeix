@@ -36,6 +36,31 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/canbeone/ws/should#+do-it/good"));
   });
 
+  it("Should test patterns on /<clientId:(\\w+)>/<url:([\\w-]+)>", () => {
+    let pattern = RouteParser.parse("/<clientId:(\\w+)>/<url:([\\w-]+)>");
+    assert.isFalse(pattern.isValid("/category/1/page/1"));
+    assert.isFalse(pattern.isValid("/category/abc1/abc"));
+    assert.isTrue(pattern.isValid("/category/abc1"));
+  });
+
+
+  it("Should test patterns on /category/<category:(\\d+)>/page/<pagenumber:(\\d+)>", () => {
+    let pattern = RouteParser.parse("/category/<category:(\\d+)>/page/<pagenumber:(\\d+)>");
+    assert.isTrue(pattern.isValid("/category/1/page/1"));
+    assert.isFalse(pattern.isValid("/category/abc1/abc"));
+    assert.isFalse(pattern.isValid("/category/abc1"));
+  });
+
+  it("Should test patterns on /<category:(.*)>/page/<pageNum:(.*)>", () => {
+    let pattern = RouteParser.parse("/<category:(.*)>/page/<pageNum:(.*)>");
+    assert.isTrue(pattern.isValid("/category/page/1"));
+    assert.isTrue(pattern.isValid("/category/page/1/abc"));
+    assert.isTrue(pattern.isValid("/category/value/page/1/abc"));
+    assert.isFalse(pattern.isValid("/category/value/page1/1/abc"));
+    assert.isFalse(pattern.isValid("/category/page1/1/abc"));
+  });
+
+
   it("Should test patterns on /home/<id:(\\d+)>", () => {
     let pattern = RouteParser.parse("/home/<id:(\\d+)>");
     assert.isFalse(pattern.isValid(""));

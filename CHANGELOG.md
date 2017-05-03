@@ -1,6 +1,8 @@
+## 1.0.0-beta.18
+- Fix Route parser and route resolver
+
 ## 1.0.0-beta.16
 - Fix Logger && Router provider resolving and verification
-
 
 ## 1.0.0-beta.15
 - Added better error resolution for modules which are not registered in system

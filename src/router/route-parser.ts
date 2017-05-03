@@ -1,10 +1,11 @@
-import {isPresent, isTruthy, isObject, isFalsy} from "../core";
+import {isFalsy, isObject, isPresent, isTruthy} from "../core";
 import {IUrlTreePath} from "../interfaces/iroute";
 import {Router} from "./router";
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP = /^\(([^\)]+)\)$/;
 const URL_SPLIT = /\/([^\/]+)\//;
+const URL_HOME = /^\//;
 
 /**
  * @since 1.0.0
@@ -21,7 +22,7 @@ const URL_SPLIT = /\/([^\/]+)\//;
  * Pattern chunk used by pattern
  */
 export class PatternChunk {
-  private regex;
+  private regex: RegExp;
 
   constructor(private index: number,
               private replace: string,
@@ -38,7 +39,7 @@ export class PatternChunk {
    * @description
    * Get regex from source
    */
-  getRegex() {
+  getRegex(): RegExp {
     return this.regex;
   }
 
@@ -50,7 +51,7 @@ export class PatternChunk {
    * @description
    * Get index
    */
-  getIndex() {
+  getIndex(): number {
     return this.index;
   }
 
@@ -62,7 +63,7 @@ export class PatternChunk {
    * @description
    * Get replace matcher
    */
-  getReplaceMatcher() {
+  getReplaceMatcher(): string {
     return this.replace;
   }
 
@@ -74,7 +75,7 @@ export class PatternChunk {
    * @description
    * Get source
    */
-  getSource() {
+  getSource(): string {
     return this.source;
   }
 
@@ -86,7 +87,7 @@ export class PatternChunk {
    * @description
    * Get parameter
    */
-  getParam() {
+  getParam(): string {
     return this.param;
   }
 }
@@ -105,6 +106,7 @@ export class PatternChunk {
  */
 export class Pattern {
   constructor(private path: string,
+              private source: string,
               private regex: RegExp,
               private chunks: Array<PatternChunk>) {
   }
@@ -177,6 +179,18 @@ export class Pattern {
       });
     }
     return data;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Pattern#getSource
+   *
+   * @description
+   * Get source pattern
+   */
+  getSource(): string {
+    return this.source;
   }
 
   /**
@@ -261,7 +275,7 @@ export class RouteParser {
     } else {
       pattern = path;
     }
-    return new Pattern(path, new RegExp("^" + pattern + "$"), patterns);
+    return new Pattern(path, pattern, new RegExp("^" + pattern + "$"), patterns);
   }
 
   /**
@@ -334,16 +348,19 @@ export class RouteParser {
    * Check if url is valid
    */
   isValid(url: string): boolean {
-    let chunks = url.split(URL_SPLIT).filter(isTruthy);
-    let tail = this.getTail();
-    while (isTruthy(chunks.length) && isTruthy(tail)) {
-      let chunk = chunks.pop();
-      if (!tail.pattern.isValid(chunk)) {
-        return false;
+    let pattern = "";
+    let chunk = this.getHead();
+    while (isTruthy(chunk)) {
+      let source = chunk.pattern.getSource();
+      if (URL_HOME.test(source)) {
+        pattern = source;
+      } else {
+        pattern +=  "\\/" + source;
       }
-      tail = tail.parent;
+      chunk = chunk.child;
     }
-    return !isPresent(tail);
+    let regex = new RegExp("^" + pattern + "$");
+    return regex.test(url);
   }
 
 
