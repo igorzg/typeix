@@ -86,7 +86,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
 
   BOOTSTRAP_PROVIDERS.forEach(iClass => {
     if (Metadata.inProviders(metadata.providers, iClass)) {
-      injector.createAndResolve(Metadata.verifyProvider(iClass), []);
+      injector.createAndResolve(Metadata.getProviderInProviders(metadata.providers, iClass), []);
     } else if (isTruthy(sibling) && sibling.has(iClass)) {
       injector.set(iClass, sibling.get(iClass));
     }

@@ -63,8 +63,25 @@ export class Metadata {
    * @description
    * Check if provider is in array of providers
    */
-  static inVerifiedProviders(providers: Array<IProvider>, provider: IProvider) {
-    return providers.some(item => isEqual(item, provider));
+  static inVerifiedProviders(providers: Array<IProvider>, provider: IProvider): boolean {
+    return providers.some(item => isEqual(item.provide, provider.provide));
+  }
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getVerifiedProvider
+   *
+   * @param providers
+   * @param provider
+   * @returns {boolean}
+   *
+   * @description
+   * Get verified provider in providers
+   */
+  static getVerifiedProvider(providers: Array<IProvider>, provider: IProvider): IProvider {
+    return providers.find(item => isEqual(item.provide, provider.provide));
   }
 
   /**
@@ -82,6 +99,23 @@ export class Metadata {
    */
   static inProviders(providers: Array<any>, provider: any): boolean {
     return Metadata.inVerifiedProviders(Metadata.verifyProviders(providers), Metadata.verifyProvider(provider));
+  }
+
+  /**
+   * @since 1.0.0
+   * @static
+   * @function
+   * @name Metadata#getProviderInProviders
+   *
+   * @param {Array<any>} providers
+   * @param {any} provider
+   * @returns IProvider
+   *
+   * @description
+   * Return provider in providers
+   */
+  static getProviderInProviders(providers: Array<any>, provider: any): IProvider {
+    return Metadata.getVerifiedProvider(Metadata.verifyProviders(providers), Metadata.verifyProvider(provider));
   }
 
   /**
