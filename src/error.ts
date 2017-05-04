@@ -13,6 +13,16 @@ import {isTruthy} from "./core";
  * HttpException use it in controller actions
  */
 export class HttpError extends Error {
+
+  static merge(error: Error) {
+    if (!(error instanceof HttpError)) {
+      let _error: Error = error;
+      error = new HttpError(Status.Internal_Server_Error, _error.message, {});
+      error.stack = _error.stack;
+    }
+    return error;
+  }
+
   constructor(private code: Status | number, message?: string, data?: Object) {
     super(message);
     if (isTruthy(data)) {
@@ -20,6 +30,7 @@ export class HttpError extends Error {
     }
     this.stack += "\n\nCODE: " + inspect(code, 5);
   }
+
 
   getMessage() {
     return this.message;
