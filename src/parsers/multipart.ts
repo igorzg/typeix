@@ -1,7 +1,6 @@
 import {IBodyParser} from "../interfaces/ibodyparser";
 import {HttpError} from "../error";
-import {isEqual, isFalsy} from "../core";
-import {PassThrough} from "stream";
+import {isEqual, isFalsy, isTruthy} from "../core";
 import {NodeStringDecoder, StringDecoder} from "string_decoder";
 
 const START = 0;
@@ -27,8 +26,69 @@ const Z = 122;
 
 const CONTENT_TYPE_RE = /^multipart\/(?:form-data|related)(?:;|$)/i;
 const CONTENT_TYPE_PARAM_RE = /;\s*([^=]+)=(?:"([^"]+)"|([^;]+))/gi;
-const FILE_EXT_RE = /(\.[_\-a-zA-Z0-9]{0,16}).*/;
-const LAST_BOUNDARY_SUFFIX_LEN = 4; // --\r\n
+
+/**
+ * @since 1.0.0
+ * @function
+ * @name MultiPartField
+ *
+ * @description
+ * Parsed multi part field
+ */
+export class MultiPartField {
+  constructor(private fieldName: string,
+              private fieldValue: string,
+              private encoding: string,
+              private buffer: Buffer) {
+  }
+
+  getFieldName() {
+    return this.fieldName;
+  }
+
+  getFieldValue() {
+    return this.fieldValue;
+  }
+
+  getEncoding() {
+    return this.encoding;
+  }
+
+  getBuffer() {
+    return this.buffer;
+  }
+}
+/**
+ * @since 1.0.0
+ * @function
+ * @name MultiPartFile
+ *
+ * @description
+ * Parsed multi part file
+ */
+export class MultiPartFile {
+  constructor(private fieldName: string,
+              private fileName: string,
+              private encoding: string,
+              private buffer: Buffer) {
+  }
+
+  getFieldName() {
+    return this.fieldName;
+  }
+
+  getFileName() {
+    return this.fileName;
+  }
+
+  getEncoding() {
+    return this.encoding;
+  }
+
+  getBuffer() {
+    return this.buffer;
+  }
+}
 
 /**
  * @since 1.0.0
@@ -46,31 +106,38 @@ export class MultiPart implements IBodyParser {
   private headerFieldDecoder: NodeStringDecoder;
   private headerValueDecoder: NodeStringDecoder;
   private partHeaders: any = {};
-  private encoding = "utf8";
+  private encoding;
 
   private boundaryLength: number;
   private boundary: Buffer;
   private lookBehind: Buffer;
-  private partName: string;
-  private partFilename: string;
+
   private partTransferEncoding: string;
-  private destStream: PassThrough;
+
+  private partName: string;
+  private partFileName: string;
+  private partFileBufferList: Array<Buffer> = [];
   private headerField: string;
   private headerValue: string;
+
   private headerFieldMark: number;
   private headerValueMark: number;
   private partDataMark: number;
+  private partData: Array<MultiPartField | MultiPartFile> = [];
 
   /**
    * @since 1.0.0
    * @function
    * @name MultiPart#constructor
    * @param {string} contentType
+   * @param {string} encoding
    *
    * @description
    * Multi part constructor
    */
-  constructor(public contentType: string) {
+  constructor(public contentType: string, encoding = "utf8") {
+
+
 
     if (isFalsy(contentType)) {
       throw new HttpError(500, "Missing content type header", contentType);
@@ -98,6 +165,7 @@ export class MultiPart implements IBodyParser {
       throw new HttpError(400, "Content-type missing boundary", contentType);
     }
 
+    this.encoding = encoding;
     this.boundary = new Buffer(boundary.length + 4);
     this.boundary.write("\r\n--'", 0, boundary.length + 4, "ascii");
     this.boundary.write(boundary, 4, boundary.length, "ascii");
@@ -117,7 +185,7 @@ export class MultiPart implements IBodyParser {
    * @description
    * Parse multipart buffer and return structured data
    */
-  parse(buffer: Buffer) {
+  parse(buffer: Buffer): Array<MultiPartField | MultiPartFile> {
 
     let i, c, cl, index, prevIndex, len = buffer.length, boundaryEnd = this.boundaryLength - 1;
 
@@ -184,10 +252,12 @@ export class MultiPart implements IBodyParser {
             break;
           }
 
-          cl = this.lower(c);
+          cl = c | 0x20;
+
           if (cl < A || cl > Z) {
             throw new HttpError(400, "Expected alphabetic character, received " + c);
           }
+
           break;
         case HEADER_VALUE_START:
           if (c === SPACE) {
@@ -238,7 +308,7 @@ export class MultiPart implements IBodyParser {
           if (index < this.boundaryLength) {
             if (this.boundary[index] === c) {
               if (index === 0) {
-                this.onParsePartData(buffer.slice(this.partDataMark, i));
+                this.onParsePart(buffer.slice(this.partDataMark, i));
                 this.partDataMark = null;
               }
               index++;
@@ -262,7 +332,7 @@ export class MultiPart implements IBodyParser {
               index = 0;
               if (c === LF) {
                 this.partBoundaryFlag = false;
-                // this.onParsePartEnd();
+                this.onParsePartEnd();
                 this.clearPartVars();
                 this.state = HEADER_FIELD_START;
                 break;
@@ -279,7 +349,7 @@ export class MultiPart implements IBodyParser {
           } else if (prevIndex > 0) {
             // if our boundary turned out to be rubbish, the captured lookbehind
             // belongs to partData
-            this.onParsePartData(this.lookBehind.slice(0, prevIndex));
+            this.onParsePart(this.lookBehind.slice(0, prevIndex));
             prevIndex = 0;
             this.partDataMark = i;
 
@@ -294,8 +364,7 @@ export class MultiPart implements IBodyParser {
             throw new HttpError(400, "Expected HYPHEN Received " + c);
           }
           if (index === 1) {
-            // this.onParsePartEnd();
-            this.clearPartVars();
+            this.onParsePartEnd();
             this.state = END;
           } else if (index > 1) {
             throw new HttpError(400, "Parser has invalid state.");
@@ -308,40 +377,15 @@ export class MultiPart implements IBodyParser {
           throw new HttpError(400, "Parser has invalid state.");
       }
     }
-    return null;
+
+    return this.partData;
   }
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name MultiPart#lower
-   *
-   * @description
-   * Lower case in bytes
-   */
-  private lower(value) {
-    return value | 0x20;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name MultiPart#onParsePartData
-   *
-   * @description
-   * Parse part data
-   */
-  private onParsePartData(buffer: Buffer) {
-    if (this.partTransferEncoding === "base64") {
-
-    } else {
-
-    }
-  }
   /**
    * @since 1.0.0
    * @function
    * @name MultiPart#onParseHeaderEnd
+   * @private
    *
    * @description
    * On parse header end
@@ -355,7 +399,7 @@ export class MultiPart implements IBodyParser {
       if (match = this.headerValue.match(/\bname="([^"]+)"/i)) {
         this.partName = match[1];
       }
-      this.partFilename = this.parseFilename(this.headerValue);
+      this.partFileName = this.parseFilename(this.headerValue);
     } else if (this.headerField === "content-transfer-encoding") {
       this.partTransferEncoding = this.headerValue.toLowerCase();
     }
@@ -369,7 +413,40 @@ export class MultiPart implements IBodyParser {
   /**
    * @since 1.0.0
    * @function
+   * @name MultiPart#onParsePartEnd
+   * @private
+   *
+   * @description
+   * On parse end set values
+   */
+  private onParsePartEnd() {
+    let buffer = Buffer.concat(this.partFileBufferList);
+    if (isTruthy(this.partFileName)) {
+      this.partData.push(
+        new MultiPartFile(
+          this.partName,
+          this.partFileName,
+          this.partTransferEncoding,
+          buffer
+        )
+      );
+    } else {
+      this.partData.push(
+        new MultiPartField(
+          this.partName,
+          buffer.toString(),
+          this.partTransferEncoding,
+          buffer
+        )
+      );
+    }
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
    * @name MultiPart#onParseHeadersEnd
+   * @private
    *
    * @description
    * Parse headers end
@@ -393,6 +470,7 @@ export class MultiPart implements IBodyParser {
    * @function
    * @name MultiPart#parseFilename
    * @param {String} headerValue
+   * @private
    *
    * @description
    * Parse file name
@@ -419,6 +497,7 @@ export class MultiPart implements IBodyParser {
    * @since 1.0.0
    * @function
    * @name MultiPart#onParseHeaderField
+   * @private
    *
    * @description
    * Parse header filed
@@ -431,6 +510,7 @@ export class MultiPart implements IBodyParser {
    * @since 1.0.0
    * @function
    * @name MultiPart#onParseHeaderValue
+   * @private
    *
    * @description
    * Parse header value
@@ -439,11 +519,24 @@ export class MultiPart implements IBodyParser {
     this.headerValue += this.headerValueDecoder.write(buffer);
   }
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name MultiPart#onParsePart
+   * @private
+   *
+   * @description
+   * Push file to buffer
+   */
+  private onParsePart(buffer: Buffer) {
+    this.partFileBufferList.push(buffer);
+  }
 
   /**
    * @since 1.0.0
    * @function
    * @name MultiPart#clearPartVars
+   * @private
    *
    * @description
    * Clear part variables
@@ -451,9 +544,9 @@ export class MultiPart implements IBodyParser {
   private clearPartVars() {
     this.partHeaders = {};
     this.partName = null;
-    this.partFilename = null;
+    this.partFileName = null;
     this.partTransferEncoding = "binary";
-    this.destStream = null;
+    this.partFileBufferList = [];
 
     this.headerFieldDecoder = new StringDecoder(this.encoding);
     this.headerField = "";

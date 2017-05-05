@@ -19,6 +19,14 @@ export {
   ErrorMessage
 } from "./decorators/index";
 /**
+ * Export parsers
+ */
+export {
+  MultiPartField,
+  MultiPartFile,
+  MultiPart
+} from "./parsers/index";
+/**
  * Export logger
  */
 export {
