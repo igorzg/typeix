@@ -4,8 +4,8 @@ import {Router} from "./router";
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP = /^\(([^\)]+)\)$/;
-const URL_SPLIT = /\/([^\/]+)\//;
-const URL_HOME = /^\//;
+const PATH_START = /^\//;
+const PATH = /\//;
 
 /**
  * @since 1.0.0
@@ -140,50 +140,6 @@ export class Pattern {
   /**
    * @since 1.0.0
    * @function
-   * @name Pattern#getChunkKeys
-   *
-   * @description
-   * Get all chunk keys
-   */
-  getChunkKeys(): Array<string> {
-    return this.chunks.map(chunk => chunk.getParam());
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Pattern#getChunkKey
-   * @param {Number} index
-   *
-   * @description
-   * Get chunk key name by chunk index
-   */
-  getChunkKey(index: number): string {
-    return this.chunks[index].getParam();
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Pattern#getParams
-   * @param {String} path
-   *
-   * @description
-   * Extract params from url
-   */
-  getParams(path: string): Object {
-    let data = {};
-    if (this.path !== "*") {
-      path.match(this.regex).slice(1).forEach((value, index) => {
-        data[this.getChunkKey(index)] = value;
-      });
-    }
-    return data;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
    * @name Pattern#getSource
    *
    * @description
@@ -196,14 +152,13 @@ export class Pattern {
   /**
    * @since 1.0.0
    * @function
-   * @name Pattern#isValid
-   * @param {String} path
+   * @name Pattern#getChunks
    *
    * @description
-   * Check if path is valid
+   * Get array chunks
    */
-  isValid(path: string): boolean {
-    return this.regex.test(path);
+  getChunks(): Array<PatternChunk> {
+    return this.chunks;
   }
 }
 /**
@@ -293,10 +248,11 @@ export class RouteParser {
    *
    */
   static parse(url: string): RouteParser {
+    let chunks = url.split(PATH).filter(isTruthy);
     if (isFalsy(url) || ["/", "*"].indexOf(url.charAt(0)) === -1) {
       throw new Error("Url must start with \/ or it has to be * which match all patterns");
-    } else if (URL_SPLIT.test(url)) {
-      let tree: any = url.split(URL_SPLIT).filter(isTruthy).reduceRight((cTree: any, currentValue: any) => {
+    } else if (chunks.length > 1) {
+      let tree: any = chunks.reduceRight((cTree: any, currentValue: any) => {
         let obj: any = {
           child: null,
           path: currentValue
@@ -348,21 +304,10 @@ export class RouteParser {
    * Check if url is valid
    */
   isValid(url: string): boolean {
-    let pattern = "";
-    let chunk = this.getHead();
-    while (isTruthy(chunk)) {
-      let source = chunk.pattern.getSource();
-      if (URL_HOME.test(source)) {
-        pattern = source;
-      } else {
-        pattern +=  "\\/" + source;
-      }
-      chunk = chunk.child;
-    }
+    let pattern = this.getPattern();
     let regex = new RegExp("^" + pattern + "$");
     return regex.test(url);
   }
-
 
   /**
    * @since 1.0.0
@@ -377,7 +322,10 @@ export class RouteParser {
     let head = this.getHead();
     let url = "";
     while (isPresent(head)) {
-      url += Router.prefixSlash(head.pattern.normalizePath(params));
+      let path = head.pattern.normalizePath(params);
+      if (isTruthy(path)) {
+        url += Router.prefixSlash(path);
+      }
       head = head.child;
     }
     return url;
@@ -394,17 +342,52 @@ export class RouteParser {
    */
   getParams(url: string): Object {
     let data = {};
+    let pattern = this.getPattern();
     if (!this.isValid(url)) {
       throw new Error(`Url ${url} is not matching current pattern!`);
     }
-    let chunks = url.split(URL_SPLIT).filter(isTruthy);
-    let tail = this.getTail();
-    while (chunks.length) {
-      let chunk = chunks.pop();
-      Object.assign(data, tail.pattern.getParams(chunk));
-      tail = tail.parent;
+    let chunks = url.match(pattern).slice(1);
+    this.toChunksArray().forEach((item, index) => data[item.getParam()] = chunks[index]);
+    return data;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RouteParser#toArray
+   * @description
+   * Convert parser tree to array
+   */
+  private toChunksArray(): Array<PatternChunk> {
+    let data: Array<PatternChunk> = [];
+    let chunk = this.getHead();
+    while (isTruthy(chunk)) {
+      data = data.concat(chunk.pattern.getChunks());
+      chunk = chunk.child;
     }
     return data;
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name RouteParser#getPattern
+   * @description
+   * Get route pattern
+   */
+  private getPattern(): string {
+    let pattern = "";
+    let chunk = this.getHead();
+    while (isTruthy(chunk)) {
+      let source = chunk.pattern.getSource();
+      if (PATH_START.test(source)) {
+        pattern = source;
+      } else {
+        pattern += PATH.source + source;
+      }
+      chunk = chunk.child;
+    }
+    return pattern;
   }
 
   /**
@@ -424,23 +407,4 @@ export class RouteParser {
     }
     return this;
   }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name RouteParser#getTail
-   * @return {RouteParser}
-   * @private
-   *
-   * @description
-   * Return tail RouteParser
-   *
-   */
-  private getTail() {
-    if (isPresent(this.child)) {
-      return this.child.getTail();
-    }
-    return this;
-  }
-
 }

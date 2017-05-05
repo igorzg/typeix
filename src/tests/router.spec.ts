@@ -3,7 +3,7 @@ import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
 import {assert} from "chai";
 import {isEqual} from "../core";
-import {Route, IResolvedRoute} from "../interfaces/iroute";
+import {IResolvedRoute, Route} from "../interfaces/iroute";
 import {HttpError} from "../error";
 
 describe("Router", () => {
@@ -19,18 +19,33 @@ describe("Router", () => {
     router = injector.get(Router);
   });
 
-  it("Parse request and create url", () => {
+  it("Parse request and create dynamic url", () => {
 
     class DynamicRule implements Route {
-      parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute|boolean> {
+      parseRequest(pathName: string, method: string, headers: Headers): Promise<IResolvedRoute | boolean> {
         return Promise.resolve(true);
       }
 
-      createUrl(routeName: string, params: Object): Promise<string|boolean> {
+      createUrl(routeName: string, params: Object): Promise<string | boolean> {
         return null;
       }
 
     }
+
+    router.addRule(DynamicRule);
+
+    return router.parseRequest("/", "GET", {}).then((data) => {
+      let result = [];
+      assert.isTrue(isEqual(data, result));
+    })
+      .catch((error: HttpError) => {
+        assert.equal(error.getMessage(), "Router.parseRequest: / no route found, method: GET");
+      });
+  });
+
+
+  it("Parse request and create url", () => {
+
 
     router.addRules([
       {
@@ -54,9 +69,6 @@ describe("Router", () => {
         url: "/home/<id:(\\d+)>"
       }
     ]);
-
-    router.addRule(DynamicRule);
-
 
     return Promise.all([
       router.parseRequest("/", "POST", {}),
@@ -98,13 +110,7 @@ describe("Router", () => {
       ];
 
       assert.isTrue(isEqual(data, result));
-    })
-      .then(() => router.parseRequest("/not-found", "GET", {}))
-      .catch((error: HttpError) => {
-        assert.equal(error.getMessage(), "Router.parseRequest: /not-found no route found, method: GET");
-      });
-
-
+    });
   });
 
 
@@ -118,5 +124,6 @@ describe("Router", () => {
     router.setError("admin/error/index");
     assert.equal("admin/error/index", router.getError("admin"));
   });
+
 
 });

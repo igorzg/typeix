@@ -3,6 +3,7 @@ import {assert, expect} from "chai";
 import {isEqual} from "../core";
 
 describe("RouterParser", () => {
+
   it("Initialize", () => {
     let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>" +
       "-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
@@ -26,6 +27,19 @@ describe("RouterParser", () => {
     assert.isFalse(pattern.isValid("/canbeone/igor/should#+do-it/whata123-smile123-now-2306-not/user/1412"));
     assert.isFalse(pattern.isValid("/canbeone/igor/should--be-able-do-it/whata123-smile-now-2306-not/user/1412"));
     assert.isTrue(pattern.isValid("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412"));
+
+    let params = pattern.getParams("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412");
+    assert.isTrue(isEqual(params, {
+      "any": "1454zfhg=?`='(    ()=(",
+      "name": "igor",
+      "now": "#+",
+      "see": "whata",
+      "nice": "smile",
+      "only": "2306",
+      "id": "1412"
+    }));
+
+    expect(pattern.createUrl(params)).to.be.eq("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412");
   });
 
   it("Should test patterns on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>", () => {
@@ -34,6 +48,15 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/canbeone/igor/should#+do-it/whata"));
     assert.isTrue(pattern.isValid("/canbeone/cn/should#+do-it/all"));
     assert.isTrue(pattern.isValid("/canbeone/ws/should#+do-it/good"));
+    let params = pattern.getParams("/canbeone/ws/should#+do-it/good");
+    assert.isTrue(isEqual(params, {
+      "any": "be",
+      "name": "ws",
+      "now": "#+",
+      "see": "good"
+    }));
+
+    expect(pattern.createUrl(params)).to.be.eq("/canbeone/ws/should#+do-it/good");
   });
 
   it("Should test patterns on /<clientId:(\\w+)>/<url:([\\w-]+)>", () => {
@@ -41,6 +64,19 @@ describe("RouterParser", () => {
     assert.isFalse(pattern.isValid("/category/1/page/1"));
     assert.isFalse(pattern.isValid("/category/abc1/abc"));
     assert.isTrue(pattern.isValid("/category/abc1"));
+    let params = pattern.getParams("/category/abc1");
+    assert.isTrue(isEqual(params, {
+      "clientId": "category",
+      "url": "abc1"
+    }));
+  });
+
+
+  it("Should test patterns on /home", () => {
+    let pattern = RouteParser.parse("/home");
+    assert.isTrue(pattern.isValid("/home"));
+    let params = pattern.getParams("/home");
+    assert.isTrue(isEqual(params, {}));
   });
 
 
@@ -49,6 +85,11 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/category/1/page/1"));
     assert.isFalse(pattern.isValid("/category/abc1/abc"));
     assert.isFalse(pattern.isValid("/category/abc1"));
+    let params = pattern.getParams("/category/1/page/1");
+    assert.isTrue(isEqual(params, {
+      "category": "1",
+      "pagenumber": "1"
+    }));
   });
 
   it("Should test patterns on /<category:(.*)>/page/<pageNum:(.*)>", () => {
@@ -58,6 +99,22 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/category/value/page/1/abc"));
     assert.isFalse(pattern.isValid("/category/value/page1/1/abc"));
     assert.isFalse(pattern.isValid("/category/page1/1/abc"));
+    let params = pattern.getParams("/category/value/page/1/abc");
+    let params1 = pattern.getParams("/category/page/1");
+
+    assert.isTrue(isEqual(params, {
+      "category": "category/value",
+      "pageNum": "1/abc"
+    }));
+
+    expect(pattern.createUrl(params)).to.be.eq("/category/value/page/1/abc");
+
+    assert.isTrue(isEqual(params1, {
+      "category": "category",
+      "pageNum": "1"
+    }));
+
+    expect(pattern.createUrl(params1)).to.be.eq("/category/page/1");
   });
 
 
@@ -70,6 +127,10 @@ describe("RouterParser", () => {
     assert.isFalse(pattern.isValid("/home/abc"));
     assert.isFalse(pattern.isValid("/home/abc/"));
     assert.isTrue(pattern.isValid("/home/1"));
+    let params = pattern.getParams("/home/123");
+    assert.isTrue(isEqual(params, {
+      "id": "123"
+    }));
   });
 
   it("Should test patterns on /home/<name:(\\w+)>", () => {
@@ -82,6 +143,10 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid("/home/abc"));
     assert.isFalse(pattern.isValid("/home/abc/"));
     assert.isTrue(pattern.isValid("/home/1"));
+    let params = pattern.getParams("/home/123");
+    assert.isTrue(isEqual(params, {
+      "name": "123"
+    }));
   });
 
 
@@ -116,6 +181,12 @@ describe("RouterParser", () => {
     assert.isTrue(pattern.isValid(url));
     assert.isFalse(pattern.isValid(""));
     assert.isTrue(pattern.isValid("/assets/css/main.css"));
+
+    let params = pattern.getParams("/assets/css/main.css");
+
+    assert.isTrue(isEqual(params, {
+      "file": "css/main.css"
+    }));
   });
 
   it("Should get correct parameters on /assets/<file:(.*)>", () => {
