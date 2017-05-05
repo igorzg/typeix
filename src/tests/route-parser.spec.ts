@@ -42,6 +42,38 @@ describe("RouterParser", () => {
     expect(pattern.createUrl(params)).to.be.eq("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412");
   });
 
+
+  it("Should test patterns on /can<any>one/<name:\\w+>/should<now:[\\w\\W\\/]+>do-it/<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>", () => {
+    let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:[\\w\\W\\/]+>do-it/<see:(\\w+)>-<nice:([a-zA-Z]+)>-now-<only:\\d+>-not/user/<id:\\d+>");
+
+    let params = pattern.getParams("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412");
+    assert.isTrue(isEqual(params, {
+      "any": "1454zfhg=?`='(    ()=(",
+      "name": "igor",
+      "now": "#+",
+      "see": "whata",
+      "nice": "smile",
+      "only": "2306",
+      "id": "1412"
+    }));
+
+    expect(pattern.createUrl(params)).to.be.eq("/can1454zfhg=?`='(    ()=(one/igor/should#+do-it/whata-smile-now-2306-not/user/1412");
+
+    let params1 = pattern.getParams("/can1454zfhg=?`='(    ()=(one/igor/should#+abc/next-toitdo-it/whata-smile-now-2306-not/user/1412");
+    assert.isTrue(isEqual(params1, {
+      "any": "1454zfhg=?`='(    ()=(",
+      "name": "igor",
+      "now": "#+abc/next-toit",
+      "see": "whata",
+      "nice": "smile",
+      "only": "2306",
+      "id": "1412"
+    }));
+
+    expect(pattern.createUrl(params1)).to.be.eq("/can1454zfhg=?`='(    ()=(one/igor/should#+abc/next-toitdo-it/whata-smile-now-2306-not/user/1412");
+  });
+
+
   it("Should test patterns on /can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>", () => {
     let pattern = RouteParser.parse("/can<any>one/<name:\\w+>/should<now:\\W+>do-it/<see:(\\w+)>");
     assert.isFalse(pattern.isValid(""));
@@ -78,6 +110,23 @@ describe("RouterParser", () => {
     let params = pattern.getParams("/home");
     assert.isTrue(isEqual(params, {}));
   });
+
+
+  it("Should test patterns on /home/test", () => {
+    let pattern = RouteParser.parse("/home/test");
+    assert.isTrue(pattern.isValid("/home/test"));
+    let params = pattern.getParams("/home/test");
+    assert.isTrue(isEqual(params, {}));
+  });
+
+
+  it("Should test patterns on /home/test/abc", () => {
+    let pattern = RouteParser.parse("/home/test/abc");
+    assert.isTrue(pattern.isValid("/home/test/abc"));
+    let params = pattern.getParams("/home/test/abc");
+    assert.isTrue(isEqual(params, {}));
+  });
+
 
 
   it("Should test patterns on /category/<category:(\\d+)>/page/<pagenumber:(\\d+)>", () => {
@@ -188,6 +237,18 @@ describe("RouterParser", () => {
       "file": "css/main.css"
     }));
   });
+
+  it("Should test patterns on /<clientId:(\\w+)>/<url:([\\w-]+\\/[\\w-]+)>/page/<number:(\\d+)>", () => {
+    let pattern = RouteParser.parse("/<clientId:(\\w+)>/<url:([\\w-]+\\/[\\w-]+)>/page/<number:(\\d+)>");
+    assert.isTrue(pattern.isValid("/ab123sbr/this-is-test/abc-123/page/123123"));
+    let params = pattern.getParams("/ab123sbr/this-is-test/abc-123/page/123123");
+    assert.isTrue(isEqual(params, {
+      "clientId": "ab123sbr",
+      "url": "this-is-test/abc-123",
+      "number": "123123"
+    }));
+  });
+
 
   it("Should get correct parameters on /assets/<file:(.*)>", () => {
     let pattern = RouteParser.parse("/assets/<file:(.*)>");

@@ -3,10 +3,11 @@ import {IUrlTreePath} from "../interfaces/iroute";
 import {Router} from "./router";
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
-const HAS_GROUP = /^\(([^\)]+)\)$/;
+const HAS_GROUP_START = /^\(/;
+const HAS_GROUP_END = /\)$/;
 const PATH_START = /^\//;
 const PATH = /\//;
-
+const PATH_SPLIT = /\/([^><]+|<\w+:[^>]+>|\w+)\//;
 /**
  * @since 1.0.0
  * @function
@@ -199,7 +200,7 @@ export class RouteParser {
      */
     if (PATTERN_MATCH.test(path)) {
       pattern = path.replace(PATTERN_MATCH, (replace, key, source, index) => {
-        if (!HAS_GROUP.test(source)) {
+        if (!HAS_GROUP_START.test(source) || !HAS_GROUP_END.test(source)) {
           source = "(" + source + ")";
         }
         patterns.push(
@@ -248,7 +249,7 @@ export class RouteParser {
    *
    */
   static parse(url: string): RouteParser {
-    let chunks = url.split(PATH).filter(isTruthy);
+    let chunks = url.split(PATH_SPLIT).filter(isTruthy);
     if (isFalsy(url) || ["/", "*"].indexOf(url.charAt(0)) === -1) {
       throw new Error("Url must start with \/ or it has to be * which match all patterns");
     } else if (chunks.length > 1) {
@@ -358,7 +359,7 @@ export class RouteParser {
    * @description
    * Convert parser tree to array
    */
-  private toChunksArray(): Array<PatternChunk> {
+  toChunksArray(): Array<PatternChunk> {
     let data: Array<PatternChunk> = [];
     let chunk = this.getHead();
     while (isTruthy(chunk)) {

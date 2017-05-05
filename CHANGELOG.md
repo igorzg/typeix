@@ -1,3 +1,6 @@
+## 1.0.0-beta.20
+- Update route parser add more flexibility
+
 ## 1.0.0-beta.19
 - Added more flexibility to router, route parsing and pattern matching
 
