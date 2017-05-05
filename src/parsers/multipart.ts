@@ -138,7 +138,6 @@ export class MultiPart implements IBodyParser {
   constructor(public contentType: string, encoding = "utf8") {
 
 
-
     if (isFalsy(contentType)) {
       throw new HttpError(500, "Missing content type header", contentType);
     }

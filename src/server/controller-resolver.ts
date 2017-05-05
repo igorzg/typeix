@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Methods, getMethodName} from "../router/router";
-import {isString, isPresent, toString, isNumber, isDate, isTruthy, isFalsy, isArray} from "../core";
+import {getMethodName, Methods} from "../router/router";
+import {isArray, isDate, isFalsy, isNumber, isPresent, isString, isTruthy} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IProvider} from "../interfaces/iprovider";
@@ -10,13 +10,14 @@ import {IResolvedRoute} from "../interfaces/iroute";
 import {HttpError} from "../error";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {Metadata, FUNCTION_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
+import {FUNCTION_KEYS, FUNCTION_PARAMS, Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
 import {ERROR_KEY} from "./request-resolver";
+import {MultiPart, MultiPartField, MultiPartFile} from "../parsers/multipart";
 /**
  * Cookie parse regex
  * @type {RegExp}
@@ -240,7 +241,7 @@ export class ControllerResolver {
    * @description
    * Process request logic
    */
-  process(): Promise<string|Buffer> {
+  process(): Promise<string | Buffer> {
 
     // destroy on end
     this.response.once("finish", () => this.destroy());
@@ -619,7 +620,7 @@ export class Request {
    * @description
    * Cookies object are stored to this object first time thy are parsed
    */
-  private cookies: {[key: string]: string};
+  private cookies: { [key: string]: string };
 
   /**
    * @since 1.0.0
@@ -666,7 +667,7 @@ export class Request {
    * @description
    * Return parsed cookies
    */
-  getCookies(): {[key: string]: string} {
+  getCookies(): { [key: string]: string } {
 
     if (isPresent(this.cookies)) {
       return this.cookies;
@@ -867,6 +868,21 @@ export class Request {
     return this.controllerResolver.getBody();
   }
 
+  /**
+   * @since 1.0.0
+   * @function
+   * @name Request#getBodyAsMultiPart
+   * @param {string} encoding
+   *
+   * @description
+   * Receive body as multipart
+   */
+  getBodyAsMultiPart(encoding = "utf8"): Array<MultiPartField | MultiPartFile> {
+    let buffer: Buffer = this.controllerResolver.getBody();
+    let contentType = this.getRequestHeader("content-type");
+    let parser = new MultiPart(contentType, encoding);
+    return parser.parse(buffer);
+  }
   /**
    * @since 1.0.0
    * @function
