@@ -59,14 +59,14 @@ export const multipart_4 = [
   "------WebKitFormBoundaryvfUZhxgsZDO7FXLF",
   "Content-Disposition: form-data; name=\"title\"",
   "",
-  "foofoo",
+  "foofoo1",
   "",
   "------WebKitFormBoundaryvfUZhxgsZDO7FXLF",
   "Content-Disposition: form-data; name=\"text\"",
   "",
   "hi1",
   "",
-  "------WebKitFormBoundaryvfUZhxgsZDO7FXLF"
+  "------WebKitFormBoundaryvfUZhxgsZDO7FXLF--"
 ].join("\r\n");
 export const multipart_4_contentType = "multipart/form-data; boundary=----WebKitFormBoundaryvfUZhxgsZDO7FXLF";
 
