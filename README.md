@@ -7,8 +7,8 @@
 * Typeix has dependency injection inspired by Angular 2
 
 
-* [View demo application](http://www.igorivanovic.info/typeix-demo-app/)
-* [Documentation](https://igorivanovic.gitbooks.io/typeix/content)
+* [View demo application][demo-app]
+* [Documentation][docs]
 
 ## Features
 * Dependency Injection - partial JSR 330 standard
@@ -31,3 +31,5 @@
 [npm-url]: https://badge.fury.io/js/typeix
 [travis-image]: https://travis-ci.org/igorzg/typeix.svg?branch=master
 [travis-url]: https://travis-ci.org/igorzg/typeix
+[demo-app]: https://github.com/igorzg/typeix-demo-app
+[docs]: https://igorivanovic.gitbooks.io/typeix
