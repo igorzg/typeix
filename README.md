@@ -1,8 +1,8 @@
 # Typescript framework for Node.js
 
-[![Build Status](https://travis-ci.org/igorzg/typeix.svg?branch=master)](https://travis-ci.org/igorzg/typeix)
-[![npm version](https://badge.fury.io/js/typeix.svg)](https://badge.fury.io/js/typeix)
-
+[![NPM Version][npm-image]][npm-url]
+[![Travis][travis-image]][travis-url] 
+ 
 * Works with node gte 6.x.x
 * Typeix has dependency injection inspired by Angular 2
 
@@ -27,3 +27,7 @@
 
 [<< back](http://www.igorivanovic.info/)
 
+[npm-image]: https://badge.fury.io/js/typeix.svg
+[npm-url]: https://badge.fury.io/js/typeix
+[travis-image]: https://travis-ci.org/igorzg/typeix.svg?branch=master
+[travis-url]: https://travis-ci.org/igorzg/typeix
