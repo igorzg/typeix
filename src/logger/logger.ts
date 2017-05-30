@@ -9,10 +9,10 @@ import {isEqual} from "../core";
  * @name LogLevels
  */
 export enum LogLevels {
-  DEBUG = 10,
-  TRACE = 20,
-  INFO = 30,
-  BENCHMARK = 40,
+  TRACE = 10,
+  BENCHMARK = 20,
+  DEBUG = 30,
+  INFO = 40,
   WARN = 60,
   ERROR = 80,
   FATAL = 100
@@ -39,10 +39,10 @@ export class Logger {
 
   constructor() {
     this.levels.push(new Level("TRACE", LogLevels.TRACE, console.info));
-    this.levels.push(new Level("INFO", LogLevels.INFO, console.info));
-    this.levels.push(new Level("DEBUG", LogLevels.DEBUG, console.info));
-    this.levels.push(new Level("WARN", LogLevels.WARN, console.warn));
     this.levels.push(new Level("BENCHMARK", LogLevels.BENCHMARK, console.info));
+    this.levels.push(new Level("DEBUG", LogLevels.DEBUG, console.info));
+    this.levels.push(new Level("INFO", LogLevels.INFO, console.info));
+    this.levels.push(new Level("WARN", LogLevels.WARN, console.warn));
     this.levels.push(new Level("ERROR", LogLevels.ERROR, console.error));
     this.levels.push(new Level("FATAL", LogLevels.FATAL, console.error));
   }
