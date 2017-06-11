@@ -2,6 +2,9 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![Travis][travis-image]][travis-url] 
+[![bitHound Overall Score](https://www.bithound.io/github/igorzg/typeix/badges/score.svg)](https://www.bithound.io/github/igorzg/typeix)
+[![bitHound Code](https://www.bithound.io/github/igorzg/typeix/badges/code.svg)](https://www.bithound.io/github/igorzg/typeix)
+[![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
  
 * Works with node gte 6.x.x
 * Typeix has dependency injection inspired by Angular 2
