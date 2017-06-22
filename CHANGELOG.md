@@ -1,3 +1,6 @@
+## 1.0.0-beta.23
+- Update dev packages and && fix controller resolver type issue
+
 ## 1.0.0-beta.22
 - Restructure logging types
 

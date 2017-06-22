@@ -630,7 +630,7 @@ export class Request {
    * @description
    * Add destroy event to public api
    */
-  onDestroy(callback: Function): void {
+  onDestroy(callback: (...args: any[]) => void): void {
     this.controllerResolver.getEventEmitter().once("destroy", callback);
   }
 
