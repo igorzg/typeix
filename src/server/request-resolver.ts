@@ -1,7 +1,7 @@
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {IncomingMessage, ServerResponse} from "http";
+import {IncomingMessage, ServerResponse, ServerResponseHeaders} from "http";
 import {Logger} from "../logger/logger";
 import {Methods, Router} from "../router/router";
 import {Url} from "url";
@@ -263,10 +263,13 @@ export class RequestResolver implements IAfterConstruct {
    * This method sends data to client
    */
   async render(response: string | Buffer, type: RenderType): Promise<string | Buffer> {
+
+    let headers: ServerResponseHeaders = {"Content-Type": <string> this.contentType};
+
     switch (type) {
       case RenderType.DATA_HANDLER:
         if (isString(response) || (response instanceof Buffer)) {
-          this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+          this.response.writeHead(this.statusCode, headers);
           this.response.write(response);
           this.response.end();
 
@@ -283,13 +286,13 @@ export class RequestResolver implements IAfterConstruct {
         break;
       case RenderType.CUSTOM_ERROR_HANDLER:
         response = await this.processError(response, true);
-        this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+        this.response.writeHead(this.statusCode, headers);
         this.response.write(response);
         this.response.end();
         break;
       case RenderType.DEFAULT_ERROR_HANDLER:
         response = await this.processError(response, false);
-        this.response.writeHead(this.statusCode, {"Content-Type": this.contentType});
+        this.response.writeHead(this.statusCode, headers);
         this.response.write(response);
         this.response.end();
         break;

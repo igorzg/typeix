@@ -461,10 +461,36 @@ class FakeServerResponse extends Writable implements ServerResponse {
    * Get response header
    */
   getHeader(name: string): string {
-    if (this.headers.hasOwnProperty(name)) {
+    if (this.hasHeader(name)) {
       return this.headers[name];
     }
     return null;
+  }
+
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#hasHeader
+   * @private
+   * @description
+   * Has header
+   */
+  hasHeader(name: string): boolean {
+    return this.headers.hasOwnProperty(name);
+  }
+
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#getHeaderNames
+   * @private
+   * @description
+   * Get header names
+   */
+  getHeaderNames(): string[] {
+    return Object.keys(this.headers);
   }
 
   /**
