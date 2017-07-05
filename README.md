@@ -6,6 +6,8 @@
 [![bitHound Code](https://www.bithound.io/github/igorzg/typeix/badges/code.svg)](https://www.bithound.io/github/igorzg/typeix)
 [![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
  
+
+ 
 * Works with node gte 6.x.x
 * Typeix has dependency injection inspired by Angular 2
 
@@ -34,3 +36,7 @@
 [travis-url]: https://travis-ci.org/igorzg/typeix
 [demo-app]: https://github.com/igorzg/typeix-demo-app
 [docs]: https://igorivanovic.gitbooks.io/typeix
+
+ ### Typeix is developed by [GSG group](http://www.global-savings-group.com)
+ 3 mil users daily uses our platform
+ 
