@@ -38,5 +38,5 @@
 [docs]: https://igorivanovic.gitbooks.io/typeix
 
  ### Typeix is developed by [GSG group](http://www.global-savings-group.com)
- 3 mil users daily uses our platform
+
  
