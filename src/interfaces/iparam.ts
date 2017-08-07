@@ -11,6 +11,7 @@
  * IParam definition type
  */
 export interface IParam {
+  Class: string;
   type: string;
   key: string;
   value: string;

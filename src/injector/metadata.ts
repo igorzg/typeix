@@ -35,6 +35,8 @@ export class Metadata {
   static getName(Class: any, prefix?: string): string {
     if (Metadata.isProvider(Class)) {
       return Metadata.getName(Class.provide);
+    } else if (isString(Class)) {
+      return "String: " + Class;
     }
     let message = "";
     if (prefix) {

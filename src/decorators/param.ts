@@ -40,6 +40,7 @@ export let Param = (value: string) => {
       @Param is allowed only as parameter type!`);
     }
     let param: IParam = {
+      Class: Metadata.getName(Class),
       type,
       key,
       value,

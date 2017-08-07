@@ -1,5 +1,5 @@
 import {isUndefined} from "../core";
-import {Metadata, INJECT_KEYS, FUNCTION_PARAMS} from "../injector/metadata";
+import {FUNCTION_PARAMS, INJECT_KEYS, Metadata} from "../injector/metadata";
 import {IInjectKey} from "../interfaces/idecorators";
 import {IParam} from "../interfaces/iparam";
 
@@ -22,28 +22,35 @@ import {IParam} from "../interfaces/iparam";
  *    private myService;
  * }
  */
-export let Inject = (value: Function|string, isMutable?: boolean) => {
+export let Inject = (value: Function | string, isMutable?: boolean) => {
   return (Class: any, key?: string, paramIndex?: any): any => {
     let type = "Inject";
-    let metadata: Array<IInjectKey|IParam> = [];
+    let metadata: Array<IInjectKey | IParam> = [];
     let metadataKey = isUndefined(paramIndex) ? INJECT_KEYS : FUNCTION_PARAMS;
     if (Metadata.hasMetadata(Class, metadataKey)) {
       metadata = Metadata.getMetadata(Class, metadataKey);
     }
+
     if (Metadata.isDescriptor(paramIndex)) {
       throw new TypeError(`@${type} is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex.value}
       @Inject is allowed only as param type!`);
     }
-    metadata.push(isUndefined(paramIndex) ? {
+
+    if (!metadata.find((item: IParam) => item.key === key && isUndefined(item.paramIndex))) {
+      metadata.push(isUndefined(paramIndex) ? {
+        Class: Metadata.getName(value),
         value,
         isMutable: !!isMutable,
         key
       } : {
+        Class: Metadata.getName(value),
         type,
         key,
         value: <string> value,
         paramIndex
       });
+    }
+
     Metadata.defineMetadata(Class, metadataKey, metadata);
     return Class;
   };

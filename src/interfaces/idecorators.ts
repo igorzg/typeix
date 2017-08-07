@@ -11,9 +11,10 @@ import {IProvider} from "./iprovider";
  * Injection param is used internally by framework as metadata type
  */
 export interface IInjectKey {
-  value: any;
-  isMutable: boolean;
   key: any;
+  Class: string;
+  isMutable: boolean;
+  value: any;
 }
 /**
  * @since 1.0.0

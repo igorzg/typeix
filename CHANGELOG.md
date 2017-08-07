@@ -1,3 +1,6 @@
+## 1.0.0-rc.1
+- DI Decorators - Avoid Typescript abstract class inheritance injection issue
+
 ## 1.0.0-rc.0
 - Release candidate
 
