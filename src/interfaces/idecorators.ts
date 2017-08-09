@@ -12,7 +12,7 @@ import {IProvider} from "./iprovider";
  */
 export interface IInjectKey {
   key: any;
-  Class: string;
+  Class: Function;
   isMutable: boolean;
   value: any;
 }

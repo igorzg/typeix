@@ -274,7 +274,7 @@ export class Injector {
     if (isArray(protoKeys)) {
       protoKeys.forEach((item: IInjectKey) => {
         // make sure that key exists in instance
-        if (item.key in instance) {
+        if (instance instanceof item.Class) {
           let value = this.get(item.value, provider);
           Reflect.defineProperty(instance, item.key, {
             value: value,

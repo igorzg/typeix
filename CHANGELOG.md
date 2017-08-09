@@ -1,3 +1,6 @@
+## 1.0.0-rc.2
+- Make sure that Injector delivers correct Token at correct Injection point!
+
 ## 1.0.0-rc.1
 - DI Decorators - Avoid Typescript abstract class inheritance injection issue
 

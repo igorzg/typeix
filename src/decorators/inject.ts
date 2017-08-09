@@ -36,20 +36,18 @@ export let Inject = (value: Function | string, isMutable?: boolean) => {
       @Inject is allowed only as param type!`);
     }
 
-    if (!metadata.find((item: IParam) => item.key === key && isUndefined(item.paramIndex))) {
-      metadata.push(isUndefined(paramIndex) ? {
-        Class: Metadata.getName(value),
-        value,
-        isMutable: !!isMutable,
-        key
-      } : {
-        Class: Metadata.getName(value),
-        type,
-        key,
-        value: <string> value,
-        paramIndex
-      });
-    }
+    metadata.push(isUndefined(paramIndex) ? {
+      Class: Class.constructor,
+      value,
+      isMutable: !!isMutable,
+      key
+    } : {
+      Class: Class.constructor,
+      type,
+      key,
+      value: <string> value,
+      paramIndex
+    });
 
     Metadata.defineMetadata(Class, metadataKey, metadata);
     return Class;
