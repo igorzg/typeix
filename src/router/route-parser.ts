@@ -1,6 +1,7 @@
 import {isFalsy, isObject, isPresent, isTruthy} from "../core";
 import {IUrlTreePath} from "../interfaces/iroute";
 import {Router} from "./router";
+
 const IS_ANY_PATTERN = /<([^>]+)>/;
 const PATTERN_MATCH = /<(\w+):([^>]+)>/g;
 const HAS_GROUP_START = /^\(/;
@@ -8,6 +9,7 @@ const HAS_GROUP_END = /\)$/;
 const PATH_START = /^\//;
 const PATH = /\//;
 const PATH_SPLIT = /\/([^><]+|<\w+:[^>]+>|\w+)\//;
+
 /**
  * @since 1.0.0
  * @function
@@ -92,6 +94,7 @@ export class PatternChunk {
     return this.param;
   }
 }
+
 /**
  * @since 1.0.0
  * @function
@@ -162,6 +165,7 @@ export class Pattern {
     return this.chunks;
   }
 }
+
 /**
  * @since 1.0.0
  * @function

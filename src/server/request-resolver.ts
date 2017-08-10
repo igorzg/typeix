@@ -1,7 +1,7 @@
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {IncomingMessage, ServerResponse, ServerResponseHeaders} from "http";
+import {IncomingMessage, ServerResponse, OutgoingHttpHeaders} from "http";
 import {Logger} from "../logger/logger";
 import {Methods, Router} from "../router/router";
 import {Url} from "url";
@@ -171,8 +171,8 @@ export class RequestResolver implements IAfterConstruct {
       });
     if (!isPresent(controllerProvider)) {
       throw new HttpError(Status.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
-        controllerName: resolvedModule.controller,
         actionName: resolvedModule.action,
+        controllerName: resolvedModule.controller,
         resolvedRoute: resolvedModule.resolvedRoute
       });
     }
@@ -264,7 +264,7 @@ export class RequestResolver implements IAfterConstruct {
    */
   async render(response: string | Buffer, type: RenderType): Promise<string | Buffer> {
 
-    let headers: ServerResponseHeaders = {"Content-Type": <string> this.contentType};
+    let headers: OutgoingHttpHeaders = {"Content-Type": <string> this.contentType};
 
     switch (type) {
       case RenderType.DATA_HANDLER:

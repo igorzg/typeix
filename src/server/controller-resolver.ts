@@ -18,12 +18,14 @@ import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
 import {ERROR_KEY} from "./request-resolver";
 import {MultiPart, MultiPartField, MultiPartFile} from "../parsers/multipart";
+
 /**
  * Cookie parse regex
  * @type {RegExp}
  */
 const COOKIE_PARSE_REGEX = /(\w+[^=]+)=([^;]+)/g;
 const CHAIN_KEY = "__chain__";
+
 /**
  * @since 1.0.0
  * @class
@@ -301,8 +303,8 @@ export class ControllerResolver {
     // check if action is present
     if (!isPresent(mappedAction)) {
       throw new HttpError(Status.Bad_Request, `@${name}("${actionName}") is not defined on controller ${Metadata.getName(controllerProvider.provide)}`, {
-        name,
         actionName,
+        name,
         resolvedRoute: this.resolvedRoute
       });
     }
@@ -580,9 +582,9 @@ export class ControllerResolver {
    */
   private benchmark(message: string, start: number) {
     this.logger.benchmark(`${message}: ${(Date.now() - start)}ms`, {
-      url: this.request.url,
+      method: getMethodName(this.resolvedRoute.method),
       route: this.resolvedRoute.route,
-      method: getMethodName(this.resolvedRoute.method)
+      url: this.request.url
     });
   }
 }
@@ -655,7 +657,7 @@ export class Request {
       remoteFamily: request.connection.remoteFamily,
       remotePort: request.connection.remotePort,
       localAddress: request.connection.localAddress,
-      localPort: request.connection.localPort,
+      localPort: request.connection.localPort
     };
   }
 
@@ -883,6 +885,7 @@ export class Request {
     let parser = new MultiPart(contentType, encoding);
     return parser.parse(buffer);
   }
+
   /**
    * @since 1.0.0
    * @function
@@ -918,7 +921,7 @@ export class Request {
   redirectTo(url: string, code: Status | number) {
     this.stopChain();
     this.controllerResolver.getEventEmitter().emit("redirectTo", {
-      url, code
+      code, url
     });
   }
 }
