@@ -53,7 +53,7 @@ class ProviderList {
    * @description
    * Simulate set as on Map object
    */
-  set(key: any, value: Object): void {
+  set (key: any, value: Object): void {
     if (!this.has(key) || this.isMutable(key)) {
       Object.defineProperty(this._list, key, {
         configurable: false,
@@ -75,7 +75,7 @@ class ProviderList {
    * @description
    * Simulate get as on Map object
    */
-  get(key: any): any {
+  get (key: any): any {
     return this._list[key];
   }
 
@@ -106,6 +106,7 @@ class ProviderList {
     return this._list.hasOwnProperty(key);
   }
 }
+
 /**
  * @since 1.0.0
  * @function
@@ -154,7 +155,7 @@ export class Injector {
    * );
    * let myInstance = injector.get(MyInjectableClass);
    */
-  static createAndResolveChild(parent: Injector, Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
+  static createAndResolveChild(parent: Injector, Class: IProvider | Function, providers: Array<IProvider | Function>): Injector {
     let child = new Injector(parent);
     let provider = Metadata.verifyProvider(Class);
     child.setName(provider);
@@ -190,7 +191,7 @@ export class Injector {
    * );
    * let myInstance = injector.get(MyInjectableClass);
    */
-  static createAndResolve(Class: IProvider|Function, providers: Array<IProvider|Function>): Injector {
+  static createAndResolve(Class: IProvider | Function, providers: Array<IProvider | Function>): Injector {
     let injector = new Injector();
     let provider = Metadata.verifyProvider(Class);
     injector.setName(provider);
@@ -248,7 +249,7 @@ export class Injector {
     } else if (isPresent(provider.useValue)) { // if provider.useValue is present return value
       this.set(provider.provide, provider.useValue);
       return this.get(provider.provide);
-    // if it's factory invoke it and set invoked factory as value
+      // if it's factory invoke it and set invoked factory as value
     } else if (isPresent(provider.useFactory)) {
       this.set(
         provider.provide,
@@ -267,14 +268,19 @@ export class Injector {
     let instance = Reflect.construct(provider.useClass, args);
     // get @Inject data
     let protoKeys = Metadata.getConstructorPrototypeKeys(provider.useClass);
+
+    // let keyString = protoKeys.map(item => item.key).join(",");
     // assign injected values
     if (isArray(protoKeys)) {
       protoKeys.forEach((item: IInjectKey) => {
-        let value = this.get(item.value, provider);
-        Reflect.defineProperty(instance, item.key, {
-          value: value,
-          writable: item.isMutable
-        });
+        // make sure that key exists in instance
+        if (instance instanceof item.Class) {
+          let value = this.get(item.value, provider);
+          Reflect.defineProperty(instance, item.key, {
+            value: value,
+            writable: item.isMutable
+          });
+        }
       });
     }
     // set provider and value
@@ -330,7 +336,7 @@ export class Injector {
    * @description
    * Gets current Injectable instance throws exception if Injectable class is not created
    */
-  get(provider: any, Class?: IProvider): any {
+  get (provider: any, Class?: IProvider): any {
     if (this.has(provider)) {
       return this._providers.get(provider);
     } else if (this.parent instanceof Injector) {
@@ -354,7 +360,7 @@ export class Injector {
    * @description
    * Sets Injectable instance to current injector instance
    */
-  set(key: any, value: Object): void {
+  set (key: any, value: Object): void {
     this._providers.set(key, value);
   }
 
@@ -389,6 +395,7 @@ export class Injector {
       }
     }
   }
+
   /**
    * @since 1.0.0
    * @function

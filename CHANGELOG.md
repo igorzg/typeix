@@ -1,3 +1,21 @@
+## 1.0.0
+- First stable release
+
+## 1.0.0-rc.2
+- Make sure that Injector delivers correct Token at correct Injection point!
+
+## 1.0.0-rc.1
+- DI Decorators - Avoid Typescript abstract class inheritance injection issue
+
+## 1.0.0-rc.0
+- Release candidate
+
+## 1.0.0-beta.23
+- Update dev packages and && fix controller resolver type issue
+
+## 1.0.0-beta.22
+- Restructure logging types
+
 ## 1.0.0-beta.21
 - Added multipart parser
 

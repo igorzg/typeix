@@ -241,13 +241,15 @@ describe("ControllerResolver", () => {
 
     assert.deepEqual(arg, [
         {
+          Class: B,
           type: 'Inject',
           key: 'actionIndex',
           value: Logger,
           paramIndex: 1
         },
         {
-          type: 'Param',
+          Class: B,
+          type: "Param",
           key: 'actionIndex',
           value: 'a',
           paramIndex: 0

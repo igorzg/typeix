@@ -19,6 +19,7 @@ import {Logger} from "../logger/logger";
 
 export interface IFakeServerConfig {
 }
+
 /**
  * @since 1.0.0
  * @function
@@ -43,6 +44,7 @@ export function fakeHttpServer(Class: Function, config?: IFakeServerConfig): Fak
   ]);
   return fakeServerInjector.get(FakeServerApi);
 }
+
 /**
  * @since 1.0.0
  * @function
@@ -73,7 +75,7 @@ export function fakeControllerActionCall(injector: Injector,
   let route: IResolvedRoute = {
     method: Methods.GET,
     params: isObject(params) ? params : {},
-    route: metadata.name + "/" + action,
+    route: metadata.name + "/" + action
   };
   let providers: Array<IProvider> = [
     {provide: "data", useValue: []},
@@ -116,6 +118,7 @@ export function fakeControllerActionCall(injector: Injector,
    */
   return pRequest.process();
 }
+
 /**
  * @since 1.0.0
  * @class
@@ -128,9 +131,12 @@ export function fakeControllerActionCall(injector: Injector,
  */
 export interface FakeResponseApi {
   getStatusCode(): number;
+
   getBody(): string | Buffer;
+
   getHeaders(): any;
 }
+
 /**
  * @since 1.0.0
  * @class
@@ -354,14 +360,16 @@ class FakeIncomingMessage extends Readable implements IncomingMessage {
   socket: Socket;
 
   _read(size: number): void {
-  };
+    console.log(size);
+  }
 
-  setTimeout(msecs: number, callback: Function): NodeJS.Timer {
-    return null;
-  };
+  setTimeout(msecs: number, callback: () => void): this {
+    return undefined;
+  }
 
   destroy(error?: Error) {
-  };
+    return null;
+  }
 }
 
 
@@ -377,9 +385,11 @@ class FakeIncomingMessage extends Readable implements IncomingMessage {
  * @private
  */
 class FakeServerResponse extends Writable implements ServerResponse {
-
-  // Extended base methods
-
+  upgrading: boolean;
+  chunkedEncoding: boolean;
+  shouldKeepAlive: boolean;
+  useChunkedEncodingByDefault: boolean;
+  connection: Socket;
   statusCode: number = 200;
   headers: any = {};
   statusMessage: string;
@@ -397,6 +407,7 @@ class FakeServerResponse extends Writable implements ServerResponse {
    * Write continue chunk
    */
   writeContinue() {
+    console.log("writeContinue");
   }
 
   /**
@@ -408,7 +419,7 @@ class FakeServerResponse extends Writable implements ServerResponse {
    * Add Header Trailers
    */
   addTrailers(headers: any) {
-
+    console.log(headers);
   }
 
   /**
@@ -450,7 +461,7 @@ class FakeServerResponse extends Writable implements ServerResponse {
    */
   setHeader(name: string, value: string | string[]) {
     this.headers[name] = value;
-  };
+  }
 
   /**
    * @since 1.0.0
@@ -461,10 +472,36 @@ class FakeServerResponse extends Writable implements ServerResponse {
    * Get response header
    */
   getHeader(name: string): string {
-    if (this.headers.hasOwnProperty(name)) {
+    if (this.hasHeader(name)) {
       return this.headers[name];
     }
     return null;
+  }
+
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#hasHeader
+   * @private
+   * @description
+   * Has header
+   */
+  hasHeader(name: string): boolean {
+    return this.headers.hasOwnProperty(name);
+  }
+
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#getHeaderNames
+   * @private
+   * @description
+   * Get header names
+   */
+  getHeaderNames(): string[] {
+    return Object.keys(this.headers);
   }
 
   /**
@@ -532,8 +569,54 @@ class FakeServerResponse extends Writable implements ServerResponse {
     return false;
   }
 
-  setTimeout(msecs: number, callback: Function): ServerResponse {
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#assignSocket
+   * @private
+   * @description
+   * assign socket
+   */
+  assignSocket(socket: Socket): void {
+    console.log("assignSocket");
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#detachSocket
+   * @private
+   * @description
+   * detach socket
+   */
+  detachSocket(socket: Socket): void {
+    console.log("assignSocket");
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#setTimeout
+   * @private
+   * @description
+   * set timeout
+   */
+  setTimeout(msecs: number, callback?: () => void): this {
     return null;
-  };
+  }
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name FakeServerResponse#flushHeaders
+   * @private
+   * @description
+   * flush headers
+   */
+  flushHeaders(): void {
+    console.log("flushHeaders");
+  }
+
+
 
 }

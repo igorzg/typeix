@@ -1,4 +1,4 @@
-import {Metadata, FUNCTION_KEYS} from "../injector/metadata";
+import {FUNCTION_KEYS, Metadata} from "../injector/metadata";
 import {isEqual} from "../core";
 import {IAction} from "../interfaces/iaction";
 
@@ -15,7 +15,7 @@ import {IAction} from "../interfaces/iaction";
  * Multiple action type providers
  */
 let mapAction = (type) => (value: string): Function => {
-  return (Class: Function, key: string, descriptor: PropertyDescriptor): Function => {
+  return (Class: Function, key: string, descriptor: PropertyDescriptor): any => {
     let metadata: Array<any> = [];
     let className: string = Metadata.getName(Class);
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
@@ -53,7 +53,7 @@ let mapAction = (type) => (value: string): Function => {
  * Map each action type
  */
 let mapEachAction = (type) =>
-  (Class: any, key: string, descriptor: PropertyDescriptor): Function => {
+  (Class: any, key: string, descriptor: PropertyDescriptor): any => {
     let metadata: Array<any> = [];
     let className: string = Metadata.getName(Class);
     if (Metadata.hasMetadata(Class, FUNCTION_KEYS)) {
