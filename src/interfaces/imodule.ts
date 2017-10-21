@@ -8,7 +8,6 @@ import {Injector} from "../injector/injector";
  * @param {Array<Function|IProvider>} imports
  * @param {Array<Function|IProvider>} exports
  * @param {String} name
- * @param {Array<RouteRuleConfig>} routes
  * @param {Array<IModuleMetadata>} modules
  * @param {Array<IProvider|Function>} controllers
  * @param {Array<IProvider|Function>} providers
@@ -20,7 +19,6 @@ export interface IModuleMetadata {
   imports?: Array<Function | IProvider>;
   exports?: Array<Function | IProvider>;
   name?: string;
-  routes?: Array<RouteRuleConfig>;
   controllers?: Array<IProvider | Function>;
   providers?: Array<IProvider | Function>;
 }
