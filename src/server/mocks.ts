@@ -138,6 +138,25 @@ export interface FakeResponseApi {
 }
 
 /**
+ * @since 1.1.0
+ * @class
+ * @name FakeWebSocketApi
+ * @description
+ * Fake API used to test websockets
+ */
+export interface FakeWebSocketApi {
+  /**
+   * @since 1.1.0
+   * @method
+   * @name FakeWebSocketApi#send
+   * @param {string} data Data to send
+   * @description
+   * Send data over the fake websocket
+   */
+  send(data: string): void;
+}
+
+/**
  * @since 1.0.0
  * @class
  * @name FakeServerApi
@@ -311,6 +330,27 @@ export class FakeServerApi {
       request.emit("end");
     });
     return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 1.1.0
+   * @function
+   * @name FakeServerApi#openSocket
+   * @return {any}
+   * @description
+   * Open a fake websocket connection
+   */
+  openSocket(url: string): FakeWebSocketApi {
+    console.log("creating fake socket:", url);
+    const request = new FakeIncomingMessage();
+    request.method = "GET";
+    request.url = url;
+
+    const ws: FakeWebSocketApi = {
+      send: data => console.log("fake socket received data", data)
+    };
+
+    return ws;
   }
 
   /**
@@ -616,7 +656,6 @@ class FakeServerResponse extends Writable implements ServerResponse {
   flushHeaders(): void {
     console.log("flushHeaders");
   }
-
 
 
 }

@@ -20,6 +20,7 @@ export interface IModuleMetadata {
   exports?: Array<Function | IProvider>;
   name?: string;
   controllers?: Array<IProvider | Function>;
+  sockets?: Array<IProvider | Function>;
   providers?: Array<IProvider | Function>;
 }
 

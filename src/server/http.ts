@@ -2,9 +2,12 @@ import {Injector} from "../injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
 import {isString} from "../core";
-import {fireRequest, createModule, BOOTSTRAP_MODULE, getModule} from "./bootstrap";
-import {IModuleMetadata, IModule} from "../interfaces/imodule";
+import {BOOTSTRAP_MODULE, createModule, fireRequest, getModule} from "./bootstrap";
+import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
+import * as WebSocket from "ws";
+import {verifyWssClient} from "./socket";
+
 /**
  * @since 1.0.0
  * @function
@@ -43,6 +46,16 @@ export function httpServer(Class: Function, port: number, hostname?: string): Ar
 
   logger.info("Module.info: Server started", {port, hostname});
   server.on("error", (e) => logger.error(e.stack));
+
+  const wss = new WebSocket.Server({
+    server,
+    verifyClient: info => verifyWssClient(modules, info.req)
+  });
+
+  wss.on("connection", (ws: WebSocket, request: IncomingMessage) => {
+    logger.info("WSS.info: Socket connected", {url: request.url});
+  });
+  wss.on("error", error => logger.error("WSS.error: Socket error", {error}));
 
   return modules;
 }

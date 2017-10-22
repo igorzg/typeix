@@ -20,6 +20,77 @@ import {clean} from "../logger/inspect";
 
 export const MODULE_KEY = "__module__";
 export const ERROR_KEY = "__error__";
+
+/**
+ * @since 1.1.0
+ * @private
+ */
+export class BaseRequestResolver {
+  /**
+   * @param IncomingMessage
+   * @description
+   * The current request being processed
+   */
+  @Inject("request")
+  protected readonly request: IncomingMessage;
+
+  /**
+   * @param {Injector} injector
+   * @description
+   * Current injector
+   */
+  @Inject(Injector)
+  protected readonly injector: Injector;
+
+  /**
+   * @param {Logger} logger
+   * @description
+   * Provided by injector
+   */
+  @Inject(Logger)
+  protected readonly logger: Logger;
+
+  /**
+   * @param {Router} router
+   * @description
+   * Provided by injector
+   */
+  @Inject(Router)
+  protected readonly router: Router;
+
+  /**
+   * @param {Array<Buffer>} data
+   * @description
+   * Data received by client on POST, PATCH, PUT requests
+   */
+  @Inject("data")
+  protected readonly data: Array<Buffer>;
+
+  /**
+   * @param {string} id
+   * @description
+   * UUID identifier of request
+   */
+  @Inject("UUID")
+  protected readonly id: string;
+
+  /**
+   * @param {Url} url
+   * @description
+   * Parsed request url
+   */
+  @Inject("url")
+  protected readonly url: Url;
+
+  /**
+   * @param {Url} url
+   * @description
+   * Parsed request url
+   */
+  @Inject("modules")
+  protected readonly modules: Array<IModule>;
+}
+
 /**
  * @since 1.0.0
  * @enum
@@ -35,6 +106,7 @@ export enum RenderType {
   CUSTOM_ERROR_HANDLER,
   DEFAULT_ERROR_HANDLER
 }
+
 /**
  * @since 1.0.0
  * @class
@@ -46,15 +118,7 @@ export enum RenderType {
  * @private
  */
 @Injectable()
-export class RequestResolver implements IAfterConstruct {
-
-  /**
-   * @param IncomingMessage
-   * @description
-   * Value provided by injector which handles request input
-   */
-  @Inject("request")
-  private request: IncomingMessage;
+export class RequestResolver extends BaseRequestResolver implements IAfterConstruct {
 
   /**
    * @param ServerResponse
@@ -62,62 +126,7 @@ export class RequestResolver implements IAfterConstruct {
    * Value provided by injector which handles response output
    */
   @Inject("response")
-  private response: ServerResponse;
-
-  /**
-   * @param {Injector} injector
-   * @description
-   * Current injector
-   */
-  @Inject(Injector)
-  private injector: Injector;
-  /**
-   * @param {Logger} logger
-   * @description
-   * Provided by injector
-   */
-  @Inject(Logger)
-  private logger: Logger;
-
-  /**
-   * @param {Router} router
-   * @description
-   * Provided by injector
-   */
-  @Inject(Router)
-  private router: Router;
-
-  /**
-   * @param {Array<Buffer>} data
-   * @description
-   * Data received by client on POST, PATCH, PUT requests
-   */
-  @Inject("data")
-  private data: Array<Buffer>;
-
-  /**
-   * @param {string} id
-   * @description
-   * UUID identifier of request
-   */
-  @Inject("UUID")
-  private id: string;
-
-  /**
-   * @param {Url} url
-   * @description
-   * Parsed request url
-   */
-  @Inject("url")
-  private url: Url;
-
-  /**
-   * @param {Url} url
-   * @description
-   * Parsed request url
-   */
-  @Inject("modules")
-  private modules: Array<IModule>;
+  private readonly response: ServerResponse;
 
   /**
    * @param {Number} statusCode
@@ -140,7 +149,7 @@ export class RequestResolver implements IAfterConstruct {
    * Responsible for handling events
    */
   @Inject(EventEmitter)
-  private eventEmitter: EventEmitter;
+  private readonly eventEmitter: EventEmitter;
 
   /**
    * @param {String} redirectTo

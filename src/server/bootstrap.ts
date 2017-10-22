@@ -163,7 +163,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * @since 1.0.0
  * @function
  * @name fireRequest
- * @param {Array<IModule>} modules list of all modules bootstraped
+ * @param {Array<IModule>} modules list of all modules bootstrapped
  * @param {IncomingMessage} request event emitter
  * @param {ServerResponse} response event emitter
  * @return {string|Buffer} data from controller
@@ -176,8 +176,8 @@ export function fireRequest(modules: Array<IModule>,
                             request: IncomingMessage,
                             response: ServerResponse): Promise<string | Buffer> {
 
-  let rootInjector = getModule(modules).injector;
-  let logger = rootInjector.get(Logger);
+  let rootInjector: Injector = getModule(modules).injector;
+  let logger: Logger = rootInjector.get(Logger);
   /**
    * Create RequestResolver injector
    */
