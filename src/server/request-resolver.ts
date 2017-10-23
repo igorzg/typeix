@@ -1,7 +1,7 @@
 import {IAfterConstruct, IProvider} from "../interfaces/iprovider";
 import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
-import {IncomingMessage, ServerResponse, OutgoingHttpHeaders} from "http";
+import {IncomingMessage, OutgoingHttpHeaders, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
 import {Methods, Router} from "../router/router";
 import {Url} from "url";
@@ -25,7 +25,7 @@ export const ERROR_KEY = "__error__";
  * @since 1.1.0
  * @private
  */
-export class BaseRequestResolver {
+export abstract class BaseRequestResolver {
   /**
    * @param IncomingMessage
    * @description
@@ -89,6 +89,97 @@ export class BaseRequestResolver {
    */
   @Inject("modules")
   protected readonly modules: Array<IModule>;
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name BaseRequestResolver#process
+   * @private
+   * @description
+   * Resolves route and resolves module before processing the module
+   */
+  process(): Promise<any> {
+
+    // process request
+    return this.router
+      .parseRequest(this.url.pathname, this.request.method, this.request.headers)
+      .then((resolvedRoute: IResolvedRoute) => {
+        this.logger.info("Route.parseRequest", {
+          method: this.request.method,
+          path: this.url.pathname,
+          route: resolvedRoute
+        });
+
+        /**
+         * Copy query params to params if thy are not defined in path
+         */
+        if (isPresent(this.url.query)) {
+          Object.keys(this.url.query).forEach(key => {
+            if (!resolvedRoute.params.hasOwnProperty(key)) {
+              resolvedRoute.params[key] = this.url.query[key];
+            }
+          });
+        }
+        /**
+         * ON POST, PATCH, PUT process body
+         */
+        if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1) {
+          this.request.on("data", item => this.data.push(<Buffer> item));
+          return new Promise((resolve, reject) => {
+            this.request.on("error", reject.bind(this));
+            this.request.on("end", resolve.bind(this, resolvedRoute));
+          });
+        }
+
+        return resolvedRoute;
+      })
+      .then((resolvedRoute: IResolvedRoute) => {
+        let resolvedModule = this.getResolvedModule(resolvedRoute);
+        this.injector.set(MODULE_KEY, resolvedModule);
+        return resolvedModule;
+      })
+      .then(resolvedModule => this.processModule(resolvedModule))
+      .catch(data => this.handleError(data));
+  }
+
+  /**
+   * @since 1.0.0
+   * @param {IResolvedModule} resolvedModule
+   * @return {Promise<any>}
+   * @private
+   */
+  abstract processModule(resolvedModule: IResolvedModule): Promise<any>;
+
+  protected abstract handleError(data: any): void;
+
+  /**
+   * @since 1.0.0
+   * @function
+   * @name HttpRequestResolver#getResolvedModule
+   * @private
+   * @description
+   * Resolve route and return the corresponding resolved module as well as controller and action (if available)
+   */
+  protected getResolvedModule(resolvedRoute: IResolvedRoute): IResolvedModule {
+    let [module, controller, action] = resolvedRoute.route.split("/");
+    let resolvedModule: IModule = !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module);
+    if (isFalsy(resolvedModule)) {
+      throw new HttpError(
+        500,
+        "Module with route " + resolvedRoute.route + " is not registered in system," +
+        " please check your route configuration!",
+        resolvedRoute
+      );
+    }
+    return {
+      action: !isPresent(action) ? controller : action,
+      controller: !isPresent(action) ? module : controller,
+      data: this.data,
+      module: resolvedModule,
+      resolvedRoute
+    };
+  }
+
 }
 
 /**
@@ -157,7 +248,6 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
    * Set redirect to
    */
   private redirectTo: IRedirect;
-
 
   /**
    * @since 1.0.0
@@ -330,7 +420,6 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
    * Resolve route and deliver resolved module
    */
   processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string | Buffer> {
-
     let providers = [
       {provide: "data", useValue: this.data},
       {provide: "request", useValue: this.request},
@@ -362,92 +451,17 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
      */
     let pRequest: ControllerResolver = childInjector.get(ControllerResolver);
     /**
-     * Process request
+     * Process request and render
      */
-    return pRequest.process();
+    return pRequest
+      .process()
+      .then(data => this.render(data, isFalsy(this.redirectTo) ? RenderType.DATA_HANDLER : RenderType.REDIRECT));
   }
 
-  /**
-   * @since 1.0.0
-   * @function
-   * @name HttpRequestResolver#getResolvedModule
-   * @private
-   * @description
-   * Resolve route and deliver resolved module
-   */
-  getResolvedModule(resolvedRoute: IResolvedRoute): IResolvedModule {
-    let [module, controller, action] = resolvedRoute.route.split("/");
-    let resolvedModule: IModule = !isPresent(action) ? getModule(this.modules) : getModule(this.modules, module);
-    if (isFalsy(resolvedModule)) {
-      throw new HttpError(
-        500,
-        "Module with route " + resolvedRoute.route + " is not registered in system," +
-        " please check your route configuration!",
-        resolvedRoute
-      );
-    }
-    return {
-      action: !isPresent(action) ? controller : action,
-      controller: !isPresent(action) ? module : controller,
-      data: this.data,
-      module: resolvedModule,
-      resolvedRoute
-    };
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name HttpRequestResolver#process
-   * @private
-   * @description
-   * Resolve route and deliver resolved module
-   */
-  process(): Promise<any> {
-
-    // process request
-    return this.router
-      .parseRequest(this.url.pathname, this.request.method, this.request.headers)
-      .then((resolvedRoute: IResolvedRoute) => {
-
-        this.logger.info("Route.parseRequest", {
-          method: this.request.method,
-          path: this.url.pathname,
-          route: resolvedRoute
-        });
-
-        /**
-         * Copy query params to params if thy are not defined in path
-         */
-        if (isPresent(this.url.query)) {
-          Object.keys(this.url.query).forEach(key => {
-            if (!resolvedRoute.params.hasOwnProperty(key)) {
-              resolvedRoute.params[key] = this.url.query[key];
-            }
-          });
-        }
-        /**
-         * ON POST, PATCH, PUT process body
-         */
-        if ([Methods.POST, Methods.PATCH, Methods.PUT].indexOf(resolvedRoute.method) > -1) {
-          this.request.on("data", item => this.data.push(<Buffer> item));
-          return new Promise((resolve, reject) => {
-            this.request.on("error", reject.bind(this));
-            this.request.on("end", resolve.bind(this, resolvedRoute));
-          });
-        }
-
-        return resolvedRoute;
-      })
-      .then((resolvedRoute: IResolvedRoute) => {
-        let resolvedModule = this.getResolvedModule(resolvedRoute);
-        this.injector.set(MODULE_KEY, resolvedModule);
-        return resolvedModule;
-      })
-      .then((resolvedModule: IResolvedModule) => this.processModule(resolvedModule))
-      .then(data => this.render(data, isFalsy(this.redirectTo) ? RenderType.DATA_HANDLER : RenderType.REDIRECT))
-      .catch(data => this.render(data, RenderType.CUSTOM_ERROR_HANDLER))
-      .catch(data => this.render(data, RenderType.DEFAULT_ERROR_HANDLER));
+  protected handleError(data: any): void {
+    this
+      .render(data, RenderType.CUSTOM_ERROR_HANDLER)
+      .catch(() => this.render(data, RenderType.DEFAULT_ERROR_HANDLER));
   }
 }
 
@@ -461,6 +475,6 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
  *
  * @private
  */
-@Injectable()
-export class SocketRequestResolver extends BaseRequestResolver {
-}
+// @Injectable()
+// export class SocketRequestResolver extends BaseRequestResolver {
+// }
