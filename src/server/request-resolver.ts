@@ -110,7 +110,7 @@ export enum RenderType {
 /**
  * @since 1.0.0
  * @class
- * @name RequestResolver
+ * @name HttpRequestResolver
  * @constructor
  * @description
  * Get current request and resolve module and route
@@ -118,7 +118,7 @@ export enum RenderType {
  * @private
  */
 @Injectable()
-export class RequestResolver extends BaseRequestResolver implements IAfterConstruct {
+export class HttpRequestResolver extends BaseRequestResolver implements IAfterConstruct {
 
   /**
    * @param ServerResponse
@@ -162,7 +162,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#getControllerProvider
+   * @name HttpRequestResolver#getControllerProvider
    * @private
    * @description
    * Returns a controller provider
@@ -191,7 +191,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#afterConstruct
+   * @name HttpRequestResolver#afterConstruct
    *
    * @private
    * @description
@@ -206,7 +206,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#processError
+   * @name HttpRequestResolver#processError
    * @param {Object} data
    * @param {Boolean} isCustom
    *
@@ -263,7 +263,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#render
+   * @name HttpRequestResolver#render
    * @param {Buffer|String} response
    * @param {RenderType} type
    *
@@ -324,7 +324,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#processModule
+   * @name HttpRequestResolver#processModule
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -337,7 +337,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
       {provide: "response", useValue: this.response},
       {provide: "url", useValue: this.url},
       {provide: "UUID", useValue: this.id},
-      {provide: "controllerProvider", useValue: RequestResolver.getControllerProvider(resolvedModule)},
+      {provide: "controllerProvider", useValue: HttpRequestResolver.getControllerProvider(resolvedModule)},
       {provide: "actionName", useValue: resolvedModule.action},
       {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
       {provide: "isChainStopped", useValue: false},
@@ -370,7 +370,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#getResolvedModule
+   * @name HttpRequestResolver#getResolvedModule
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -398,7 +398,7 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
   /**
    * @since 1.0.0
    * @function
-   * @name RequestResolver#process
+   * @name HttpRequestResolver#process
    * @private
    * @description
    * Resolve route and deliver resolved module
@@ -449,4 +449,18 @@ export class RequestResolver extends BaseRequestResolver implements IAfterConstr
       .catch(data => this.render(data, RenderType.CUSTOM_ERROR_HANDLER))
       .catch(data => this.render(data, RenderType.DEFAULT_ERROR_HANDLER));
   }
+}
+
+/**
+ * @since 1.1.0
+ * @class
+ * @name SocketRequestResolver
+ * @constructor
+ * @description
+ * Handles the current request and resolves to a socket
+ *
+ * @private
+ */
+@Injectable()
+export class SocketRequestResolver extends BaseRequestResolver {
 }
