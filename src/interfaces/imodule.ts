@@ -55,6 +55,6 @@ export interface IResolvedModule {
   module: IModule;
   data?: Array<Buffer>;
   resolvedRoute: IResolvedRoute;
-  controller: string;
+  endpoint: string;
   action: string;
 }

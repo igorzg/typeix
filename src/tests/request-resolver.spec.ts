@@ -123,7 +123,7 @@ describe("HttpRequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "core",
+      endpoint: "core",
       action: "index",
       resolvedRoute,
       data
@@ -157,7 +157,7 @@ describe("HttpRequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "test",
+      endpoint: "test",
       action: "index",
       resolvedRoute,
       data
@@ -195,7 +195,7 @@ describe("HttpRequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "core",
+      endpoint: "core",
       action: "index",
       resolvedRoute,
       data
@@ -348,7 +348,7 @@ describe("HttpRequestResolver", () => {
       .then(resolved => {
         let module: IResolvedModule = {
           module: getModule(modules, "root"),
-          controller: "core",
+          endpoint: "core",
           action: "index",
           resolvedRoute: {
             method: Methods.POST,

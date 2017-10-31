@@ -150,7 +150,7 @@ export abstract class BaseRequestResolver {
    */
   abstract processModule(resolvedModule: IResolvedModule): Promise<any>;
 
-  protected abstract handleError(data: any): void;
+  protected abstract handleError(data: any): any;
 
   /**
    * @since 1.0.0
@@ -173,7 +173,7 @@ export abstract class BaseRequestResolver {
     }
     return {
       action: !isPresent(action) ? controller : action,
-      controller: !isPresent(action) ? module : controller,
+      endpoint: !isPresent(action) ? module : controller,
       data: this.data,
       module: resolvedModule,
       resolvedRoute
@@ -266,12 +266,12 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
       .map(item => Metadata.verifyProvider(item))
       .find((Class: IProvider) => {
         let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
-        return metadata.name === resolvedModule.controller;
+        return metadata.name === resolvedModule.endpoint;
       });
     if (!isPresent(controllerProvider)) {
       throw new HttpError(Status.Bad_Request, `You must define controller within current route: ${resolvedModule.resolvedRoute.route}`, {
         actionName: resolvedModule.action,
-        controllerName: resolvedModule.controller,
+        controllerName: resolvedModule.endpoint,
         resolvedRoute: resolvedModule.resolvedRoute
       });
     }
@@ -475,6 +475,36 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
  *
  * @private
  */
-// @Injectable()
-// export class SocketRequestResolver extends BaseRequestResolver {
-// }
+@Injectable()
+export class SocketRequestResolver extends BaseRequestResolver {
+
+  static getSocketProvider(resolvedModule: IResolvedModule): IProvider {
+    let provider: IProvider = Metadata.verifyProvider(resolvedModule.module.provider);
+    let moduleMetadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
+
+    let socketProvider: IProvider = moduleMetadata.sockets
+      .map(item => Metadata.verifyProvider(item))
+      .find((Class: IProvider) => {
+        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        return metadata.name === resolvedModule.endpoint;
+      });
+    if (!isPresent(socketProvider)) {
+      throw new HttpError(Status.Bad_Request, `You must define socket within current route: ${resolvedModule.resolvedRoute.route}`, {
+        socketName: resolvedModule.endpoint,
+        resolvedRoute: resolvedModule.resolvedRoute
+      });
+    }
+    return socketProvider;
+  }
+
+  processModule(resolvedModule: IResolvedModule): Promise<any> {
+
+
+
+    return undefined;
+  }
+
+  protected handleError(data: any): any {
+    throw new HttpError(Status.Internal_Server_Error, "Could not resolve socket");
+  }
+}

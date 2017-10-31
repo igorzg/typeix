@@ -12,7 +12,7 @@ import {IWebSocketMetadata} from "../interfaces/iwebsocket";
  * @returns {function(any): any}
  *
  * @description
- * Define controller of application
+ * Define endpoint of application
  */
 export let WebSocket = (config: IWebSocketMetadata) => (Class) => {
   if (!isArray(config.providers)) {

@@ -1,12 +1,12 @@
 import {Injector} from "../injector/injector";
 import {createServer, IncomingMessage, ServerResponse} from "http";
 import {Logger} from "../logger/logger";
-import {isString} from "../core";
+import {isString, isTruthy} from "../core";
 import {BOOTSTRAP_MODULE, createModule, fireRequest, getModule} from "./bootstrap";
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import * as WebSocket from "ws";
-import {verifyWssClient} from "./socket";
+import {fireWebSocket} from "./socket";
 
 /**
  * @since 1.0.0
@@ -49,13 +49,22 @@ export function httpServer(Class: Function, port: number, hostname?: string): Ar
 
   const wss = new WebSocket.Server({
     server,
-    verifyClient: info => verifyWssClient(modules, info.req)
+    verifyClient: (info, cb) => {
+      fireWebSocket(modules, info.req)
+        .then(result => {
+          const verified = isTruthy(result);
+          cb(verified);
+        })
+        .catch(error => {
+          logger.error("WSS.verifyClient: Verification failed", {error, info});
+        });
+    }
   });
 
   wss.on("connection", (ws: WebSocket, request: IncomingMessage) => {
     logger.info("WSS.info: Socket connected", {url: request.url});
   });
-  wss.on("error", error => logger.error("WSS.error: Socket error", {error}));
+  wss.on("error", (e) => logger.error(e.stack));
 
   return modules;
 }
