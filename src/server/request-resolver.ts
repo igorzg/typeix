@@ -17,6 +17,9 @@ import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
 import {IRedirect, Status} from "./status-code";
 import {clean} from "../logger/inspect";
+import {IWebSocketMetadata} from "../interfaces/iwebsocket";
+import {BaseRequest} from "./request";
+import {SocketResolver} from "./socket-resolver";
 
 export const MODULE_KEY = "__module__";
 export const ERROR_KEY = "__error__";
@@ -485,7 +488,7 @@ export class SocketRequestResolver extends BaseRequestResolver {
     let socketProvider: IProvider = moduleMetadata.sockets
       .map(item => Metadata.verifyProvider(item))
       .find((Class: IProvider) => {
-        let metadata: IControllerMetadata = Metadata.getComponentConfig(Class.provide);
+        let metadata: IWebSocketMetadata = Metadata.getComponentConfig(Class.provide);
         return metadata.name === resolvedModule.endpoint;
       });
     if (!isPresent(socketProvider)) {
@@ -497,11 +500,28 @@ export class SocketRequestResolver extends BaseRequestResolver {
     return socketProvider;
   }
 
-  processModule(resolvedModule: IResolvedModule): Promise<any> {
+  processModule(resolvedModule: IResolvedModule): Promise<SocketResolver> {
+    const providers = [
+      {provide: "data", useValue: this.data},
+      {provide: "request", useValue: this.request},
+      {provide: "UUID", useValue: this.id},
+      {provide: "resolvedRoute", useValue: resolvedModule.resolvedRoute},
+      {provide: "socketProvider", useValue: SocketRequestResolver.getSocketProvider(resolvedModule)},
+      EventEmitter
+    ];
 
+    const childInjector = Injector.createAndResolveChild(
+      resolvedModule.module.injector,
+      SocketResolver,
+      providers
+    );
 
+    const socketResolver: SocketResolver = childInjector.get(SocketResolver);
+    socketResolver.getEventEmitter().on("destroy", () => {
+      childInjector.destroy();
+    });
 
-    return undefined;
+    return socketResolver.process();
   }
 
   protected handleError(data: any): any {
