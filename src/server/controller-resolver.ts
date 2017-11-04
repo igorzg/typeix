@@ -255,7 +255,7 @@ export class ControllerResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getMappedAction
+   * @name Request#getMappedHook
    * @private
    * @description
    * Returns a mapped action metadata

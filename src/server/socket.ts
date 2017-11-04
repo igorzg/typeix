@@ -71,34 +71,3 @@ export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage)
       };
     });
 }
-
-/**
- * @since 1.1.0
- * @function
- * @name verifyWssClient
- * @return {boolean}
- * @private
- */
-export function verifyWssClient(modules: Array<IModule>, request: IncomingMessage, cb): boolean {
-  let rootInjector: Injector = getModule(modules).injector;
-  let logger: Logger = rootInjector.get(Logger);
-  /**
-   * Create HttpRequestResolver injector
-   */
-  let routeResolverInjector = Injector.createAndResolveChild(
-    rootInjector,
-    SocketRequestResolver,
-    [
-      {provide: "url", useValue: parse(request.url, true)},
-      {provide: "UUID", useValue: uuid()},
-      {provide: "data", useValue: []},
-      {provide: "contentType", useValue: "text/html"},
-      {provide: "statusCode", useValue: Status.OK},
-      {provide: "request", useValue: request},
-      {provide: "modules", useValue: modules},
-      EventEmitter
-    ]
-  );
-
-  return false;
-}

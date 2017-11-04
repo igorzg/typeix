@@ -137,3 +137,5 @@ export let Before = mapAction("Before");
  * Define name of after action to class
  */
 export let After = mapAction("After");
+
+export let Hook = mapAction("Hook");

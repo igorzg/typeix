@@ -6,10 +6,13 @@ import {Injector} from "../injector/injector";
 import {IProvider, IResolvedRoute} from "../interfaces";
 import {EventEmitter} from "events";
 import {Inject, Injectable} from "../decorators";
-import {FUNCTION_PARAMS, Metadata} from "../injector/metadata";
+import {FUNCTION_KEYS, FUNCTION_PARAMS, Metadata} from "../injector/metadata";
 import {IParam} from "../interfaces/iparam";
 import {BaseRequest, Request} from "./request";
 import * as WebSocket from "ws";
+import {IAction} from "../interfaces/iaction";
+import {ControllerResolver} from "./controller-resolver";
+import {IWebSocket} from "../interfaces/iwebsocket";
 
 /**
  * @since 1.0.0
@@ -166,27 +169,64 @@ export class SocketResolver {
 
     this.socket = reflectionInjector.get(this.socketProvider.provide);
 
-    await this.processSocketFunction("verify");
+    await this.processSocketHook("verify");
     return this;
   }
 
   async openSocket(ws: WebSocket): Promise<any> {
+    this.injector.set("socket", this.getSocketWrapper(ws));
 
+    ws.on("message", (data: WebSocket.Data) => {
+      this.injector.set("message", data);
+      this.processSocketHook("message");
+    });
   }
 
-  private async processSocketFunction(functionName: string) {
-    if (!isFunction(this.socket[functionName])) {
-      this.logger.debug("Tried to call socket function but not available", {
-        functionName
+  getSocketWrapper(ws: WebSocket): IWebSocket {
+    return {
+      getReadyState: () => ws.readyState,
+      close: ws.close.bind(ws),
+      send: ws.send.bind(ws)
+    };
+  }
+
+  private async processSocketHook(actionName: string) {
+    const action = this.getMappedHook(this.socketProvider, actionName);
+
+    if (!isPresent(action) || !isFunction(this.socket[action.key])) {
+      this.logger.debug("Tried to call socket @Hook but not available", {
+        hook: actionName
       });
       return;
     }
 
-    const func: Function = this.socket[functionName].bind(this.socket);
-    const args = this.getAnnotatedArguments(this.socketProvider, functionName);
+    const func: Function = this.socket[action.key].bind(this.socket);
+    const args = this.getAnnotatedArguments(this.socketProvider, actionName);
 
     return await func.apply(this.socket, args);
   }
+
+  private getMappedHook(socketProvider: IProvider, actionName: String): IAction {
+    // get mappings from controller
+    let mappings = Metadata
+      .getMetadata(this.socketProvider.provide.prototype, FUNCTION_KEYS)
+      .filter((item: IAction) =>
+        item.type === "Hook" && item.value === actionName &&
+        ControllerResolver.isControllerInherited(this.socketProvider.provide, item.proto)
+      );
+
+    let mappedAction;
+    // search mapped on current controller
+    if (mappings.length > 0) {
+      mappedAction = mappings.find(item => item.className === Metadata.getName(socketProvider.provide));
+    }
+    // get first parent one from inheritance
+    if (!isPresent(mappedAction)) {
+      mappedAction = mappings.pop();
+    }
+    return mappedAction;
+  }
+
 
   private getAnnotatedArguments(provider: IProvider, functionName: string): Array<any> {
     const params: Array<IParam> = Metadata
