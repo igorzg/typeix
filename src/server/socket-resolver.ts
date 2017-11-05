@@ -13,6 +13,7 @@ import * as WebSocket from "ws";
 import {IAction} from "../interfaces/iaction";
 import {ControllerResolver} from "./controller-resolver";
 import {IWebSocket} from "../interfaces/iwebsocket";
+import {IControllerMetadata} from "../interfaces/icontroller";
 
 /**
  * @since 1.0.0
@@ -167,7 +168,19 @@ export class SocketResolver {
       {provide: "resolvedRoute", useValue: this.resolvedRoute}
     ]);
 
-    this.socket = reflectionInjector.get(this.socketProvider.provide);
+    const metadata: IControllerMetadata = Metadata.getComponentConfig(this.socketProvider.provide);
+    const providers: Array<IProvider> = Metadata.verifyProviders(metadata.providers);
+    // limit socket api
+    const limitApi = ["request", "response", "modules"];
+    limitApi.forEach(item => providers.push({provide: item, useValue: {}}));
+
+    const socketInjector = Injector.createAndResolveChild(
+      reflectionInjector,
+      this.socketProvider,
+      Metadata.verifyProviders(providers)
+    );
+
+    this.socket = socketInjector.get(this.socketProvider.provide);
 
     await this.processSocketHook("verify");
     return this;

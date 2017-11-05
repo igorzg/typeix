@@ -517,6 +517,8 @@ export class SocketRequestResolver extends BaseRequestResolver {
     );
 
     const socketResolver: SocketResolver = childInjector.get(SocketResolver);
+    this.logger.debug("SocketRequestResolver.processModule: resolved SocketResolver");
+
     socketResolver.getEventEmitter().on("destroy", () => {
       childInjector.destroy();
     });
@@ -525,6 +527,7 @@ export class SocketRequestResolver extends BaseRequestResolver {
   }
 
   protected handleError(data: any): any {
+    this.logger.error("SocketRequestResolver.handleError: an error occurred", {data});
     throw new HttpError(Status.Internal_Server_Error, "Could not resolve socket");
   }
 }

@@ -42,9 +42,12 @@ export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage)
   );
 
   const socketResolver: SocketRequestResolver = socketResolverInjector.get(SocketRequestResolver);
+  logger.debug("Resolved SocketRequestResolver - starting processing", {request});
+
   return socketResolver
     .process()
     .then((socket: SocketResolver) => {
+      logger.debug("socketResolver.then result:", {socket});
       if (!isPresent(socket)) {
         throw new HttpError(Status.Internal_Server_Error, "Could not resolve socket");
       } else {
@@ -62,6 +65,7 @@ export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage)
       }
     })
     .catch((error) => {
+      logger.error("fireWebSocket: Failed to create socket", {error});
       return {
         uuid: requestUuid,
         error: error,
