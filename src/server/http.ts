@@ -6,7 +6,7 @@ import {BOOTSTRAP_MODULE, createModule, fireRequest, getModule} from "./bootstra
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
 import * as WebSocket from "ws";
-import {fireWebSocket} from "./socket";
+import {fireWebSocket, IWebSocketResult} from "./socket";
 import {HttpError} from "../error";
 import {SocketResolver} from "./socket-resolver";
 
@@ -51,7 +51,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): Ar
   logger.info("Module.info: Server started", {port, hostname});
   server.on("error", (e) => logger.error(e.stack));
 
-  const socketResolverMap: Map<string, SocketResolver> = new Map();
+  const socketResultMap: Map<string, IWebSocketResult> = new Map();
   const wss = new WebSocket.Server({
     server,
     verifyClient: (info, cb) => {
@@ -66,6 +66,7 @@ export function httpServer(Class: Function, port: number, hostname?: string): Ar
           }
 
           info.req.headers[TYPEX_SOCKET_ID_HEADER] = result.uuid;
+          socketResultMap.set(result.uuid, result);
 
           cb(true);
         })
@@ -80,18 +81,19 @@ export function httpServer(Class: Function, port: number, hostname?: string): Ar
     logger.info("WSS.info: Socket connected", {url: request.url});
 
     const idFromHeader = request.headers[TYPEX_SOCKET_ID_HEADER];
-    if (!isPresent(idFromHeader) || isArray(idFromHeader) || !socketResolverMap.has(<string> idFromHeader)) {
+    if (!isPresent(idFromHeader) || isArray(idFromHeader) || !socketResultMap.has(<string> idFromHeader)) {
       ws.close();
     } else {
+      const socketResult = socketResultMap.get(<string> idFromHeader);
+
       const cleanup = () => {
-        socketResolver.destroy();
-        socketResolverMap.delete(<string> idFromHeader);
+        socketResult.finished();
+        socketResultMap.delete(<string> idFromHeader);
       };
       ws.on("close", cleanup);
       ws.on("error", cleanup);
 
-      const socketResolver = socketResolverMap.get(<string> idFromHeader);
-      return socketResolver.openSocket(ws);
+      return socketResult.open(ws);
     }
   });
   wss.on("error", (e) => logger.error(e.stack));

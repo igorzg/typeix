@@ -6,7 +6,7 @@ import {Inject} from "../decorators/inject";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
 import {IncomingMessage, ServerResponse} from "http";
-import {isObject, uuid} from "../core";
+import {isFunction, isObject, uuid} from "../core";
 import {ControllerResolver} from "./controller-resolver";
 import {ERROR_KEY} from "./request-resolver";
 import {EventEmitter} from "events";
@@ -16,6 +16,8 @@ import {IProvider} from "../interfaces/iprovider";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {Methods} from "../router/router";
 import {Logger} from "../logger/logger";
+import {fireWebSocket, IWebSocketResult} from "./socket";
+import * as WebSocket from "ws";
 
 export interface IFakeServerConfig {
 }
@@ -145,6 +147,20 @@ export interface FakeResponseApi {
  * Fake API used to test websockets
  */
 export interface FakeWebSocketApi {
+
+  /**
+   * Opens and prepares the fake socket for usage.
+   * You need to call open before receiving or sending data.
+   * @return {Promise<void>}
+   */
+  open(): Promise<void>;
+
+  /**
+   * @description
+   * Closes the fake socket.
+   */
+  close(): void;
+
   /**
    * @since 1.1.0
    * @method
@@ -153,7 +169,21 @@ export interface FakeWebSocketApi {
    * @description
    * Send data over the fake websocket
    */
-  send(data: string): void;
+  send(data: WebSocket.Data): void;
+
+  /**
+   * @return {any}
+   * @description
+   * Get the last message that had been received via the socket from the server.
+   */
+  getLastReceivedMessage(): any;
+
+  /**
+   * @param {(message: any) => void} cb
+   * @description
+   * Register a listener to be called whenever a message is sent from the server.
+   */
+  onMessage(cb: (message: any) => void);
 }
 
 /**
@@ -340,17 +370,24 @@ export class FakeServerApi {
    * @description
    * Open a fake websocket connection
    */
-  openSocket(url: string): FakeWebSocketApi {
+  openSocket(url: string): Promise<FakeWebSocketApi> {
     console.log("creating fake socket:", url);
     const request = new FakeIncomingMessage();
     request.method = "GET";
     request.url = url;
 
-    const ws: FakeWebSocketApi = {
-      send: data => console.log("fake socket received data", data)
-    };
+    return fireWebSocket(this.getModules(), request)
+      .then(result => {
+        if (result.error || !isFunction(result.open)) {
+          if (result.error instanceof HttpError) {
+            throw result.error;
+          } else {
+            throw new Error("socket resolution failed");
+          }
+        }
 
-    return ws;
+        return new FakeWebSocket(result);
+      });
   }
 
   /**
@@ -657,5 +694,52 @@ class FakeServerResponse extends Writable implements ServerResponse {
     console.log("flushHeaders");
   }
 
+
+}
+
+class FakeWebSocket implements FakeWebSocketApi {
+
+  private eventEmitter = new EventEmitter();
+  private readyState: number = 0;
+  private lastReceivedMessage: WebSocket.Data;
+
+  constructor(private readonly socket: IWebSocketResult) {
+    this.onMessage((data: WebSocket.Data) => this.lastReceivedMessage = data);
+  }
+
+  open(): Promise<void> {
+    return this.socket
+      .open(<any> {
+        on: this.eventEmitter.on.bind(this.eventEmitter),
+        send: (data) => {
+          this.eventEmitter.emit("_receive", data);
+        },
+        close: this.close.bind(this)
+      })
+      .then(() => {
+        this.readyState = 1;
+        this.eventEmitter.on("close", () => this.readyState = 3);
+      }, () => {
+        this.readyState = 3;
+      });
+  }
+
+  close(): void {
+    this.readyState = 2;
+    this.eventEmitter.emit("close");
+    this.eventEmitter.removeAllListeners();
+  }
+
+  send(data: WebSocket.Data): void {
+    this.eventEmitter.emit("message", data);
+  }
+
+  getLastReceivedMessage(): any {
+    return this.lastReceivedMessage;
+  }
+
+  onMessage(cb: (message: WebSocket.Data) => void) {
+    this.eventEmitter.on("_receive", data => cb(data));
+  }
 
 }
