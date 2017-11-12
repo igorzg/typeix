@@ -371,7 +371,6 @@ export class FakeServerApi {
    * Open a fake websocket connection
    */
   openSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
-    console.log("creating fake socket:", url);
     const request = new FakeIncomingMessage();
     request.method = "GET";
     request.url = url;
@@ -720,8 +719,9 @@ class FakeWebSocket implements FakeWebSocketApi {
       .then(() => {
         this.readyState = 1;
         this.eventEmitter.on("close", () => this.readyState = 3);
-      }, () => {
+      }, (error) => {
         this.readyState = 3;
+        throw error;
       });
   }
 
@@ -732,6 +732,9 @@ class FakeWebSocket implements FakeWebSocketApi {
   }
 
   send(data: WebSocket.Data): void {
+    if (this.readyState !== 1) {
+      throw new Error("Socket must be opened first");
+    }
     this.eventEmitter.emit("message", data);
   }
 

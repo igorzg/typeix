@@ -10,6 +10,7 @@ import {WebSocket} from "../decorators/websocket";
 import {Hook} from "../decorators/action";
 import {BaseRequest} from "../server/request";
 import {HttpError} from "../error";
+import {Socket} from "../server/socket";
 
 // use chai spies
 use(sinonChai);
@@ -30,11 +31,23 @@ describe("fakeHttpServer with Sockets", () => {
       @Inject(BaseRequest)
       private readonly request: BaseRequest;
 
+      private socket: Socket;
+
       @Hook("verify")
       verify(): void {
         if (this.request.getRequestHeader("should-fail")) {
           throw new HttpError(403, "You shall not pass");
         }
+      }
+
+      @Hook("open")
+      open(@Inject(Socket) socket: Socket) {
+        this.socket = socket;
+      }
+
+      @Hook("message")
+      receive(@Inject("message") message: any): void {
+        this.socket.send(message);
       }
     }
 
@@ -91,5 +104,17 @@ describe("fakeHttpServer with Sockets", () => {
         assert.equal(httpError.getCode(), 403);
       })
       .then(done, done);
+  });
+
+  it("Should be possible to echo a message", () => {
+    return server
+      .openSocket("/echo")
+      .then(api => api
+        .open()
+        .then(() => {
+          api.send("test data");
+          assert.equal(api.getLastReceivedMessage(), "test data");
+        })
+      );
   });
 });

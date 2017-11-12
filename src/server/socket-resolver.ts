@@ -3,7 +3,7 @@ import {getMethodName} from "../router/router";
 import {isFunction, isPresent} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
-import {IProvider, IResolvedRoute} from "../interfaces";
+import {IControllerMetadata, IProvider, IResolvedRoute} from "../interfaces";
 import {EventEmitter} from "events";
 import {Inject, Injectable} from "../decorators";
 import {FUNCTION_KEYS, FUNCTION_PARAMS, Metadata} from "../injector/metadata";
@@ -12,8 +12,7 @@ import {BaseRequest, Request} from "./request";
 import * as WebSocket from "ws";
 import {IAction} from "../interfaces/iaction";
 import {ControllerResolver} from "./controller-resolver";
-import {IWebSocket} from "../interfaces/iwebsocket";
-import {IControllerMetadata} from "../interfaces/icontroller";
+import {Socket} from "./socket";
 
 /**
  * @since 1.0.0
@@ -187,20 +186,14 @@ export class SocketResolver {
   }
 
   async openSocket(ws: WebSocket): Promise<any> {
-    this.injector.set("socket", this.getSocketWrapper(ws));
+    this.injector.set(Socket, new Socket(ws));
 
     ws.on("message", (data: WebSocket.Data) => {
       this.injector.set("message", data);
       this.processSocketHook("message");
     });
-  }
 
-  getSocketWrapper(ws: WebSocket): IWebSocket {
-    return {
-      getReadyState: () => ws.readyState,
-      close: ws.close.bind(ws),
-      send: ws.send.bind(ws)
-    };
+    this.processSocketHook("open");
   }
 
   private async processSocketHook(actionName: string) {
@@ -214,7 +207,7 @@ export class SocketResolver {
     }
 
     const func: Function = this.socket[action.key].bind(this.socket);
-    const args = this.getAnnotatedArguments(this.socketProvider, actionName);
+    const args = this.getAnnotatedArguments(this.socketProvider, action.key);
 
     return await func.apply(this.socket, args);
   }

@@ -138,4 +138,8 @@ export let Before = mapAction("Before");
  */
 export let After = mapAction("After");
 
-export let Hook = mapAction("Hook");
+export interface IHookFunction {
+  (value: "verify" | "open" | "message"): any;
+}
+
+export let Hook: IHookFunction = mapAction("Hook");

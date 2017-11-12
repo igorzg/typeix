@@ -19,6 +19,25 @@ export interface IWebSocketResult {
   finished: () => void;
 }
 
+export class Socket {
+
+  constructor(private readonly ws: WebSocket) {
+  }
+
+  getReadyState(): number {
+    return this.ws.readyState;
+  }
+
+  close(status?: number, data?: string): void {
+    this.ws.close(status, data);
+  }
+
+  send(data: any, options?: { mask?: boolean; binary?: boolean } | ((err: Error) => void), cb?: (err: Error) => void): void {
+    this.ws.send(data, options as any, cb);
+  }
+
+}
+
 export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage): Promise<IWebSocketResult> {
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);
@@ -51,7 +70,7 @@ export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage)
       if (!isPresent(socket)) {
         throw new HttpError(Status.Internal_Server_Error, "Could not resolve socket");
       } else {
-        return {
+        const result: IWebSocketResult = {
           uuid: requestUuid,
           open: (ws: WebSocket) => {
             logger.info("Resuming request", {uuid: requestUuid});
@@ -62,6 +81,7 @@ export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage)
             socketResolverInjector.destroy();
           }
         };
+        return result;
       }
     })
     .catch((error) => {
