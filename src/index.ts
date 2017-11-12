@@ -8,8 +8,10 @@ export {
   After,
   BeforeEach,
   AfterEach,
+  Hook,
   Filter,
   Controller,
+  WebSocket,
   Inject,
   Injectable,
   Module,
@@ -37,9 +39,11 @@ export {
  */
 export {
   IControllerMetadata,
+  IWebSocketMetadata,
   IModuleMetadata,
   IProvider,
   IAfterConstruct,
+  IAfterClose,
   IFilter,
   Route,
   RouteRuleConfig,
@@ -71,9 +75,11 @@ export {
   getModule,
   Request,
   Status,
+  Socket,
   fakeHttpServer,
   fakeControllerActionCall,
   FakeServerApi,
+  FakeWebSocketApi,
   FakeResponseApi,
   IFakeServerConfig
 } from "./server/index";
