@@ -370,11 +370,12 @@ export class FakeServerApi {
    * @description
    * Open a fake websocket connection
    */
-  openSocket(url: string): Promise<FakeWebSocketApi> {
+  openSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
     console.log("creating fake socket:", url);
     const request = new FakeIncomingMessage();
     request.method = "GET";
     request.url = url;
+    request.headers = headers;
 
     return fireWebSocket(this.getModules(), request)
       .then(result => {

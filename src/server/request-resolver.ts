@@ -528,6 +528,9 @@ export class SocketRequestResolver extends BaseRequestResolver {
 
   protected handleError(data: any): any {
     this.logger.error("SocketRequestResolver.handleError: an error occurred", {data});
+    if (data instanceof HttpError) {
+      throw data;
+    }
     throw new HttpError(Status.Internal_Server_Error, "Could not resolve socket");
   }
 }

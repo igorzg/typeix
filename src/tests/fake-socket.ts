@@ -8,6 +8,8 @@ import {Inject} from "../decorators/inject";
 import {fakeHttpServer, FakeServerApi} from "../server/mocks";
 import {WebSocket} from "../decorators/websocket";
 import {Hook} from "../decorators/action";
+import {BaseRequest} from "../server/request";
+import {HttpError} from "../error";
 
 // use chai spies
 use(sinonChai);
@@ -25,9 +27,14 @@ describe("fakeHttpServer with Sockets", () => {
       @Inject(Logger)
       private readonly logger: Logger;
 
+      @Inject(BaseRequest)
+      private readonly request: BaseRequest;
+
       @Hook("verify")
       verify(): void {
-        this.logger.debug("Doing verification...");
+        if (this.request.getRequestHeader("should-fail")) {
+          throw new HttpError(403, "You shall not pass");
+        }
       }
     }
 
@@ -70,4 +77,19 @@ describe("fakeHttpServer with Sockets", () => {
       .catch(done);
   });
 
+  it("Should fail verification when header is set", (done) => {
+    server
+      .openSocket("/echo", {
+        "should-fail": true
+      })
+      .then(api => {
+        assert.fail();
+      }, error => {
+        assert.instanceOf(error, HttpError);
+
+        const httpError: HttpError = error;
+        assert.equal(httpError.getCode(), 403);
+      })
+      .then(done, done);
+  });
 });
