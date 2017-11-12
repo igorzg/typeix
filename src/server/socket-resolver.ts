@@ -145,6 +145,10 @@ export class SocketResolver {
    * Destroy all references to free memory
    */
   destroy() {
+    if (isPresent(this.socket) && isFunction(this.socket.afterClose)) {
+      this.socket.afterClose();
+    }
+
     this.eventEmitter.emit("destroy");
     this.eventEmitter.removeAllListeners();
     this.socket = null;

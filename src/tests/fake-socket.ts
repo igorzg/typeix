@@ -11,6 +11,7 @@ import {Hook} from "../decorators/action";
 import {BaseRequest} from "../server/request";
 import {HttpError} from "../error";
 import {Socket} from "../server/socket";
+import {IAfterClose} from "../interfaces/iwebsocket";
 
 // use chai spies
 use(sinonChai);
@@ -18,13 +19,14 @@ use(sinonChai);
 describe("fakeHttpServer with Sockets", () => {
 
   let server: FakeServerApi;
+  let dummyResourceLocked = false;
 
   beforeEach(() => {
 
     @WebSocket({
       name: "socket"
     })
-    class MySocket {
+    class MySocket implements IAfterClose {
       @Inject(Logger)
       private readonly logger: Logger;
 
@@ -43,11 +45,22 @@ describe("fakeHttpServer with Sockets", () => {
       @Hook("open")
       open(@Inject(Socket) socket: Socket) {
         this.socket = socket;
+        dummyResourceLocked = true;
       }
 
       @Hook("message")
       receive(@Inject("message") message: any): void {
         this.socket.send(message);
+
+        if (message === "timer") {
+          setTimeout(() => {
+            this.socket.send("timeout");
+          }, 200);
+        }
+      }
+
+      afterClose(): void {
+        dummyResourceLocked = false;
       }
     }
 
@@ -57,6 +70,12 @@ describe("fakeHttpServer with Sockets", () => {
       sockets: [MySocket]
     })
     class MyModule implements IAfterConstruct {
+      @Inject(Logger)
+      private readonly logger: Logger;
+
+      @Inject(Router)
+      private readonly router: Router;
+
       afterConstruct(): void {
         this.router.addRules([
           {
@@ -69,12 +88,6 @@ describe("fakeHttpServer with Sockets", () => {
         this.logger.enable();
         this.logger.setDebugLevel(LogLevels.BENCHMARK);
       }
-
-      @Inject(Logger)
-      private logger: Logger;
-
-      @Inject(Router)
-      private router: Router;
     }
 
     server = fakeHttpServer(MyModule);
@@ -82,7 +95,7 @@ describe("fakeHttpServer with Sockets", () => {
 
 
   it("Should create a socket", (done) => {
-    server.openSocket("/echo")
+    server.createSocket("/echo")
       .then(api => {
         assert.isDefined(api);
         done();
@@ -92,29 +105,63 @@ describe("fakeHttpServer with Sockets", () => {
 
   it("Should fail verification when header is set", (done) => {
     server
-      .openSocket("/echo", {
+      .createSocket("/echo", {
         "should-fail": true
       })
       .then(api => {
         assert.fail();
       }, error => {
         assert.instanceOf(error, HttpError);
-
-        const httpError: HttpError = error;
-        assert.equal(httpError.getCode(), 403);
+        assert.equal(error.getCode(), 403);
       })
       .then(done, done);
   });
 
-  it("Should be possible to echo a message", () => {
-    return server
-      .openSocket("/echo")
-      .then(api => api
-        .open()
-        .then(() => {
-          api.send("test data");
-          assert.equal(api.getLastReceivedMessage(), "test data");
-        })
-      );
+  it("Should be possible to echo a message", (done) => {
+    server
+      .createSocket("/echo")
+      .then(api =>
+        api
+          .open()
+          .then(() => {
+            api.send("test data");
+            assert.equal(api.getLastReceivedMessage(), "test data");
+            api.close();
+          })
+      )
+      .then(done, done);
+  });
+
+  it("Should send a message after timeout without direct echo", (done) => {
+    server
+      .createSocket("/echo")
+      .then(api =>
+        api
+          .open()
+          .then(() => {
+            api.onMessage(message => {
+              if (message === "timeout") {
+                api.close();
+                done();
+              }
+            });
+            api.send("timer");
+          })
+      )
+      .catch(done);
+  });
+
+  it("Should free resources after close", (done) => {
+    server
+      .createSocket("/echo")
+      .then(api =>
+        api
+          .open()
+          .then(() => {
+            api.close();
+            assert.equal(dummyResourceLocked, false);
+          })
+      )
+      .then(done, done);
   });
 });

@@ -14,3 +14,7 @@ export interface IWebSocketMetadata {
   name: string;
   providers?: Array<IProvider | Function>;
 }
+
+export interface IAfterClose {
+  afterClose(): void;
+}

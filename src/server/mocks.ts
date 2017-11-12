@@ -365,12 +365,12 @@ export class FakeServerApi {
   /**
    * @since 1.1.0
    * @function
-   * @name FakeServerApi#openSocket
+   * @name FakeServerApi#createSocket
    * @return {any}
    * @description
-   * Open a fake websocket connection
+   * Create a fake websocket connection
    */
-  openSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
+  createSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
     const request = new FakeIncomingMessage();
     request.method = "GET";
     request.url = url;
@@ -693,8 +693,6 @@ class FakeServerResponse extends Writable implements ServerResponse {
   flushHeaders(): void {
     console.log("flushHeaders");
   }
-
-
 }
 
 class FakeWebSocket implements FakeWebSocketApi {
@@ -728,6 +726,7 @@ class FakeWebSocket implements FakeWebSocketApi {
   close(): void {
     this.readyState = 2;
     this.eventEmitter.emit("close");
+    this.socket.finished();
     this.eventEmitter.removeAllListeners();
   }
 
