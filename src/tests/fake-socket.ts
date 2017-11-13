@@ -12,6 +12,7 @@ import {BaseRequest} from "../server/request";
 import {HttpError} from "../error";
 import {Socket} from "../server/socket";
 import {IAfterClose} from "../interfaces/iwebsocket";
+import {Param} from "../decorators";
 
 // use chai spies
 use(sinonChai);
@@ -34,6 +35,7 @@ describe("fakeHttpServer with Sockets", () => {
       private readonly request: BaseRequest;
 
       private socket: Socket;
+      private name: string;
 
       @Hook("verify")
       verify(): void {
@@ -43,9 +45,14 @@ describe("fakeHttpServer with Sockets", () => {
       }
 
       @Hook("open")
-      open(@Inject(Socket) socket: Socket) {
+      open(@Inject(Socket) socket: Socket, @Param("name") name: string) {
         this.socket = socket;
+        this.name = name;
         dummyResourceLocked = true;
+
+        if (this.request.getRequestHeader("send-name")) {
+          this.socket.send(name);
+        }
       }
 
       @Hook("message")
@@ -82,7 +89,13 @@ describe("fakeHttpServer with Sockets", () => {
             methods: [Methods.GET],
             url: "/echo",
             route: "socket"
+          },
+          {
+            methods: [Methods.GET],
+            url: "/echo-<name:([A-Z]+)>",
+            route: "socket"
           }
+
         ]);
         this.logger.printToConsole();
         this.logger.enable();
@@ -116,6 +129,21 @@ describe("fakeHttpServer with Sockets", () => {
       })
       .then(done, done);
   });
+
+  it("Should extract parameters properly", (done) => {
+    server
+      .createSocket("/echo-VINCENT", {
+        "send-name": true
+      })
+      .then(api =>
+        api.open()
+          .then(() => {
+            assert.equal(api.getLastReceivedMessage(), "VINCENT");
+          })
+      )
+      .then(done, done);
+  });
+
 
   it("Should be possible to echo a message", (done) => {
     server
