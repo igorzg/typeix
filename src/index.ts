@@ -72,6 +72,7 @@ export {
  */
 export {
   httpServer,
+  HttpOptions,
   getModule,
   Request,
   Status,

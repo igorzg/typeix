@@ -1,4 +1,4 @@
-export {httpServer} from "./http";
+export {httpServer, HttpOptions} from "./http";
 export {getModule} from "./bootstrap";
 export {BaseRequest, Request} from "./request";
 export {Socket} from "./socket";
