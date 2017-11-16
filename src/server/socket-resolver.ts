@@ -1,5 +1,4 @@
 import {IncomingMessage} from "http";
-import {getMethodName} from "../router/router";
 import {isFunction, isPresent} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
@@ -8,101 +7,84 @@ import {EventEmitter} from "events";
 import {Inject, Injectable} from "../decorators";
 import {FUNCTION_KEYS, FUNCTION_PARAMS, Metadata} from "../injector/metadata";
 import {IParam} from "../interfaces/iparam";
-import {BaseRequest, Request} from "./request";
+import {BaseRequest} from "./request";
 import * as WebSocket from "ws";
 import {IAction} from "../interfaces/iaction";
 import {ControllerResolver} from "./controller-resolver";
 import {Socket} from "./socket";
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
+ * @private
  * @class
  * @name SocketResolver
  * @constructor
- * @description
- * SocketResolver is responsible for handling router result and processing all requests in system
- * This component is used internally by framework
  *
- * @private
+ * @description
+ * This component is responsible for finding and instantiating the correctly annotated {@link WebSocket} class
+ * in the application. It is used internally by the framework.
  */
 @Injectable()
 export class SocketResolver {
 
   /**
-   * @param IncomingMessage
-   * @description
-   * Value provided by injector which handles request input
+   * The original incoming upgrade request
    */
   @Inject("request")
   private request: IncomingMessage;
 
   /**
-   * @param {Array<Buffer>} data
-   * @description
    * Data received by client on initial POST, PATCH, PUT requests
    */
   @Inject("data")
   private data: Array<Buffer>;
 
   /**
-   * @param {string} id
-   * @description
    * UUID identifier of request
    */
   @Inject("UUID")
   private id: string;
 
   /**
-   * @param {IProvider} controllerProvider
-   * @description
-   * Injector
+   * The designated {@link WebSocket} provider
    */
   @Inject("socketProvider")
   private socketProvider: IProvider;
 
   /**
-   * @param {IResolvedRoute} resolvedRoute
-   * @description
    * Resolved route from injector
    */
   @Inject("resolvedRoute")
   private resolvedRoute: IResolvedRoute;
 
   /**
-   * @param {Injector} Injector
-   * @description
    * Injector which created request
    */
   @Inject(Injector)
   private injector: Injector;
 
   /**
-   * @param {Logger} logger
-   * @description
    * Provided by injector
    */
   @Inject(Logger)
   private logger: Logger;
 
   /**
-   * @param {EventEmitter} eventEmitter
-   * @description
    * Responsible for handling events
    */
   @Inject(EventEmitter)
   private eventEmitter: EventEmitter;
 
   /**
-   * @description
    * Created socket instance
    */
   private socket: any;
 
   /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getEventEmitter
+   * @since 2.0.0
    * @private
+   * @function
+   * @name SocketResolver#getEventEmitter
    *
    * @description
    * Get request event emitter
@@ -112,35 +94,63 @@ export class SocketResolver {
   }
 
   /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getIncomingMessage
+   * @since 2.0.0
    * @private
+   * @function
+   * @name SocketResolver#getIncomingMessage
    *
    * @description
-   * Get IncomingMessage object
+   * Get underlying upgrade request
    */
   getIncomingMessage(): IncomingMessage {
     return this.request;
   }
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketResolver#getResolvedRoute
+   *
+   * @description
+   * Get originally resolved route
+   */
   getResolvedRoute(): IResolvedRoute {
     return this.resolvedRoute;
   }
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketResolver#getId
+   *
+   * @description
+   * Get unique request ID
+   */
   getId(): string {
     return this.id;
   }
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketResolver#getBody
+   *
+   * @description
+   * Get the data sent with the upgrade request
+   */
   getBody(): Array<Buffer> {
     return this.data;
   }
 
   /**
-   * @since 1.0.0
-   * @function
-   * @name Request#destroy
+   * @since 2.0.0
    * @private
+   * @function
+   * @name SocketResolver#destroy
+   *
    * @description
    * Destroy all references to free memory
    */
@@ -155,12 +165,14 @@ export class SocketResolver {
   }
 
   /**
-   * @since 1.0.0
-   * @function
-   * @name Request#process
+   * @since 2.0.0
    * @private
+   * @function
+   * @name SocketResolver#process
+   * @return {Promise<SocketResolver>} Promise to resolve when the socket was created and verified successfully
+   *
    * @description
-   * Process request logic
+   * Process request logic by creating and verifying the socket
    */
   async process(): Promise<SocketResolver> {
     // set request reflection
@@ -189,6 +201,16 @@ export class SocketResolver {
     return this;
   }
 
+  /**
+   * @sicne 2.0.0
+   * @function
+   * @name SocketResolver#openSocket
+   * @param {WebSocket} ws The "ws".WebSocket representing the real socket
+   * @return {Promise<any>} Promise to resolve when the socket has been opened successfully
+   *
+   * @description
+   * Tries to call the open method on the created {@link WebSocket} and sets up message listeners.
+   */
   async openSocket(ws: WebSocket): Promise<any> {
     this.injector.set(Socket, new Socket(ws));
 
@@ -200,6 +222,16 @@ export class SocketResolver {
     this.processSocketHook("open");
   }
 
+  /**
+   * @since 2.0.0
+   * @function
+   * @name SocketResolver#processSocketHook
+   * @param {string} actionName Name of the {@link Hook} to invoke
+   * @return {Promise<any>} Promise resolved when the hook had been invoked successfully
+   *
+   * @description
+   * Tries to invoke the {@link Hook} for the given name on the created socket.
+   */
   private async processSocketHook(actionName: string) {
     const action = this.getMappedHook(this.socketProvider, actionName);
 
@@ -216,6 +248,18 @@ export class SocketResolver {
     return await func.apply(this.socket, args);
   }
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketResolver#getMappedHook
+   * @param {IProvider} socketProvider The provider of the socket
+   * @param {String} actionName The hook name to call
+   * @return {IAction} The action representing the hook
+   *
+   * @description
+   * Investigates the metadata of the given provider to find the action representing the hook with the given name.
+   */
   private getMappedHook(socketProvider: IProvider, actionName: String): IAction {
     // get mappings from controller
     let mappings = Metadata
@@ -237,7 +281,18 @@ export class SocketResolver {
     return mappedAction;
   }
 
-
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketResolver#getAnnotatedArguments
+   * @param {IProvider} provider The socket provider
+   * @param {string} functionName The name of the function to get argument information for
+   * @return {Array<any>} The values to use as arguments
+   *
+   * @description
+   * Inspects the given function of the provider and returns the correct argument values
+   */
   private getAnnotatedArguments(provider: IProvider, functionName: string): Array<any> {
     const params: Array<IParam> = Metadata
       .getMetadata(provider.provide.prototype, FUNCTION_PARAMS)
@@ -257,21 +312,5 @@ export class SocketResolver {
             return this.injector.get(param.value);
         }
       });
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#benchmark
-   * @private
-   * @description
-   * Print benchmark
-   */
-  private benchmark(message: string, start: number) {
-    this.logger.benchmark(`${message}: ${(Date.now() - start)}ms`, {
-      method: getMethodName(this.resolvedRoute.method),
-      route: this.resolvedRoute.route,
-      url: this.request.url
-    });
   }
 }

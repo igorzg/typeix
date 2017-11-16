@@ -140,46 +140,65 @@ export interface FakeResponseApi {
 }
 
 /**
- * @since 1.1.0
- * @class
+ * @since 2.0.0
+ * @interface
  * @name FakeWebSocketApi
+ *
  * @description
- * Fake API used to test websockets
+ * API used to communicate with a fake WebSocket during testing.
  */
 export interface FakeWebSocketApi {
 
   /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#open
+   * @return {Promise<void>} Resolved when the socket is ready, rejected on error
+   *
+   * @description
    * Opens and prepares the fake socket for usage.
    * You need to call open before receiving or sending data.
-   * @return {Promise<void>}
    */
   open(): Promise<void>;
 
   /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#close
+   *
    * @description
    * Closes the fake socket.
    */
   close(): void;
 
   /**
-   * @since 1.1.0
-   * @method
+   * @since 2.0.0
+   * @function
    * @name FakeWebSocketApi#send
-   * @param {string} data Data to send
+   * @param {"ws".Data} data Data to send
+   *
    * @description
    * Send data over the fake websocket
    */
   send(data: WebSocket.Data): void;
 
   /**
-   * @return {any}
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#getLastReceivedMessage
+   * @return {any} The data that was last received over the socket
+   *
    * @description
    * Get the last message that had been received via the socket from the server.
    */
   getLastReceivedMessage(): any;
 
   /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#onMessage
    * @param {(message: any) => void} cb
+   *
    * @description
    * Register a listener to be called whenever a message is sent from the server.
    */
@@ -363,12 +382,15 @@ export class FakeServerApi {
   }
 
   /**
-   * @since 1.1.0
+   * @since 2.0.0
    * @function
    * @name FakeServerApi#createSocket
-   * @return {any}
+   * @return {Promise<FakeWebSocketApi>} Promise that will resolve if the socket has been verified or rejected otherwise
+   *
    * @description
-   * Create a fake websocket connection
+   * Create a fake WebSocket connection. This will trigger the regular resolution process and will try to verify the socket.
+   * If verification fails the returned promise will be rejected otherwise it will be resolved and you can use the
+   * {@link FakeWebSocketApi} to simulate data exchange.
    */
   createSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
     const request = new FakeIncomingMessage();
@@ -695,16 +717,35 @@ class FakeServerResponse extends Writable implements ServerResponse {
   }
 }
 
+/**
+ * @since 2.0.0
+ * @private
+ * @class
+ * @name FakeWebSocket
+ * @constructor
+ *
+ * @description
+ * Implements a dummy socket API providing logic for usage by in tests
+ */
 class FakeWebSocket implements FakeWebSocketApi {
 
   private eventEmitter = new EventEmitter();
   private readyState: number = 0;
   private lastReceivedMessage: WebSocket.Data;
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @constructor
+   * @param {IWebSocketResult} socket The socket result to wrap
+   */
   constructor(private readonly socket: IWebSocketResult) {
     this.onMessage((data: WebSocket.Data) => this.lastReceivedMessage = data);
   }
 
+  /**
+   * @inheritDoc
+   */
   open(): Promise<void> {
     return this.socket
       .open(<any> {
@@ -723,6 +764,9 @@ class FakeWebSocket implements FakeWebSocketApi {
       });
   }
 
+  /**
+   * @inheritDoc
+   */
   close(): void {
     this.readyState = 2;
     this.eventEmitter.emit("close");
@@ -730,6 +774,9 @@ class FakeWebSocket implements FakeWebSocketApi {
     this.eventEmitter.removeAllListeners();
   }
 
+  /**
+   * @inheritDoc
+   */
   send(data: WebSocket.Data): void {
     if (this.readyState !== 1) {
       throw new Error("Socket must be opened first");
@@ -737,10 +784,16 @@ class FakeWebSocket implements FakeWebSocketApi {
     this.eventEmitter.emit("message", data);
   }
 
+  /**
+   * @inheritDoc
+   */
   getLastReceivedMessage(): any {
     return this.lastReceivedMessage;
   }
 
+  /**
+   * @inheritDoc
+   */
   onMessage(cb: (message: WebSocket.Data) => void) {
     this.eventEmitter.on("_receive", data => cb(data));
   }

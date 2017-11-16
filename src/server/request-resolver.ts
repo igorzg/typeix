@@ -18,15 +18,20 @@ import {Injector} from "../injector/injector";
 import {IRedirect, Status} from "./status-code";
 import {clean} from "../logger/inspect";
 import {IWebSocketMetadata} from "../interfaces/iwebsocket";
-import {BaseRequest} from "./request";
 import {SocketResolver} from "./socket-resolver";
 
 export const MODULE_KEY = "__module__";
 export const ERROR_KEY = "__error__";
 
 /**
- * @since 1.1.0
+ * @since 2.0.0
  * @private
+ * @abstract
+ * @class
+ * @name BaseRequestResolver
+ *
+ * @description
+ * Base class for all kinds of request resolvers providing the general functionality
  */
 export abstract class BaseRequestResolver {
   /**
@@ -147,19 +152,37 @@ export abstract class BaseRequestResolver {
 
   /**
    * @since 1.0.0
-   * @param {IResolvedModule} resolvedModule
-   * @return {Promise<any>}
    * @private
+   * @function
+   * @name BaseRequestResolver#processModule
+   * @param {IResolvedModule} resolvedModule
+   * @return {Promise<any>} Promise to resolve when processing is finished, reject on error
+   *
+   * @description
+   * Called when the resolved module is to be processed
    */
   abstract processModule(resolvedModule: IResolvedModule): Promise<any>;
 
-  protected abstract handleError(data: any): any;
+  /**
+   * @since 1.0.0
+   * @private
+   * @function
+   * @name BaseRequestResolver#handleError
+   * @param {any} data Any error or data a promise during processing had been rejected
+   *
+   * @description
+   * Called when an error occurs during processing - do recovery or other error handling in concrete implementation
+   */
+  protected abstract handleError(data: any): void;
 
   /**
    * @since 1.0.0
+   * @private
    * @function
    * @name HttpRequestResolver#getResolvedModule
-   * @private
+   * @param {IResolvedRoute} resolvedRoute The resolved route
+   * @return {IResolvedModule} The module belonging to the resolved route
+   *
    * @description
    * Resolve route and return the corresponding resolved module as well as controller and action (if available)
    */
@@ -202,14 +225,14 @@ export enum RenderType {
 }
 
 /**
- * @since 1.0.0
- * @class
- * @name HttpRequestResolver
- * @constructor
- * @description
- * Get current request and resolve module and route
- *
+ * @since 2.0.0
  * @private
+ * @class
+ * @constructor
+ * @name HttpRequestResolver
+ *
+ * @description
+ * Does request resolution for regular HTTP requests
  */
 @Injectable()
 export class HttpRequestResolver extends BaseRequestResolver implements IAfterConstruct {
@@ -254,9 +277,11 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 
   /**
    * @since 1.0.0
+   * @private
    * @function
    * @name HttpRequestResolver#getControllerProvider
-   * @private
+   * @param {IResolvedModule} resolvedModule The resolved module
+   *
    * @description
    * Returns a controller provider
    */
@@ -283,12 +308,12 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 
   /**
    * @since 1.0.0
+   * @private
    * @function
    * @name HttpRequestResolver#afterConstruct
    *
-   * @private
    * @description
-   * Create events for status code and content type change
+   * Create event listeners for status code and content type change
    */
   afterConstruct() {
     this.eventEmitter.on("statusCode", value => this.statusCode = value);
@@ -298,12 +323,13 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 
   /**
    * @since 1.0.0
+   * @private
    * @function
    * @name HttpRequestResolver#processError
    * @param {Object} data
-   * @param {Boolean} isCustom
+   * @param {boolean} isCustom
+   * @return {Promise<Buffer|string>} Promise to be resolved when error handling was successful
    *
-   * @private
    * @description
    * Process error handling
    * @todo fix custom error handling
@@ -355,14 +381,14 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 
   /**
    * @since 1.0.0
+   * @private
    * @function
    * @name HttpRequestResolver#render
-   * @param {Buffer|String} response
-   * @param {RenderType} type
+   * @param {Buffer|String} response The produced response so far
+   * @param {RenderType} type How to render the response
    *
-   * @private
    * @description
-   * This method sends data to client
+   * Renders the given response and transfers the final data to the client
    */
   async render(response: string | Buffer, type: RenderType): Promise<string | Buffer> {
 
@@ -415,12 +441,7 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 
 
   /**
-   * @since 1.0.0
-   * @function
-   * @name HttpRequestResolver#processModule
-   * @private
-   * @description
-   * Resolve route and deliver resolved module
+   * @inheritDoc
    */
   processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string | Buffer> {
     let providers = [
@@ -461,6 +482,16 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
       .then(data => this.render(data, isFalsy(this.redirectTo) ? RenderType.DATA_HANDLER : RenderType.REDIRECT));
   }
 
+  /**
+   * @since 1.0.0
+   * @private
+   * @function
+   * @name HttpRequestResolver#handleError
+   * @param {any} data Any error or data a promise during processing had been rejected
+   *
+   * @description
+   * Tries to render the data using a custom registered error handler or falls back to default error rendering.
+   */
   protected handleError(data: any): void {
     this
       .render(data, RenderType.CUSTOM_ERROR_HANDLER)
@@ -469,18 +500,29 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
 }
 
 /**
- * @since 1.1.0
+ * @since 2.0.0
+ * @private
  * @class
  * @name SocketRequestResolver
  * @constructor
+ *
  * @description
  * Handles the current request and resolves to a socket
- *
- * @private
  */
 @Injectable()
 export class SocketRequestResolver extends BaseRequestResolver {
 
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketRequestResolver#getSocketProvider
+   * @param {IResolvedModule} resolvedModule The resolved module to make into a socket
+   * @return {IProvider} The designated {@link WebSocket} provider
+   *
+   * @description
+   * This method tries to find the designated {@link WebSocket} for the given resolved module.
+   */
   static getSocketProvider(resolvedModule: IResolvedModule): IProvider {
     let provider: IProvider = Metadata.verifyProvider(resolvedModule.module.provider);
     let moduleMetadata: IModuleMetadata = Metadata.getComponentConfig(provider.provide);
@@ -500,6 +542,9 @@ export class SocketRequestResolver extends BaseRequestResolver {
     return socketProvider;
   }
 
+  /**
+   * @inheritDoc
+   */
   processModule(resolvedModule: IResolvedModule): Promise<SocketResolver> {
     const providers = [
       {provide: "data", useValue: this.data},
@@ -526,7 +571,18 @@ export class SocketRequestResolver extends BaseRequestResolver {
     return socketResolver.process();
   }
 
-  protected handleError(data: any): any {
+  /**
+   * @since 2.0.0
+   * @private
+   * @function
+   * @name SocketRequestResolver#handleError
+   * @param {any} data Any error or data a promise during processing had been rejected
+   *
+   * @description
+   * Logs the error and throws an {@link HttpError} to indicate that it's not possible
+   * to resolve to a socket.
+   */
+  protected handleError(data: any): void {
     this.logger.error("SocketRequestResolver.handleError: an error occurred", {data});
     if (data instanceof HttpError) {
       throw data;

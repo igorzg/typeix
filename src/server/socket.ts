@@ -19,25 +19,81 @@ export interface IWebSocketResult {
   finished: () => void;
 }
 
+/**
+ * @since 2.0.0
+ * @class
+ * @constructor
+ * @name Socket
+ *
+ * @description
+ * Basic API for accessing a WebSocket in order to get state information, send data, or close the socket.
+ */
 export class Socket {
 
+  /**
+   * @since 2.0.0
+   * @param {WebSocket} ws Underlying WebSocket to wrap
+   *
+   * @description
+   * Creates a new API wrapping the given raw WebSocket
+   */
   constructor(private readonly ws: WebSocket) {
   }
 
+  /**
+   * @since 2.0.0
+   * @function
+   * @name Socket#getReadyState
+   * @return {number} Socket readyState
+   *
+   * @description
+   * Get the underlying WebSocket's readyState (see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket#Ready_state_constants)
+   */
   getReadyState(): number {
     return this.ws.readyState;
   }
 
+  /**
+   * @since 2.0.0
+   * @function
+   * @name Socket#close
+   * @param {number} status Status code to send as close reason
+   * @param {string} data Data to send as close reason
+   *
+   * @description
+   * Closes the underlying WebSocket
+   */
   close(status?: number, data?: string): void {
     this.ws.close(status, data);
   }
 
+  /**
+   * @since 2.0.0
+   * @function
+   * @name Socket#send
+   * @param data Data to send to the client
+   * @param {{mask?: boolean; binary?: boolean}|(err: Error) => void} options Either send options or the error callback
+   * @param {(err: Error) => void} cb (only if second parameter are options) error callback
+   */
   send(data: any, options?: { mask?: boolean; binary?: boolean } | ((err: Error) => void), cb?: (err: Error) => void): void {
     this.ws.send(data, options as any, cb);
   }
 
 }
 
+/**
+ * @since 2.0.0
+ * @function
+ * @name fireWebSocket
+ * @param {Array<IModule>} modules Bootstrapped modules
+ * @param {"http".IncomingMessage} request Incoming HTTP request
+ * @return {Promise<IWebSocketResult>} Promise which will resolve once the socket has been verified or reject on failure
+ *
+ * @description
+ * This method will trigger a WebSocket resolution and will try to find a matching {@link WebSocket} registered in the system.
+ * Typically you do not use this method directly but it is called automatically by the framework. For testing best
+ * refer to {@link FakeServerApi#createSocket}.
+ */
 export function fireWebSocket(modules: Array<IModule>, request: IncomingMessage): Promise<IWebSocketResult> {
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);
