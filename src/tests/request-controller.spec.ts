@@ -1,14 +1,15 @@
 import {Methods} from "../router/router";
 import {Injector} from "../injector/injector";
 import {IResolvedRoute} from "../interfaces/iroute";
-import {Request, ControllerResolver} from "../server/controller-resolver";
+import {ControllerResolver} from "../server/controller-resolver";
+import {Request} from "../server/request";
 import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
-import {spy, stub, assert as assertSpy} from "sinon";
+import {assert as assertSpy, spy, stub} from "sinon";
 import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {Logger} from "../logger/logger";
-import {Action, Before, After, BeforeEach, AfterEach} from "../decorators/action";
+import {Action, After, AfterEach, Before, BeforeEach} from "../decorators/action";
 import {Metadata} from "../injector/metadata";
 import {IAction} from "../interfaces/iaction";
 import {Produces} from "../decorators/produces";
@@ -97,14 +98,6 @@ describe("ControllerResolver", () => {
     assert.isTrue(isEqual(controllerResolver.getServerResponse(), response));
   });
 
-  it("ControllerResolver.getBody", () => {
-    assert.isTrue(isEqual(controllerResolver.getBody(), Buffer.concat(data)));
-  });
-
-  it("ControllerResolver.getUUID", () => {
-    assert.isTrue(isEqual(controllerResolver.getUUID(), id));
-  });
-
   it("ControllerResolver.process", () => {
     let aSpy = stub(controllerResolver, "processController");
     aSpy.returnsArg(0);
@@ -116,9 +109,9 @@ describe("ControllerResolver", () => {
     class B {
       @Action("index")
       index() {
-
       }
     }
+
     let provider = Metadata.verifyProvider(B);
     assert.isTrue(controllerResolver.hasMappedAction(provider, "index"));
     assert.isFalse(controllerResolver.hasMappedAction(provider, "nomappedAction"));
@@ -136,12 +129,14 @@ describe("ControllerResolver", () => {
 
       }
     }
+
     class B extends A {
       @Action("index")
       actionIndex() {
 
       }
     }
+
     let aProvider = Metadata.verifyProvider(A);
     let bProvider = Metadata.verifyProvider(B);
     assert.isFalse(controllerResolver.hasMappedAction(aProvider, "index"));
@@ -184,6 +179,7 @@ describe("ControllerResolver", () => {
 
       }
     }
+
     class B extends A {
       @Produces("application/json")
       @Action("index")
@@ -191,6 +187,7 @@ describe("ControllerResolver", () => {
 
       }
     }
+
     let aProvider = Metadata.verifyProvider(A);
     let bProvider = Metadata.verifyProvider(B);
 
@@ -223,6 +220,7 @@ describe("ControllerResolver", () => {
 
       }
     }
+
     class B extends A {
 
       constructor(private test: Logger) {
@@ -235,6 +233,7 @@ describe("ControllerResolver", () => {
 
       }
     }
+
     let bProvider = Metadata.verifyProvider(B);
     let action: IAction = controllerResolver.getMappedAction(bProvider, "index");
     let arg = controllerResolver.getMappedActionArguments(bProvider, action);
@@ -242,16 +241,16 @@ describe("ControllerResolver", () => {
     assert.deepEqual(arg, [
         {
           Class: B,
-          type: 'Inject',
-          key: 'actionIndex',
+          type: "Inject",
+          key: "actionIndex",
           value: Logger,
           paramIndex: 1
         },
         {
           Class: B,
           type: "Param",
-          key: 'actionIndex',
-          value: 'a',
+          key: "actionIndex",
+          value: "a",
           paramIndex: 0
         }
       ]
@@ -262,6 +261,7 @@ describe("ControllerResolver", () => {
 
   it("ControllerResolver.processAction", () => {
     let aSpy = spy(eventEmitter, "emit");
+
     @Controller({
       name: "root"
     })
@@ -309,11 +309,11 @@ describe("ControllerResolver", () => {
     @Filter(10)
     class AFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
@@ -322,11 +322,11 @@ describe("ControllerResolver", () => {
     @Filter(20)
     class BFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
@@ -369,7 +369,6 @@ describe("ControllerResolver", () => {
   });
 
 
-
   it("ControllerResolver.processController no action chain", (done) => {
     @Controller({
       name: "root"
@@ -384,6 +383,7 @@ describe("ControllerResolver", () => {
         };
       }
     }
+
     let aProvider = Metadata.verifyProvider(A);
     // process controller
     let result = controllerResolver.processController(new Injector(), aProvider, "index");
@@ -459,11 +459,11 @@ describe("ControllerResolver", () => {
     @Filter(10)
     class AFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
@@ -472,11 +472,11 @@ describe("ControllerResolver", () => {
     @Filter(20)
     class BFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
@@ -533,20 +533,16 @@ describe("ControllerResolver", () => {
   });
 
 
-
-
-
-
   it("ControllerResolver.processController with stopChain", (done) => {
 
     @Filter(10)
     class AFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
@@ -555,11 +551,11 @@ describe("ControllerResolver", () => {
     @Filter(20)
     class BFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
@@ -621,7 +617,6 @@ describe("ControllerResolver", () => {
   });
 
 
-
   it("ControllerResolver.processController with stopChain in Filter 1", (done) => {
 
     @Filter(10)
@@ -630,12 +625,12 @@ describe("ControllerResolver", () => {
       @Inject(Request)
       private request: Request;
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         this.request.stopChain();
         return "aFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
@@ -644,11 +639,11 @@ describe("ControllerResolver", () => {
     @Filter(20)
     class BFilter implements IFilter {
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
@@ -709,8 +704,6 @@ describe("ControllerResolver", () => {
   });
 
 
-
-
   it("ControllerResolver.processController with stopChain in Filter 2", (done) => {
 
     @Filter(10)
@@ -719,12 +712,12 @@ describe("ControllerResolver", () => {
       @Inject(Request)
       private request: Request;
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         this.request.stopChain();
         return "aFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "aFilter <- " + data;
       }
 
@@ -737,12 +730,12 @@ describe("ControllerResolver", () => {
       private request: Request;
 
 
-      before(data: string): string|Buffer|Promise<string|Buffer> {
+      before(data: string): string | Buffer | Promise<string | Buffer> {
         this.request.stopChain();
         return "bFilter <- " + data;
       }
 
-      after(data: string): string|Buffer|Promise<string|Buffer> {
+      after(data: string): string | Buffer | Promise<string | Buffer> {
         return "bFilter <- " + data;
       }
 
@@ -785,6 +778,7 @@ describe("ControllerResolver", () => {
       }
 
     }
+
     // process controller
 
     let result = fakeControllerActionCall(

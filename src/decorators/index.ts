@@ -1,5 +1,6 @@
-export {Action, Before, After, BeforeEach, AfterEach} from "./action";
+export {Action, Before, After, BeforeEach, AfterEach, Hook} from "./action";
 export {Controller} from "./controller";
+export {WebSocket} from "./websocket";
 export {Inject} from "./inject";
 export {Filter} from "./filter";
 export {Injectable} from "./injectable";

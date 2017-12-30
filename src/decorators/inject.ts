@@ -34,6 +34,9 @@ export let Inject = (value: Function | string, isMutable?: boolean) => {
     if (Metadata.isDescriptor(paramIndex)) {
       throw new TypeError(`@${type} is not allowed ${Metadata.getName(Class, "on class ")} on ${paramIndex.value}
       @Inject is allowed only as param type!`);
+    } else if (isUndefined(value)) {
+      throw new TypeError(`@Inject is not allowed with undefined value ${Metadata.getName(Class, "on ")}.${key}
+      - make sure there are no circular dependencies`);
     }
 
     metadata.push(isUndefined(paramIndex) ? {

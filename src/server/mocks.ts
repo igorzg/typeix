@@ -6,7 +6,7 @@ import {Inject} from "../decorators/inject";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
 import {IncomingMessage, ServerResponse} from "http";
-import {isObject, uuid} from "../core";
+import {isFunction, isObject, uuid} from "../core";
 import {ControllerResolver} from "./controller-resolver";
 import {ERROR_KEY} from "./request-resolver";
 import {EventEmitter} from "events";
@@ -16,6 +16,8 @@ import {IProvider} from "../interfaces/iprovider";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {Methods} from "../router/router";
 import {Logger} from "../logger/logger";
+import {fireWebSocket, IWebSocketResult} from "./socket";
+import * as WebSocket from "ws";
 
 export interface IFakeServerConfig {
 }
@@ -135,6 +137,72 @@ export interface FakeResponseApi {
   getBody(): string | Buffer;
 
   getHeaders(): any;
+}
+
+/**
+ * @since 2.0.0
+ * @interface
+ * @name FakeWebSocketApi
+ *
+ * @description
+ * API used to communicate with a fake WebSocket during testing.
+ */
+export interface FakeWebSocketApi {
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#open
+   * @return {Promise<void>} Resolved when the socket is ready, rejected on error
+   *
+   * @description
+   * Opens and prepares the fake socket for usage.
+   * You need to call open before receiving or sending data.
+   */
+  open(): Promise<void>;
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#close
+   *
+   * @description
+   * Closes the fake socket.
+   */
+  close(): void;
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#send
+   * @param {"ws".Data} data Data to send
+   *
+   * @description
+   * Send data over the fake websocket
+   */
+  send(data: WebSocket.Data): void;
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#getLastReceivedMessage
+   * @return {any} The data that was last received over the socket
+   *
+   * @description
+   * Get the last message that had been received via the socket from the server.
+   */
+  getLastReceivedMessage(): any;
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeWebSocketApi#onMessage
+   * @param {(message: any) => void} cb
+   *
+   * @description
+   * Register a listener to be called whenever a message is sent from the server.
+   */
+  onMessage(cb: (message: any) => void);
 }
 
 /**
@@ -311,6 +379,37 @@ export class FakeServerApi {
       request.emit("end");
     });
     return this.request(request, new FakeServerResponse());
+  }
+
+  /**
+   * @since 2.0.0
+   * @function
+   * @name FakeServerApi#createSocket
+   * @return {Promise<FakeWebSocketApi>} Promise that will resolve if the socket has been verified or rejected otherwise
+   *
+   * @description
+   * Create a fake WebSocket connection. This will trigger the regular resolution process and will try to verify the socket.
+   * If verification fails the returned promise will be rejected otherwise it will be resolved and you can use the
+   * {@link FakeWebSocketApi} to simulate data exchange.
+   */
+  createSocket(url: string, headers?: Object): Promise<FakeWebSocketApi> {
+    const request = new FakeIncomingMessage();
+    request.method = "GET";
+    request.url = url;
+    request.headers = headers;
+
+    return fireWebSocket(this.getModules(), request)
+      .then(result => {
+        if (result.error || !isFunction(result.open)) {
+          if (result.error instanceof HttpError) {
+            throw result.error;
+          } else {
+            throw new Error("socket resolution failed");
+          }
+        }
+
+        return new FakeWebSocket(result);
+      });
   }
 
   /**
@@ -616,7 +715,87 @@ class FakeServerResponse extends Writable implements ServerResponse {
   flushHeaders(): void {
     console.log("flushHeaders");
   }
+}
 
+/**
+ * @since 2.0.0
+ * @private
+ * @class
+ * @name FakeWebSocket
+ * @constructor
+ *
+ * @description
+ * Implements a dummy socket API providing logic for usage by in tests
+ */
+class FakeWebSocket implements FakeWebSocketApi {
 
+  private eventEmitter = new EventEmitter();
+  private readyState: number = 0;
+  private lastReceivedMessage: WebSocket.Data;
+
+  /**
+   * @since 2.0.0
+   * @private
+   * @constructor
+   * @param {IWebSocketResult} socket The socket result to wrap
+   */
+  constructor(private readonly socket: IWebSocketResult) {
+    this.onMessage((data: WebSocket.Data) => this.lastReceivedMessage = data);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  open(): Promise<void> {
+    return this.socket
+      .open(<any> {
+        on: this.eventEmitter.on.bind(this.eventEmitter),
+        send: (data) => {
+          this.eventEmitter.emit("_receive", data);
+        },
+        close: this.close.bind(this)
+      })
+      .then(() => {
+        this.readyState = 1;
+        this.eventEmitter.on("close", () => this.readyState = 3);
+      }, (error) => {
+        this.readyState = 3;
+        throw error;
+      });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  close(): void {
+    this.readyState = 2;
+    this.eventEmitter.emit("close");
+    this.socket.finished();
+    this.eventEmitter.removeAllListeners();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  send(data: WebSocket.Data): void {
+    if (this.readyState !== 1) {
+      throw new Error("Socket must be opened first");
+    }
+    this.eventEmitter.emit("message", data);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  getLastReceivedMessage(): any {
+    return this.lastReceivedMessage;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  onMessage(cb: (message: WebSocket.Data) => void) {
+    this.eventEmitter.on("_receive", data => cb(data));
+  }
 
 }

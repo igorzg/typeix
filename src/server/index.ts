@@ -1,5 +1,6 @@
-export {httpServer} from "./http";
+export {httpServer, HttpOptions} from "./http";
 export {getModule} from "./bootstrap";
-export {Request} from "./controller-resolver";
+export {BaseRequest, Request} from "./request";
+export {Socket} from "./socket";
 export {Status} from "./status-code";
-export {fakeHttpServer, fakeControllerActionCall, FakeServerApi, FakeResponseApi, IFakeServerConfig} from "./mocks";
+export {fakeHttpServer, fakeControllerActionCall, FakeServerApi, FakeResponseApi, FakeWebSocketApi, IFakeServerConfig} from "./mocks";
