@@ -1,3 +1,6 @@
+## 2.0.0-rc.0
+- Web sockets support
+
 ## 1.0.0
 - First stable release
 

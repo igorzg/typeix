@@ -1,6 +1,6 @@
 {
   "name": "typeix",
-  "version": "1.0.0",
+  "version": "2.0.0-rc.0",
   "dependencies": {
     "reflect-metadata": "^0.1.10",
     "ws": "^3.2.0"
@@ -35,6 +35,12 @@
     "services"
   ],
   "author": "igor.zg1987@gmail.com",
+  "contributors": [
+    {
+      "name": "Michael Rose",
+      "email": "michael_rose@gmx.de"
+    }
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.0.2",
