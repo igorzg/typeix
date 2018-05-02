@@ -1,13 +1,13 @@
 {
   "name": "typeix",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dependencies": {
     "reflect-metadata": "^0.1.10"
   },
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "build/index.js",
   "scripts": {
-    "test": "npm run compile && mocha build/tests/ --debug --full-trace",
+    "test": "npm run compile && mocha build/tests/ --inspect",
     "docs": "typedoc --options typedoc.json --includeDeclarations node_modules/@types/ src/",
     "compile": "tsc -p tsconfig.json"
   },

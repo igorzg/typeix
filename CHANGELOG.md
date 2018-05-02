@@ -1,3 +1,6 @@
+## 1.1.0
+- Stable release latest
+
 ## 1.0.0
 - First stable release
 
