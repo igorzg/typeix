@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {getMethodName, Methods} from "../router/router";
-import {isArray, isDate, isFalsy, isNumber, isPresent, isString, isTruthy} from "../core";
+import {getMethodName} from "../router/router";
+import {isArray, isFalsy, isPresent} from "../core";
 import {Logger} from "../logger/logger";
 import {Injector} from "../injector/injector";
 import {IProvider} from "../interfaces/iprovider";
@@ -12,18 +12,12 @@ import {Injectable} from "../decorators/injectable";
 import {Inject} from "../decorators/inject";
 import {FUNCTION_KEYS, FUNCTION_PARAMS, Metadata} from "../injector/metadata";
 import {IControllerMetadata} from "../interfaces/icontroller";
-import {IConnection} from "../interfaces/iconnection";
 import {IAction} from "../interfaces/iaction";
 import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
+import {Request} from "./request";
 import {ERROR_KEY} from "./request-resolver";
-import {MultiPart, MultiPartField, MultiPartFile} from "../parsers/multipart";
 
-/**
- * Cookie parse regex
- * @type {RegExp}
- */
-const COOKIE_PARSE_REGEX = /(\w+[^=]+)=([^;]+)/g;
 const CHAIN_KEY = "__chain__";
 
 /**
@@ -194,6 +188,18 @@ export class ControllerResolver {
     return this.request;
   }
 
+  getResolvedRoute(): IResolvedRoute {
+    return this.resolvedRoute;
+  }
+
+  getId(): string {
+    return this.id;
+  }
+
+  getBody(): Array<Buffer> {
+    return this.data;
+  }
+
   /**
    * @since 1.0.0
    * @function
@@ -206,34 +212,6 @@ export class ControllerResolver {
   getServerResponse(): ServerResponse {
     return this.response;
   }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getBody
-   * @private
-   *
-   * @description
-   * Get request body if present only on POST, PUT, PATCH
-   */
-  getBody(): Buffer {
-    return Buffer.concat(this.data);
-  }
-
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getUUID
-   * @private
-   *
-   * @description
-   * Return uuid created with this request
-   */
-  getUUID(): string {
-    return this.id;
-  }
-
 
   /**
    * @since 1.0.0
@@ -251,8 +229,8 @@ export class ControllerResolver {
     this.response.once("close", () => this.destroy());
 
     // set request reflection
-    let reflectionInjector = Injector.createAndResolveChild(this.injector, Request, [
-      {provide: ControllerResolver, useValue: this}
+    const reflectionInjector = Injector.createAndResolveChild(this.injector, Request, [
+      {provide: "controllerResolver", useValue: this}
     ]);
 
     return this.processController(reflectionInjector, this.controllerProvider, this.actionName);
@@ -277,7 +255,7 @@ export class ControllerResolver {
   /**
    * @since 1.0.0
    * @function
-   * @name Request#getMappedAction
+   * @name Request#getMappedHook
    * @private
    * @description
    * Returns a mapped action metadata
@@ -585,343 +563,6 @@ export class ControllerResolver {
       method: getMethodName(this.resolvedRoute.method),
       route: this.resolvedRoute.route,
       url: this.request.url
-    });
-  }
-}
-
-/**
- * @since 1.0.0
- * @class
- * @name Request
- * @constructor
- * @description
- * Get request reflection to limit public api
- *
- * @private
- */
-@Injectable()
-export class Request {
-
-  /**
-   * @param ControllerResolver
-   * @description
-   * Current internal ControllerResolver instance
-   */
-  @Inject(ControllerResolver)
-  private controllerResolver: ControllerResolver;
-
-  /**
-   * @param ResolvedRoute
-   * @description
-   * Current internal resolved route
-   */
-  @Inject("resolvedRoute")
-  private resolvedRoute: IResolvedRoute;
-  /**
-   * @param cookies
-   * @description
-   * Cookies object are stored to this object first time thy are parsed
-   */
-  private cookies: { [key: string]: string };
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#onDestroy
-   *
-   * @description
-   * Add destroy event to public api
-   */
-  onDestroy(callback: (...args: any[]) => void): void {
-    this.controllerResolver.getEventEmitter().once("destroy", callback);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getConnection
-   *
-   * @description
-   * Get connection data
-   */
-  getConnection(): IConnection {
-    let request = this.controllerResolver.getIncomingMessage();
-    return {
-      uuid: this.controllerResolver.getUUID(),
-      method: request.method,
-      url: request.url,
-      httpVersion: request.httpVersion,
-      httpVersionMajor: request.httpVersionMajor,
-      httpVersionMinor: request.httpVersionMinor,
-      remoteAddress: request.connection.remoteAddress,
-      remoteFamily: request.connection.remoteFamily,
-      remotePort: request.connection.remotePort,
-      localAddress: request.connection.localAddress,
-      localPort: request.connection.localPort
-    };
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getCookies
-   *
-   * @description
-   * Return parsed cookies
-   */
-  getCookies(): { [key: string]: string } {
-
-    if (isPresent(this.cookies)) {
-      return this.cookies;
-    }
-    // get cookie string
-    let cookie: string = this.getRequestHeader("Cookie");
-
-    if (isPresent(cookie)) {
-
-      this.cookies = {};
-
-      // parse cookies
-      cookie.match(COOKIE_PARSE_REGEX)
-        .map(item => item.split(COOKIE_PARSE_REGEX).slice(1, -1))
-        .map(item => {
-          return {
-            key: item.shift(),
-            value: item.shift()
-          };
-        })
-        .forEach(item => {
-          this.cookies[item.key] = item.value;
-        });
-
-      return this.cookies;
-    }
-
-    return {};
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getCookie
-   *
-   * @description
-   * Return request headers
-   */
-  getCookie(name: string): string {
-    let cookies = this.getCookies();
-    return cookies[name];
-  }
-
-  /**
-   * @since 0.0.1
-   * @function
-   * @name Request#setResponseCookie
-   * @param {String} key cookie name
-   * @param {String} value cookie value
-   * @param {String|Object|Number} expires expire date
-   * @param {String} path cookie path
-   * @param {String} domain cookie domain
-   * @param {Boolean} isHttpOnly is http only
-   * @description
-   * Sets an cookie header
-   */
-  setCookie(key: string, value: string, expires?: number | Date | string, path?: string, domain?: string, isHttpOnly?: boolean) {
-
-    let cookie = key + "=" + value;
-
-    if (isPresent(expires) && isNumber(expires)) {
-      let date: Date = new Date();
-      date.setTime(date.getTime() + (<number> expires));
-      cookie += "; Expires=";
-      cookie += date.toUTCString();
-    } else if (isPresent(expires) && isString(expires)) {
-      cookie += "; Expires=" + expires;
-    } else if (isPresent(expires) && isDate(expires)) {
-      cookie += "; Expires=";
-      cookie += (<Date> expires).toUTCString();
-    }
-
-    if (isPresent(path)) {
-      cookie += "; Path=" + path;
-    }
-    if (isPresent(domain)) {
-      cookie += "; Domain=" + domain;
-    }
-    if (isTruthy(isHttpOnly)) {
-      cookie += "; HttpOnly";
-    }
-    this.setResponseHeader("Set-cookie", cookie);
-
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getRequestHeaders
-   *
-   * @description
-   * Return request headers
-   */
-  getRequestHeaders(): any {
-    return this.controllerResolver.getIncomingMessage().headers;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getRequestHeader
-   *
-   * @description
-   * Return request header by name
-   */
-  getRequestHeader(name: string): any {
-    let requestHeaders = this.getRequestHeaders();
-    let headers = isPresent(requestHeaders) ? requestHeaders : {};
-    return headers[name.toLocaleLowerCase()];
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setResponseHeader
-   * @param {String} name
-   * @param {String} value
-   *
-   * @description
-   * Set response header
-   */
-  setResponseHeader(name: string, value: string | string[]): void {
-    this.controllerResolver.getServerResponse().setHeader(name, value);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setContentType
-   * @param {String} value
-   *
-   * @description
-   * Set response content type
-   */
-  setContentType(value: string) {
-    this.controllerResolver.getEventEmitter().emit("contentType", value);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getParams
-   *
-   * @description
-   * Get all request parameters
-   */
-  getParams(): Object {
-    return isPresent(this.resolvedRoute.params) ? this.resolvedRoute.params : {};
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getParam
-   * @param {string} name
-   *
-   * @description
-   * Get resolve route param
-   */
-  getParam(name: string): string {
-    let params = this.getParams();
-    return params[name];
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getMethod
-   *
-   * @description
-   * Return resolved route method
-   */
-  getMethod(): Methods {
-    return this.resolvedRoute.method;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getRoute
-   *
-   * @description
-   * Return resolved route name
-   */
-  getRoute(): string {
-    return this.resolvedRoute.route;
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getBody
-   *
-   * @description
-   * Get request body buffer
-   */
-  getBody(): Buffer {
-    return this.controllerResolver.getBody();
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#getBodyAsMultiPart
-   * @param {string} encoding
-   *
-   * @description
-   * Receive body as multipart
-   */
-  getBodyAsMultiPart(encoding = "utf8"): Array<MultiPartField | MultiPartFile> {
-    let buffer: Buffer = this.controllerResolver.getBody();
-    let contentType = this.getRequestHeader("content-type");
-    let parser = new MultiPart(contentType, encoding);
-    return parser.parse(buffer);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#setStatusCode
-   *
-   * @description
-   * Set status code
-   */
-  setStatusCode(code: Status | number) {
-    this.controllerResolver.getEventEmitter().emit("statusCode", code);
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#stopChain
-   *
-   * @description
-   * Stops action chain
-   */
-  stopChain() {
-    this.controllerResolver.stopChain();
-  }
-
-  /**
-   * @since 1.0.0
-   * @function
-   * @name Request#redirectTo
-   *
-   * @description
-   * Stops action chain
-   */
-  redirectTo(url: string, code: Status | number) {
-    this.stopChain();
-    this.controllerResolver.getEventEmitter().emit("redirectTo", {
-      code, url
     });
   }
 }

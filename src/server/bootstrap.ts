@@ -4,7 +4,7 @@ import {IncomingMessage, ServerResponse} from "http";
 import {isArray, isEqual, isFalsy, isTruthy, uuid} from "../core";
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
 import {Metadata} from "../injector/metadata";
-import {RequestResolver} from "./request-resolver";
+import {HttpRequestResolver} from "./request-resolver";
 import {parse} from "url";
 import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
@@ -163,7 +163,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * @since 1.0.0
  * @function
  * @name fireRequest
- * @param {Array<IModule>} modules list of all modules bootstraped
+ * @param {Array<IModule>} modules list of all modules bootstrapped
  * @param {IncomingMessage} request event emitter
  * @param {ServerResponse} response event emitter
  * @return {string|Buffer} data from controller
@@ -176,14 +176,14 @@ export function fireRequest(modules: Array<IModule>,
                             request: IncomingMessage,
                             response: ServerResponse): Promise<string | Buffer> {
 
-  let rootInjector = getModule(modules).injector;
-  let logger = rootInjector.get(Logger);
+  let rootInjector: Injector = getModule(modules).injector;
+  let logger: Logger = rootInjector.get(Logger);
   /**
-   * Create RequestResolver injector
+   * Create HttpRequestResolver injector
    */
   let routeResolverInjector = Injector.createAndResolveChild(
     rootInjector,
-    RequestResolver,
+    HttpRequestResolver,
     [
       {provide: "url", useValue: parse(request.url, true)},
       {provide: "UUID", useValue: uuid()},
@@ -197,9 +197,9 @@ export function fireRequest(modules: Array<IModule>,
     ]
   );
   /**
-   * Get RequestResolver instance
+   * Get HttpRequestResolver instance
    */
-  let rRouteResolver: RequestResolver = routeResolverInjector.get(RequestResolver);
+  let rRouteResolver: HttpRequestResolver = routeResolverInjector.get(HttpRequestResolver);
 
   /**
    * On finish destroy injector

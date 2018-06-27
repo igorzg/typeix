@@ -1,19 +1,12 @@
-import {use, assert} from "chai";
+import {assert, use} from "chai";
 import * as sinonChai from "sinon-chai";
-import {Methods, Router} from "../router/router";
+import {Methods, Router} from "../router";
 import {Logger, LogLevels} from "../logger/logger";
-import {Module} from "../decorators/module";
-import {Controller} from "../decorators/controller";
-import {Action, Before} from "../decorators/action";
-import {IAfterConstruct} from "../interfaces/iprovider";
-import {Inject} from "../decorators/inject";
-import {fakeHttpServer, FakeServerApi, FakeResponseApi} from "../server/mocks";
-import {Chain} from "../decorators/chain";
-import {Request} from "../server/controller-resolver";
-import {Status} from "../server/status-code";
+import {Action, Before, Chain, Controller, ErrorMessage, Inject, Module} from "../decorators";
+import {IAfterConstruct} from "../interfaces";
+import {fakeHttpServer, FakeResponseApi, FakeServerApi, Request, Status} from "../server";
 import {isEqual} from "../core";
 import {HttpError} from "../error";
-import {ErrorMessage} from "../decorators/error";
 
 // use chai spies
 use(sinonChai);
@@ -200,7 +193,6 @@ describe("fakeHttpServer", () => {
       done();
     }).catch(done);
   });
-
 
 
 });

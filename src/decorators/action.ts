@@ -137,3 +137,46 @@ export let Before = mapAction("Before");
  * Define name of after action to class
  */
 export let After = mapAction("After");
+
+/**
+ * @since 2.0.0
+ * @decorator
+ * @function
+ * @name Hook
+ *
+ * @param {String} value One of "verify"|"open"|"message"
+ *
+ * @description
+ * Define a WebSocket method hook to be called for one of the actions "verify",
+ * "open", or "message". All hooks support injection with {@link Inject} and {@link Param}.
+ *
+ * The "verify" hook is called before the socket is fully established. If you want to deny
+ * opening the socket just throw an {@link HttpError}.
+ *
+ * When the socket is opened the "open" hook is called. You can inject the {@link Socket}
+ * as parameter in this method in order to get access to the underlying Socket API.
+ *
+ * To receive and handle messages from the other side provide a "message" hook. You can inject
+ * a parameter "message" there which is the data received over the socket.
+ *
+ * @example
+ * import {WebSocket, Hook, BaseRequest} from "typeix";
+ *
+ * \@WebSocket({...})
+ * export class MySocket {
+ *   \@Inject(BaseRequest)
+ *   private readonly request: BaseRequest;
+ *
+ *   \@Hook("verify")
+ *   verify(): void {
+ *     if (!this.request.getRequestHeader("my-header") === "approved") {
+ *       throw new HttpError(403, "You are not approved");
+ *     }
+ *   }
+ *
+ *   \@Hook("open")
+ *   open(@Inject(Socket) socket: Socket) {
+ *   }
+ * }
+ */
+export let Hook: (value: "verify" | "open" | "message") => any = mapAction("Hook");

@@ -10,7 +10,7 @@ import {isTruthy} from "./core";
  * @param {Object} data
  * @constructor
  * @description
- * HttpException use it in controller actions
+ * HttpException use it in endpoint actions
  */
 export class HttpError extends Error {
 

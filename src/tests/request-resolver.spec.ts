@@ -6,7 +6,7 @@ import {Methods, Router} from "../router/router";
 import {uuid} from "../core";
 import {EventEmitter} from "events";
 import {Injector} from "../injector/injector";
-import {RequestResolver, RenderType} from "../server/request-resolver";
+import {HttpRequestResolver, RenderType} from "../server/request-resolver";
 import {parse} from "url";
 import {Logger} from "../logger/logger";
 import {IResolvedModule, IModule} from "../interfaces/imodule";
@@ -22,9 +22,9 @@ import {setTimeout} from "timers";
 // use chai spies
 use(sinonChai);
 
-describe("RequestResolver", () => {
+describe("HttpRequestResolver", () => {
   let resolvedRoute: IResolvedRoute;
-  let routeResolver: RequestResolver;
+  let routeResolver: HttpRequestResolver;
   let request, response, data, id = uuid();
 
   beforeEach(() => {
@@ -55,7 +55,7 @@ describe("RequestResolver", () => {
     data = [new Buffer(1), new Buffer(1)];
     let injector = Injector.createAndResolveChild(
       new Injector(),
-      RequestResolver,
+      HttpRequestResolver,
       [
         Logger,
         Router,
@@ -70,7 +70,7 @@ describe("RequestResolver", () => {
         EventEmitter
       ]
     );
-    routeResolver = injector.get(RequestResolver);
+    routeResolver = injector.get(HttpRequestResolver);
   });
 
 
@@ -123,14 +123,14 @@ describe("RequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "core",
+      endpoint: "core",
       action: "index",
       resolvedRoute,
       data
     };
 
     let provider = Metadata.verifyProvider(MyController);
-    let controllerProvider: IProvider = RequestResolver.getControllerProvider(module);
+    let controllerProvider: IProvider = HttpRequestResolver.getControllerProvider(module);
     assert.deepEqual(provider, controllerProvider);
   });
 
@@ -157,14 +157,14 @@ describe("RequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "test",
+      endpoint: "test",
       action: "index",
       resolvedRoute,
       data
     };
 
     assert.throws(() => {
-      RequestResolver.getControllerProvider(module);
+      HttpRequestResolver.getControllerProvider(module);
     }, "You must define controller within current route: core/index");
   });
 
@@ -195,7 +195,7 @@ describe("RequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let module: IResolvedModule = {
       module: getModule(modules),
-      controller: "core",
+      endpoint: "core",
       action: "index",
       resolvedRoute,
       data
@@ -249,7 +249,7 @@ describe("RequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let injector = Injector.createAndResolveChild(
       getModule(modules).injector,
-      RequestResolver,
+      HttpRequestResolver,
       [
         {provide: "url", useValue: parse("/", true)},
         {provide: "UUID", useValue: id},
@@ -262,7 +262,7 @@ describe("RequestResolver", () => {
         EventEmitter
       ]
     );
-    let myRouteResolver = injector.get(RequestResolver);
+    let myRouteResolver = injector.get(HttpRequestResolver);
 
 
     let aSpy = spy(myRouteResolver, "render");
@@ -316,7 +316,7 @@ describe("RequestResolver", () => {
     let modules: Array<IModule> = createModule(MyModule);
     let injector = Injector.createAndResolveChild(
       getModule(modules).injector,
-      RequestResolver,
+      HttpRequestResolver,
       [
         {provide: "url", useValue: parse("/", true)},
         {provide: "UUID", useValue: id},
@@ -329,7 +329,7 @@ describe("RequestResolver", () => {
         EventEmitter
       ]
     );
-    let myRouteResolver = injector.get(RequestResolver);
+    let myRouteResolver = injector.get(HttpRequestResolver);
 
     let a = [Buffer.from("a"), Buffer.from("b"), Buffer.from("c")];
 
@@ -348,7 +348,7 @@ describe("RequestResolver", () => {
       .then(resolved => {
         let module: IResolvedModule = {
           module: getModule(modules, "root"),
-          controller: "core",
+          endpoint: "core",
           action: "index",
           resolvedRoute: {
             method: Methods.POST,

@@ -8,7 +8,7 @@ import {IControllerMetadata} from "../interfaces/icontroller";
  * @function
  * @name Controller
  *
- * @param {IModuleMetadata} config
+ * @param {IControllerMetadata} config
  * @returns {function(any): any}
  *
  * @description
