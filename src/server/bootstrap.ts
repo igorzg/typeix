@@ -1,5 +1,6 @@
 import {Injector} from "../injector/injector";
 import {Logger} from "../logger/logger";
+import {Http2ServerRequest, Http2ServerResponse} from "http2";
 import {IncomingMessage, ServerResponse} from "http";
 import {isArray, isEqual, isFalsy, isTruthy, uuid} from "../core";
 import {IModule, IModuleMetadata} from "../interfaces/imodule";
@@ -173,8 +174,8 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * You can fire fake request
  */
 export function fireRequest(modules: Array<IModule>,
-                            request: IncomingMessage,
-                            response: ServerResponse): Promise<string | Buffer> {
+                            request: Http2ServerRequest | IncomingMessage,
+                            response: Http2ServerResponse | ServerResponse): Promise<string | Buffer> {
 
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);

@@ -7,7 +7,7 @@
 [![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
  
  
-* Works with node gte 6.x.x
+* Works with node gte 8.4.x
 * Typeix has dependency injection inspired by Angular 2
 
 

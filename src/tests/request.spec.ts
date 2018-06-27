@@ -8,6 +8,8 @@ import {assert as assertSpy, spy, stub} from "sinon";
 import {EventEmitter} from "events";
 import {isEqual, uuid} from "../core";
 import {BaseRequest, Request} from "../server/request";
+import { IncomingMessage } from "http";
+import { Http2ServerRequest, ServerHttp2Stream } from "http2";
 
 // use chai spies
 use(sinonChai);
@@ -21,21 +23,37 @@ describe("BaseRequest", () => {
     },
     route: "core/index"
   };
-  const incomingMessage = Object.create({
-    uuid: "1",
-    method: "GET",
-    url: "/",
-    httpVersion: "1.1",
-    httpVersionMajor: 1,
-    httpVersionMinor: 1,
-    connection: {
-      remoteAddress: "192.0.0.1",
-      remoteFamily: "",
-      remotePort: 9000,
-      localAddress: "192.0.0.1",
-      localPort: 9000
+  const incomingMessage: IncomingMessage = Object.create(IncomingMessage.prototype, {
+    uuid: {
+      value: "1"
     },
-    headers: {}
+    method: {
+      value: "GET"
+    },
+    url: {
+      value: "/"
+    },
+    httpVersion: {
+      value: "1.1"
+    },
+    httpVersionMajor: {
+      value: 1
+    },
+    httpVersionMinor: {
+      value: 1
+    },
+    connection: {
+      value: {
+        remoteAddress: "192.0.0.1",
+        remoteFamily: "",
+        remotePort: 9000,
+        localAddress: "192.0.0.1",
+        localPort: 9000
+      }
+    },
+    headers: {
+      value: {}
+    }
   });
   const data: Array<Buffer> = [Buffer.from(["a", "b", "c"])];
   const UUID: string = uuid();
@@ -65,6 +83,44 @@ describe("BaseRequest", () => {
       httpVersion: "1.1",
       httpVersionMajor: 1,
       httpVersionMinor: 1,
+      remoteAddress: "192.0.0.1",
+      remoteFamily: "",
+      remotePort: 9000,
+      localAddress: "192.0.0.1",
+      localPort: 9000
+    });
+  });
+
+  it("BaseRequest.getConnection http2", () => {
+    const message: Http2ServerRequest = Object.create({
+      uuid: "1",
+      method: "GET",
+      url: "/",
+      httpVersion: "2.0",
+      socket: {
+        remoteAddress: "192.0.0.1",
+        remoteFamily: "",
+        remotePort: 9000,
+        localAddress: "192.0.0.1",
+        localPort: 9000
+      },
+      headers: {}
+    });
+    const injector = Injector.createAndResolve(BaseRequest, [
+      {provide: "resolvedRoute", useValue: resolvedRoute},
+      {provide: "request", useValue: message},
+      {provide: "UUID", useValue: UUID},
+      {provide: "data", useValue: data}
+    ]);
+    const req = injector.get(BaseRequest);
+    let conn = req.getConnection();
+    assert.deepEqual(conn, {
+      uuid: UUID,
+      method: "GET",
+      url: "/",
+      httpVersion: "2.0",
+      httpVersionMajor: 2,
+      httpVersionMinor: 0,
       remoteAddress: "192.0.0.1",
       remoteFamily: "",
       remotePort: 9000,
@@ -150,8 +206,12 @@ describe("Request", () => {
     },
     route: "core/index"
   };
+  const stream: ServerHttp2Stream = Object.create({
+    // dummy
+  });
   const incomingMessage = Object.create({
-    headers: {}
+    headers: {},
+    stream: stream
   });
   const data = [Buffer.from(["a", "b", "c"])];
   const UUID = 1;
@@ -251,5 +311,53 @@ describe("Request", () => {
     let aSpy = stub(controllerResolver, "stopChain");
     request.stopChain();
     assertSpy.called(aSpy);
+  });
+
+  it("Request.getStream http", () => {
+    const incomingMessage1: IncomingMessage = Object.create(IncomingMessage.prototype, {
+      // dummy
+    });
+
+    const controllerResolver1 = Object.create({
+      getEventEmitter: () => {
+        return eventEmitter;
+      },
+      getRequestHeader: () => {
+        // dummy
+      },
+      getServerResponse: () => {
+        // dummy
+      },
+      getIncomingMessage: () => {
+        return incomingMessage1;
+      },
+      getResolvedRoute: () => {
+        return resolvedRoute;
+      },
+      getId: () => {
+        return UUID;
+      },
+      getRawData: () => {
+        return data;
+      },
+      setContentType: () => {
+        // dummy
+      },
+      setStatusCode: () => {
+        // dummy
+      },
+      stopChain: () => {
+        // dummy
+      }
+    });
+    const injector = Injector.createAndResolve(Request, [
+      {provide: "controllerResolver", useValue: controllerResolver1}
+    ]);
+    const request1 = injector.get(Request);
+    assert.isNull(request1.getStream());
+  });
+
+  it("Request.getStream http2", () => {
+    assert.typeOf(request.getStream(), "Object");
   });
 });
