@@ -1,5 +1,5 @@
 {
-  "name": "typeix",
+  "name": "gsg-typeix",
   "version": "2.0.0-rc.1",
   "dependencies": {
     "reflect-metadata": "^0.1.10",
@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/igorzg/typeix.git"
+    "url": "git@github.com:AdminJuwel191/typeix.git"
   },
   "bugs": {
-    "url": "https://github.com/igorzg/typeix/issues",
+    "url": "https://github.com/AdminJuwel191/typeix/issues",
     "email": "igor.zg1987@gmail.com"
   },
-  "homepage": "https://github.com/igorzg/typeix",
+  "homepage": "https://github.com/AdminJuwel191/typeix",
   "engines": {
     "node": ">=8.4.0"
   },
