@@ -1,10 +1,7 @@
 # Typescript framework for Node.js
 
 [![NPM Version][npm-image]][npm-url]
-[![Travis][travis-image]][travis-url] 
-[![bitHound Overall Score](https://www.bithound.io/github/igorzg/typeix/badges/score.svg)](https://www.bithound.io/github/igorzg/typeix)
-[![bitHound Code](https://www.bithound.io/github/igorzg/typeix/badges/code.svg)](https://www.bithound.io/github/igorzg/typeix)
-[![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
+[![Travis][travis-image]][travis-url]
  
  
 * Works with node gte 8.11.3
@@ -31,8 +28,8 @@
 
 [![Typeix MNUG 2017.03.23](https://img.youtube.com/vi/IWT6hVTFX8g/0.jpg)](https://youtu.be/IWT6hVTFX8g "Typeix MNUG 2017.03.23")
 
-[npm-image]: https://badge.fury.io/js/typeix.svg
-[npm-url]: https://badge.fury.io/js/typeix
+[npm-image]: https://badge.fury.io/js/gsg-typeix.svg
+[npm-url]: https://badge.fury.io/js/gsg-typeix
 [travis-image]: https://travis-ci.org/AdminJuwel191/typeix.svg?branch=master
 [travis-url]: https://travis-ci.org/AdminJuwel191/typeix
 [demo-app]: https://github.com/igorzg/typeix-demo-app
