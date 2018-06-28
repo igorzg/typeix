@@ -7,7 +7,7 @@
 [![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
  
  
-* Works with node gte 8.4.x
+* Works with node gte 8.11.3
 * Typeix has dependency injection inspired by Angular 2
 
 
@@ -33,8 +33,8 @@
 
 [npm-image]: https://badge.fury.io/js/typeix.svg
 [npm-url]: https://badge.fury.io/js/typeix
-[travis-image]: https://travis-ci.org/igorzg/typeix.svg?branch=master
-[travis-url]: https://travis-ci.org/igorzg/typeix
+[travis-image]: https://travis-ci.org/AdminJuwel191/typeix.svg?branch=master
+[travis-url]: https://travis-ci.org/AdminJuwel191/typeix
 [demo-app]: https://github.com/igorzg/typeix-demo-app
 [docs]: https://igorivanovic.gitbooks.io/typeix
 
