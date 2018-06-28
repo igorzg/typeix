@@ -1,6 +1,6 @@
 {
   "name": "typeix",
-  "version": "2.0.0-rc.0",
+  "version": "2.0.0-rc.1",
   "dependencies": {
     "reflect-metadata": "^0.1.10",
     "ws": "^3.2.0"
@@ -8,7 +8,7 @@
   "description": "Typescript API for RESTful Services for (Node.js)",
   "main": "build/index.js",
   "scripts": {
-    "test": "npm run compile && mocha build/tests/ --debug --full-trace",
+    "test": "npm run compile && mocha build/tests/ --inspect --full-trace",
     "docs": "typedoc --options typedoc.json --includeDeclarations node_modules/@types/ src/",
     "compile": "tsc -p tsconfig.json"
   },
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/igorzg/typeix",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.4.0"
   },
   "keywords": [
     "typeix",
@@ -45,12 +45,12 @@
   "devDependencies": {
     "@types/chai": "^4.0.2",
     "@types/mocha": "^2.2.41",
-    "@types/node": "^8.0.20",
+    "@types/node": "^8.4.0",
     "@types/sinon": "^2.3.3",
     "@types/sinon-chai": "^2.7.28",
     "@types/ws": "^3.2.0",
     "chai": "^4.1.1",
-    "mocha": "^3.5.0",
+    "mocha": "^5.2.0",
     "sinon": "^2.4.1",
     "sinon-chai": "^2.12.0",
     "tslint": "^5.6.0",

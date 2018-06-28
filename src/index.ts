@@ -73,6 +73,8 @@ export {
 export {
   httpServer,
   HttpOptions,
+  http2Server,
+  Http2Options,
   getModule,
   Request,
   Status,
