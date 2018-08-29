@@ -17,7 +17,6 @@ import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
 import {Request} from "./request";
 import {ERROR_KEY} from "./request-resolver";
-import { Http2ServerRequest } from "http2";
 
 const CHAIN_KEY = "__chain__";
 
@@ -41,7 +40,7 @@ export class ControllerResolver {
    * Value provided by injector which handles request input
    */
   @Inject("request")
-  private request: IncomingMessage | Http2ServerRequest;
+  private request: IncomingMessage;
 
   /**
    * @param ServerResponse
@@ -185,7 +184,7 @@ export class ControllerResolver {
    * @description
    * Get IncomingMessage object
    */
-  getIncomingMessage(): IncomingMessage | Http2ServerRequest {
+  getIncomingMessage(): IncomingMessage {
     return this.request;
   }
 

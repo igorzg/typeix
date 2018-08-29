@@ -5,7 +5,6 @@ import {MultiPart, MultiPartField, MultiPartFile} from "../parsers";
 import {Status} from "./status-code";
 import {Methods} from "../router";
 import {IConnection} from "../interfaces/iconnection";
-import {Http2ServerRequest, ServerHttp2Stream} from "http2";
 import {IncomingMessage} from "http";
 import {ControllerResolver} from "./controller-resolver";
 
@@ -33,39 +32,19 @@ export abstract class AbstractRequest {
    */
   getConnection(): IConnection {
     const request = this.getIncomingMessage();
-    if (request instanceof IncomingMessage) {
-      return {
-        uuid: this.getId(),
-        method: request.method,
-        url: request.url,
-        httpVersion: request.httpVersion,
-        httpVersionMajor: request.httpVersionMajor,
-        httpVersionMinor: request.httpVersionMinor,
-        remoteAddress: request.connection.remoteAddress,
-        remoteFamily: request.connection.remoteFamily,
-        remotePort: request.connection.remotePort,
-        localAddress: request.connection.localAddress,
-        localPort: request.connection.localPort
-      };
-    } else {
-      const version = request.httpVersion;
-      const matches = version.match(/(\d)\.(\d)/);
-      const major: number = parseInt(matches[1], 10) || 0;
-      const minor: number = parseInt(matches[2], 10) || 0;
-      return {
-        uuid: this.getId(),
-        method: request.method,
-        url: request.url,
-        httpVersion: version,
-        httpVersionMajor: major,
-        httpVersionMinor: minor,
-        remoteAddress: request.socket.remoteAddress,
-        remoteFamily: request.socket.remoteFamily,
-        remotePort: request.socket.remotePort,
-        localAddress: request.socket.localAddress,
-        localPort: request.socket.localPort
-      };
-    }
+    return {
+      uuid: this.getId(),
+      method: request.method,
+      url: request.url,
+      httpVersion: request.httpVersion,
+      httpVersionMajor: request.httpVersionMajor,
+      httpVersionMinor: request.httpVersionMinor,
+      remoteAddress: request.connection.remoteAddress,
+      remoteFamily: request.connection.remoteFamily,
+      remotePort: request.connection.remotePort,
+      localAddress: request.connection.localAddress,
+      localPort: request.connection.localPort
+    };
   }
 
   /**
@@ -118,23 +97,6 @@ export abstract class AbstractRequest {
   getCookie(name: string): string {
     let cookies = this.getCookies();
     return cookies[name];
-  }
-
-  /**
-   * @since 2.0.0-rc.1
-   * @function
-   * @name Request#getStream
-   *
-   * @description
-   * Returns the HTTP/2 stream
-   */
-  getStream(): ServerHttp2Stream {
-    const request = this.getIncomingMessage();
-    if (request instanceof IncomingMessage) {
-      return null;
-    } else {
-      return request.stream;
-    }
   }
 
   /**
@@ -244,7 +206,7 @@ export abstract class AbstractRequest {
 
   abstract getId(): string;
 
-  protected abstract getIncomingMessage(): Http2ServerRequest | IncomingMessage;
+  protected abstract getIncomingMessage(): IncomingMessage;
 
   protected abstract getResolvedRoute(): IResolvedRoute;
 
@@ -262,7 +224,7 @@ export abstract class AbstractRequest {
 @Injectable()
 export class BaseRequest extends AbstractRequest {
   @Inject("request")
-  private readonly incomingMessage: Http2ServerRequest | IncomingMessage;
+  private readonly incomingMessage: IncomingMessage;
 
   @Inject("UUID")
   private readonly id: string;
@@ -277,7 +239,7 @@ export class BaseRequest extends AbstractRequest {
     return this.id;
   }
 
-  protected getIncomingMessage(): Http2ServerRequest | IncomingMessage {
+  protected getIncomingMessage(): IncomingMessage {
     return this.incomingMessage;
   }
 
@@ -432,7 +394,7 @@ export class Request extends AbstractRequest {
     return this.controllerResolver.getId();
   }
 
-  protected getIncomingMessage(): Http2ServerRequest | IncomingMessage {
+  protected getIncomingMessage(): IncomingMessage {
     return this.controllerResolver.getIncomingMessage();
   }
 

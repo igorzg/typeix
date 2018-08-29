@@ -4,7 +4,7 @@
 [![Travis][travis-image]][travis-url]
  
  
-* Works with node gte 8.11.3
+* Works with node gte 6.x.x
 * Typeix has dependency injection inspired by Angular 2
 
 

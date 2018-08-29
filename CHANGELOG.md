@@ -1,6 +1,3 @@
-## 2.0.0-rc.1
-- HTTP/2 support
-
 ## 2.0.0-rc.0
 - Web sockets support
 
