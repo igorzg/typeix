@@ -112,7 +112,7 @@ export abstract class BaseRequestResolver {
     return this.router
       .parseRequest(this.url.pathname, this.request.method, this.request.headers)
       .then((resolvedRoute: IResolvedRoute) => {
-        this.logger.info("Route.parseRequest", {
+        this.logger.debug("Route.parseRequest", {
           method: this.request.method,
           path: this.url.pathname,
           route: resolvedRoute

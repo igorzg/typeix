@@ -1,5 +1,4 @@
 export {httpServer, HttpOptions} from "./http";
-export {http2Server, Http2Options} from "./http2";
 export {getModule} from "./bootstrap";
 export {BaseRequest, Request} from "./request";
 export {Socket} from "./socket";
