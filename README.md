@@ -2,9 +2,6 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![Travis][travis-image]][travis-url] 
-[![bitHound Overall Score](https://www.bithound.io/github/igorzg/typeix/badges/score.svg)](https://www.bithound.io/github/igorzg/typeix)
-[![bitHound Code](https://www.bithound.io/github/igorzg/typeix/badges/code.svg)](https://www.bithound.io/github/igorzg/typeix)
-[![bitHound Dev Dependencies](https://www.bithound.io/github/igorzg/typeix/badges/devDependencies.svg)](https://www.bithound.io/github/igorzg/typeix/master/dependencies/npm)
  
  
 * Works with node gte 6.x.x
@@ -33,8 +30,6 @@
 
 [npm-image]: https://badge.fury.io/js/typeix.svg
 [npm-url]: https://badge.fury.io/js/typeix
-[travis-image]: https://travis-ci.org/igorzg/typeix.svg?branch=master
-[travis-url]: https://travis-ci.org/igorzg/typeix
 [demo-app]: https://github.com/igorzg/typeix-demo-app
 [docs]: https://igorivanovic.gitbooks.io/typeix
 
