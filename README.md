@@ -1,7 +1,6 @@
 # Typescript framework for Node.js
 
 [![NPM Version][npm-image]][npm-url]
-[![Travis][travis-image]][travis-url] 
  
  
 * Works with node gte 6.x.x
