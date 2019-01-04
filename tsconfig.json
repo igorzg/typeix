@@ -1,26 +1,26 @@
 {
-  "compileOnSave": true,
-  "compilerOptions": {
-    "declaration": true,
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "build",
-    "rootDir": "src",
-    "sourceMap": true,
-    "inlineSources": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "removeComments": false,
-    "noImplicitAny": false,
-    "typeRoots": [
-      "node_modules/@types"
+    "compileOnSave": true,
+    "compilerOptions": {
+        "declaration": true,
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "outDir": "build",
+        "rootDir": "src",
+        "sourceMap": true,
+        "inlineSources": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "removeComments": false,
+        "noImplicitAny": false,
+        "typeRoots": [
+            "node_modules/@types"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
     ]
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
 }

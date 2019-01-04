@@ -8,6 +8,9 @@ import {Metadata} from "../injector/metadata";
 import * as WebSocket from "ws";
 import {fireWebSocket, IWebSocketResult} from "./socket";
 import {HttpError} from "../error";
+import { Context } from "aws-lambda";
+import {httpVerb} from "./http-verbs"
+
 
 const TYPEX_SOCKET_ID_HEADER = "__typeix_id";
 
@@ -33,6 +36,104 @@ export interface HttpOptions {
   enableWebSockets?: boolean;
 }
 
+
+/**
+ * @since 2.0.5
+ * @interface
+ *
+ * @description
+ * Configuration options for a serverless event
+ */
+export interface lambdaEvent {
+  rawEvent:any;
+  eventSource:string;
+  method:httpVerb;
+  path:string;
+  body:string
+  headers: Array<string> ;
+  rawHeaders: string[];
+  url?: string;
+  statusCode?: number;
+  statusMessage?: string;
+  requestContext: any;
+  identity?:any;
+}
+
+/**
+ * @since 2.0.5
+ * @function
+ * @name bootstrapApp
+ * @param {Function} Class Root application module to bootstrap
+ * @returns {Injector}
+ *
+ * @description
+ * "prewarm" the application resolve the applications components, should be only called directly by
+ * serverless applications directly to ensure the app bootstrap process has a chance to survive multiple invocations
+ * will be called internally by the httpServer on startup
+ */
+export function bootstrapApp(Class: Function): Array<IModule> {
+  let metadata: IModuleMetadata = Metadata.getComponentConfig(Class);
+  // override bootstrap module
+  metadata.name = BOOTSTRAP_MODULE;
+  // set module config
+  Metadata.setComponentConfig(Class, metadata);
+
+  let modules: Array<IModule> = createModule(Class);
+  let injector = getModule(modules).injector;
+  let logger: Logger = injector.get(Logger);
+  logger.info("Module.info: Application Bootsrapped");
+
+  return modules;
+}
+
+
+/**
+ * @since 2.0.5
+ * @function
+ * @name run
+ * @param {Array<IModule>} modules The list of bootstrapped modules
+ * @param {any} the event object of a lambda execution
+ * @param {Context} the context of the lambda execution
+ * @returns {Injector}
+ *
+ * @description
+ * run a lambda execution
+ */
+export function run(app:Array<IModule>, event:any, context:Context):Array<IModule>{
+    event = prepareEvent(event, context);
+
+    return app;
+}
+
+
+/**
+ * @since 2.0.5
+ * @function
+ * @name prepareEvent
+ * @param {Array<IModule>} modules The list of bootstrapped modules
+ * @param {any} the event object of a lambda execution
+ * @param {Context} the context of the lambda execution
+ * @returns {lambdaEvent}
+ *
+ * @description
+ * unifies Lambda event and set's defaults for event types which don't contain certain fields needed by the router
+ */
+function prepareEvent(event:any, ctx: Context): lambdaEvent{
+  const cleanedEvent:lambdaEvent = {
+    rawEvent:event,
+    eventSource:"tbd", // TODO app should be able to identify event sources and inject routable information
+    method:event.httpMethod || 'GET',
+    path: event.path || '/',
+    body: event.body || '',
+    headers: [],
+    rawHeaders: event.headers || [],
+    requestContext: ctx,
+    identity:ctx.identity || {}
+  }
+  return cleanedEvent;
+
+}
+
 /**
  * @since 1.0.0
  * @function
@@ -45,13 +146,8 @@ export interface HttpOptions {
  * Run the HTTP server for a given root module.
  */
 export function httpServer(Class: Function, options: HttpOptions): Array<IModule> {
-  let metadata: IModuleMetadata = Metadata.getComponentConfig(Class);
-  // override bootstrap module
-  metadata.name = BOOTSTRAP_MODULE;
-  // set module config
-  Metadata.setComponentConfig(Class, metadata);
 
-  let modules: Array<IModule> = createModule(Class);
+  let modules: Array<IModule> = bootstrapApp(Class);
   let injector = getModule(modules).injector;
   let logger: Logger = injector.get(Logger);
   let server = createServer();
@@ -76,6 +172,8 @@ export function httpServer(Class: Function, options: HttpOptions): Array<IModule
 
   return modules;
 }
+
+
 
 /**
  * @since 2.0.0
