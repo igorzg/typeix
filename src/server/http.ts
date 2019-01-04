@@ -10,6 +10,7 @@ import {fireWebSocket, IWebSocketResult} from "./socket";
 import {HttpError} from "../error";
 import { Context } from "aws-lambda";
 import {httpVerb} from "./http-verbs"
+import {ServerlessRequest} from "./serverless-request";
 
 
 const TYPEX_SOCKET_ID_HEADER = "__typeix_id";
@@ -101,7 +102,9 @@ export function bootstrapApp(Class: Function): Array<IModule> {
  */
 export function run(app:Array<IModule>, event:any, context:Context):Array<IModule>{
     event = prepareEvent(event, context);
+    const request = new ServerlessRequest(event, context);
 
+    //TODO request resomnse implementation and then fire from here
     return app;
 }
 

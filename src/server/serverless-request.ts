@@ -13,7 +13,7 @@ import {Inject, Injectable} from "../decorators";
 
 
 
-class ServerlessReques extends Readable implements IncomingMessage {
+export class ServerlessRequest extends Readable implements IncomingMessage {
 
   /**
    * @param {Logger} logger
@@ -107,5 +107,3 @@ class ServerlessReques extends Readable implements IncomingMessage {
   }
 
 }
-
-
