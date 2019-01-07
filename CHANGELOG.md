@@ -1,3 +1,6 @@
+## 3.0.0-rc.0
+- Lambda support
+
 ## 2.0.0-rc.0
 - Web sockets support
 
@@ -38,7 +41,7 @@
 - Added better error resolution for modules which are not registered in system
 
 ## 1.0.0-beta.14
-- Fix module duplication resolution 
+- Fix module duplication resolution
 
 ## 1.0.0-beta.13
 - Update to typescript 2.3.x
@@ -66,7 +69,7 @@
 - Export Headers interface from route
 
 ## 1.0.0-beta.6
-- Fix router addRule 
+- Fix router addRule
 
 ## 1.0.0-beta.5
 - Update router addRule second parameter as optional
@@ -106,21 +109,21 @@
 - Added redirect to request
 
 ## 1.0.0-alpha-31
-- Added fake http api for testing 
+- Added fake http api for testing
 - Remove demo app from framework repo
 
 
 ## 1.0.0-alpha-30
 - Changed @Chain @BeforeEach @AfterEach to not be function calls
-- Updated tests for controller 
+- Updated tests for controller
 - Exchanged controllerResolver api
 
 ## 1.0.0-alpha-28
-- Fixed injections for constructor and action params 
+- Fixed injections for constructor and action params
 - Added tests for Injector
 
 ## 1.0.0-alpha-25
-- Remove unnecessary dependencies in package.json  
+- Remove unnecessary dependencies in package.json
 
 ## 1.0.0-alpha-24
 - Fix injector processor
