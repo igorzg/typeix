@@ -10,6 +10,9 @@ import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 import {Status} from "./status-code";
 import {Router} from "../router/router";
+import { Callback } from "aws-lambda";
+import { Context }  from "aws-lambda";
+import {isPresent} from "../core";
 
 export const BOOTSTRAP_PROVIDERS = [Logger, Router];
 export const BOOTSTRAP_MODULE = "root";
@@ -160,7 +163,7 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
 
 
 /**
- * @since 1.0.0
+ * @since 1.0.0x
  * @function
  * @name fireRequest
  * @param {Array<IModule>} modules list of all modules bootstrapped
@@ -172,12 +175,27 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * Use fireRequest to process request itself, this function is used by http/https server or
  * You can fire fake request
  */
-export function fireRequest(modules: Array<IModule>,
-                            request: IncomingMessage,
-                            response: ServerResponse): Promise<string | Buffer> {
-
+export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, event:any, ctx:Context): Promise<string | Buffer>;
+export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse): Promise<string | Buffer>;
+export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, ...lambdaSpecific:Array<any>){
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);
+  // preset values for regular execution context overwrite if Lambda context is indicated
+  let UUID:string = uuid();
+  let event = {};
+  let ctx = {};
+  // in case of a lambda execution context pass on event, context and set the UUID to the aws provided value
+
+
+  if(isPresent(lambdaSpecific[0]) && isPresent(lambdaSpecific[1])){
+      event = lambdaSpecific[0];
+      ctx = lambdaSpecific[1];
+      // set the UUID to the aws provided UID
+      if(isPresent(lambdaSpecific[1].awsRequestId)){
+        UUID = lambdaSpecific[1].awsRequestId;
+      }
+   }
+
   /**
    * Create HttpRequestResolver injector
    */
@@ -186,7 +204,9 @@ export function fireRequest(modules: Array<IModule>,
     HttpRequestResolver,
     [
       {provide: "url", useValue: parse(request.url, true)},
-      {provide: "UUID", useValue: uuid()},
+      {provide: "event", useValue: event},
+      {provide: "context", useValue: ctx},
+      {provide: "UUID", useValue: UUID},
       {provide: "data", useValue: []},
       {provide: "contentType", useValue: "text/html"},
       {provide: "statusCode", useValue: Status.OK},

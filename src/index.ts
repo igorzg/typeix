@@ -72,7 +72,7 @@ export {
  */
 export {
   bootstrapApp,
-  run,
+  invokeRequest,
   httpServer,
   HttpOptions,
   getModule,

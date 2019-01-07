@@ -8,9 +8,8 @@ import {Metadata} from "../injector/metadata";
 import * as WebSocket from "ws";
 import {fireWebSocket, IWebSocketResult} from "./socket";
 import {HttpError} from "../error";
-import { Context, Callback } from "aws-lambda";
+import { Context, Callback, APIGatewayEventRequestContext } from "aws-lambda";
 import {httpVerb} from "./http-verbs"
-import {ServerlessRequest} from "./serverless-request";
 import * as requestResponse  from "aws-lambda-create-request-response";
 
 
@@ -48,7 +47,7 @@ export interface HttpOptions {
  * Configuration options for a serverless event
  */
 export interface lambdaEvent {
-  rawEvent:any;
+  eventPayload:any;
   eventSource:string;
   httpMethod:httpVerb;
   path:string;
@@ -58,8 +57,8 @@ export interface lambdaEvent {
   url?: string;
   statusCode?: number;
   statusMessage?: string;
-  requestContext: any;
   identity?:any;
+  requestContext: APIGatewayEventRequestContext;
 }
 
 /**
@@ -80,8 +79,8 @@ export function bootstrapApp(Class: Function): Array<IModule> {
   metadata.name = BOOTSTRAP_MODULE;
   // set module config
   Metadata.setComponentConfig(Class, metadata);
-
   let modules: Array<IModule> = createModule(Class);
+  //get logger and write debug info
   let injector = getModule(modules).injector;
   let logger: Logger = injector.get(Logger);
   logger.info("Module.info: serverless Application Bootsrapped");
@@ -97,28 +96,23 @@ export function bootstrapApp(Class: Function): Array<IModule> {
  * @param {Array<IModule>} modules The list of bootstrapped modules
  * @param {any} the event object of a lambda execution
  * @param {Context} the context of the lambda execution
+ * @param {Callback} the callback passed in by lambda
  * @returns {Injector}
  *
  * @description
  * run a lambda execution
  */
-export function run(app:Array<IModule>, event:any, context:Context, callback:Callback):Array<IModule>{
+export function invokeRequest(app:Array<IModule>, event:any, context:Context, callback:Callback):Array<IModule>{
     event = prepareEvent(event, context);
-    /*    const request = new ServerlessRequest(app, event, context);
+    console.log(event);
+    // build request and response objects
+    const {req, res} = requestResponse(event, callback);
     let injector = getModule(app).injector;
     let logger: Logger = injector.get(Logger);
     logger.info("Module.info: start serving invokation");
-
-    //TODO request resomnse implementation and then fire from here
-    return app;*/
-    //const request = new ServerlessRequest(app, event, context);
-    //const response = new ServerlessRequest(app, event, context);
-    const {req, res} = requestResponse(event, callback)
-    let injector = getModule(app).injector;
-    let logger: Logger = injector.get(Logger);
-    logger.info("Module.info: start serving invokation");
-    fireRequest(app, req, res );
-    //TODO request resomnse implementation and then fire from here
+    req.ctx=context;
+    // fires the request from here a serveless request is handled like any other request
+    fireRequest(app, req, res, event, context);
     return app;
 }
 
@@ -138,14 +132,14 @@ export function run(app:Array<IModule>, event:any, context:Context, callback:Cal
  */
 function prepareEvent(event:any, ctx: Context): lambdaEvent{
   const cleanedEvent:lambdaEvent = {
-    rawEvent:event,
+    eventPayload:event,
+    requestContext:  event.requestContext || {},
     eventSource:"tbd", // TODO app should be able to identify event sources and inject routable information
     httpMethod:event.httpMethod || 'GET',
     path: event.path || '/',
     body: event.body || '',
     headers: [],
     rawHeaders: event.headers || [],
-    requestContext: ctx,
     identity:ctx.identity || {}
   }
   return cleanedEvent;
