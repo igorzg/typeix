@@ -1,34 +1,7 @@
 {
-    "_args": [
-        [{
-                "raw": "gsg-typeix@^2.0.4",
-                "scope": null,
-                "escapedName": "gsg-typeix",
-                "name": "gsg-typeix",
-                "rawSpec": "^2.0.4",
-                "spec": ">=2.0.4 <3.0.0",
-                "type": "range"
-            },
-            "/home/ec2-user/environment/serverless-aggr"
-        ]
-    ],
-    "_from": "gsg-typeix@>=2.0.4 <3.0.0",
-    "_hasShrinkwrap": false,
-    "_id": "gsg-typeix@2.0.4",
-    "_inCache": true,
-    "_location": "/gsg-typeix",
-    "_nodeVersion": "6.14.4",
-    "_npmOperationalInternal": {
-        "host": "s3://npm-registry-packages",
-        "tmp": "tmp/gsg-typeix_2.0.4_1535536782250_0.6007107317068214"
-    },
-    "_npmUser": {
-        "name": "btrajkovski",
-        "email": "btrajkovski.08@gmail.com"
-    },
-    "_npmVersion": "3.10.10",
-    "_phantomChildren": {},
-    "_requested": {
+  "_args": [
+    [
+      {
         "raw": "gsg-typeix@^2.0.4",
         "scope": null,
         "escapedName": "gsg-typeix",
@@ -36,101 +9,134 @@
         "rawSpec": "^2.0.4",
         "spec": ">=2.0.4 <3.0.0",
         "type": "range"
-    },
-    "_requiredBy": [
-        "/"
-    ],
-    "_resolved": "https://registry.npmjs.org/gsg-typeix/-/gsg-typeix-2.0.4.tgz",
-    "_shasum": "e3307fd3c55350f6c7e9b28b44de0b40dd7797d0",
-    "_shrinkwrap": null,
-    "_spec": "gsg-typeix@^2.0.4",
-    "_where": "/home/ec2-user/environment/serverless-aggr",
-    "author": {
-        "name": "igor.zg1987@gmail.com"
-    },
-    "bugs": {
-        "url": "https://github.com/AdminJuwel191/typeix/issues",
-        "email": "igor.zg1987@gmail.com"
-    },
-    "contributors": [{
-        "name": "Michael Rose",
-        "email": "michael_rose@gmx.de"
-    }],
-    "dependencies": {
-        "reflect - metadata": "^0.1.10",
-        "ws": "^3.2.0"
-    },
-    "description": "Typescript API for RESTful Services for (Node.js)",
-    "devDependencies": {
-        "@types/chai": "^4.0.2",
-        "@types/mocha": "^2.2.41",
-        "@types/node": "^8.0.20",
-        "@types/sinon": "^2.3.3",
-        "@types/sinon-chai": "^2.7.28",
-        "@types/ws": "^3.2.0",
-        "chai": "^4.1.1",
-        "mocha": "^3.5.0",
-        "sinon": "^2.4.1",
-        "sinon-chai": "^2.12.0",
-        "tslint": "^5.6.0",
-        "typedoc": "^0.8.0",
-        "typescript": "^2.3.0"
-    },
-    "directories": {},
-    "dist": {
-        "shasum": "e3307fd3c55350f6c7e9b28b44de0b40dd7797d0",
-        "tarball": "https://registry.npmjs.org/gsg-typeix/-/gsg-typeix-2.0.4.tgz",
-        "integrity": "sha512-iekhLE5nQ0T+fws+MgApQ5Slvbv5HcpeII5Yhi2KpEsE/AZUolBQAzt4sDOQ3UlN7tVV29eFuF1fIo5fFBrN0w==",
-        "fileCount": 166,
-        "unpackedSize": 465127,
-        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbhm6RCRA9TVsSAnZWagAA16oP/jpsjqfUqfjYk1cPElm6\nochDFCtRCev+nG9DCkMyate0VkfnmhOj5oHaxNm2Zchp7won7tZ37EYsqT8i\nFAG8cwoBUfwLCRxDbJSG23AQm5CLtwRLNkgVNwESReb4BiWo4rLKJ63fGYUn\nglm3CPYpBNN5eYrnHoDkfZqQpN4A8/gK1eqYUmhyDtytCsKCLFCoUb0mQ/K1\nwqKaIyhNTGvINk+63Ck2WU92Tlob653dngafnFw7vMzgPGyAJhm3ujxTQ8tk\nwX5TSqqzWE0BsS5WPyH7y9k91fBHNefopemBgEy7gcATKX5AV7XMmq1x9vnx\nUqFNXz2Wd9ZaUSQC58O5vDnfZcVj4CXs/FfXtsIELQ4GWrOne8tvSADQLeuH\nsofvt2fbxAgTpUc0n1woc6zvYiNVuXA/qefUAqsHfIGxiDImmCES1dTGLTDF\nkWO2JIUhW4c88NUoozEmJOIHQlm99bzN4jqYjXLy8WnWmV6uPEa+qSHW+7qg\nRbZnoUNEHq9X1EkdOrTzwqeLRzGjwkltO/RXMLrimS89CUAZsmfqH4i5loX9\nzcw10QK0Ly6FGu8WfVc2Byd5v8sGpDQXckJ3r+6dfrFm6w8yF3c2CzsFLQFc\nuZhD0cvCVpRUtkds1draA3LyU3V5gFn3EC+oPFc86YjlAmSv9utUQzhyFudH\nP9ua\r\n=fDvL\r\n-----END PGP SIGNATURE-----\r\n"
-    },
-    "engines": {
-        "node": ">=6.0.0"
-    },
-    "gitHead": "bcbb3060a5fee0d2e77e79a27f522b5810b9dbdd",
-    "homepage": "https://github.com/AdminJuwel191/typeix",
-    "keywords": [
-        "typeix",
-        "enterprise",
-        "development",
-        "javascript",
-        "rest",
-        "api",
-        "restful",
-        "services"
-    ],
-    "license": "MIT",
-    "main": "build/index.js",
-    "maintainers": [{
-            "name": "btrajkovski",
-            "email": "btrajkovski.08@gmail.com"
-        },
-        {
-            "name": "gkopevski",
-            "email": "gkopevski@gmail.com"
-        },
-        {
-            "name": "kikoninja",
-            "email": "k.antovski@gmail.com"
-        },
-        {
-            "name": "tomasv",
-            "email": "t.vaisvilas@gmail.com"
-        }
-    ],
+      },
+      "/home/ec2-user/environment/serverless-aggr"
+    ]
+  ],
+  "_from": "gsg-typeix@>=2.0.4 <3.0.0",
+  "_hasShrinkwrap": false,
+  "_id": "gsg-typeix@2.0.4",
+  "_inCache": true,
+  "_location": "/gsg-typeix",
+  "_nodeVersion": "6.14.4",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/gsg-typeix_2.0.4_1535536782250_0.6007107317068214"
+  },
+  "_npmUser": {
+    "name": "btrajkovski",
+    "email": "btrajkovski.08@gmail.com"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "gsg-typeix@^2.0.4",
+    "scope": null,
+    "escapedName": "gsg-typeix",
     "name": "gsg-typeix",
-    "optionalDependencies": {},
-    "readme": "ERROR: No README data found!",
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/AdminJuwel191/typeix.git"
+    "rawSpec": "^2.0.4",
+    "spec": ">=2.0.4 <3.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/gsg-typeix/-/gsg-typeix-2.0.4.tgz",
+  "_shasum": "e3307fd3c55350f6c7e9b28b44de0b40dd7797d0",
+  "_shrinkwrap": null,
+  "_spec": "gsg-typeix@^2.0.4",
+  "_where": "/home/ec2-user/environment/serverless-aggr",
+  "author": {
+    "name": "igor.zg1987@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/AdminJuwel191/typeix/issues",
+    "email": "igor.zg1987@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Michael Rose",
+      "email": "michael_rose@gmx.de"
+    }
+  ],
+  "dependencies": {
+    "reflect - metadata": "^0.1.10",
+    "ws": "^3.2.0"
+  },
+  "description": "Typescript API for RESTful Services for (Node.js)",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.15",
+    "@types/chai": "^4.0.2",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^8.0.20",
+    "@types/sinon": "^2.3.3",
+    "@types/sinon-chai": "^2.7.28",
+    "@types/ws": "^3.2.0",
+    "aws-lambda-create-request-response": "^0.1.13",
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0",
+    "sinon": "^2.4.1",
+    "sinon-chai": "^2.12.0",
+    "tslint": "^5.6.0",
+    "typedoc": "^0.8.0",
+    "typescript": "^2.3.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "e3307fd3c55350f6c7e9b28b44de0b40dd7797d0",
+    "tarball": "https://registry.npmjs.org/gsg-typeix/-/gsg-typeix-2.0.4.tgz",
+    "integrity": "sha512-iekhLE5nQ0T+fws+MgApQ5Slvbv5HcpeII5Yhi2KpEsE/AZUolBQAzt4sDOQ3UlN7tVV29eFuF1fIo5fFBrN0w==",
+    "fileCount": 166,
+    "unpackedSize": 465127,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbhm6RCRA9TVsSAnZWagAA16oP/jpsjqfUqfjYk1cPElm6\nochDFCtRCev+nG9DCkMyate0VkfnmhOj5oHaxNm2Zchp7won7tZ37EYsqT8i\nFAG8cwoBUfwLCRxDbJSG23AQm5CLtwRLNkgVNwESReb4BiWo4rLKJ63fGYUn\nglm3CPYpBNN5eYrnHoDkfZqQpN4A8/gK1eqYUmhyDtytCsKCLFCoUb0mQ/K1\nwqKaIyhNTGvINk+63Ck2WU92Tlob653dngafnFw7vMzgPGyAJhm3ujxTQ8tk\nwX5TSqqzWE0BsS5WPyH7y9k91fBHNefopemBgEy7gcATKX5AV7XMmq1x9vnx\nUqFNXz2Wd9ZaUSQC58O5vDnfZcVj4CXs/FfXtsIELQ4GWrOne8tvSADQLeuH\nsofvt2fbxAgTpUc0n1woc6zvYiNVuXA/qefUAqsHfIGxiDImmCES1dTGLTDF\nkWO2JIUhW4c88NUoozEmJOIHQlm99bzN4jqYjXLy8WnWmV6uPEa+qSHW+7qg\nRbZnoUNEHq9X1EkdOrTzwqeLRzGjwkltO/RXMLrimS89CUAZsmfqH4i5loX9\nzcw10QK0Ly6FGu8WfVc2Byd5v8sGpDQXckJ3r+6dfrFm6w8yF3c2CzsFLQFc\nuZhD0cvCVpRUtkds1draA3LyU3V5gFn3EC+oPFc86YjlAmSv9utUQzhyFudH\nP9ua\r\n=fDvL\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "gitHead": "bcbb3060a5fee0d2e77e79a27f522b5810b9dbdd",
+  "homepage": "https://github.com/AdminJuwel191/typeix",
+  "keywords": [
+    "typeix",
+    "enterprise",
+    "development",
+    "javascript",
+    "rest",
+    "api",
+    "restful",
+    "services"
+  ],
+  "license": "MIT",
+  "main": "build/index.js",
+  "maintainers": [
+    {
+      "name": "btrajkovski",
+      "email": "btrajkovski.08@gmail.com"
     },
-    "scripts": {
-        "compile": "tsc -p tsconfig.json",
-        "watch": "tsc -w tsconfig.json",
-        "docs": "typedoc --options typedoc.json --includeDeclarations node_modules/@types/ src/",
-        "test": "npm run compile && mocha build/tests/ --inspect --full-trace"
+    {
+      "name": "gkopevski",
+      "email": "gkopevski@gmail.com"
     },
-    "version": "2.0.4"
+    {
+      "name": "kikoninja",
+      "email": "k.antovski@gmail.com"
+    },
+    {
+      "name": "tomasv",
+      "email": "t.vaisvilas@gmail.com"
+    }
+  ],
+  "name": "gsg-typeix",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AdminJuwel191/typeix.git"
+  },
+  "scripts": {
+    "compile": "tsc -p tsconfig.json",
+    "watch": "tsc -w tsconfig.json",
+    "docs": "typedoc --options typedoc.json --includeDeclarations node_modules/@types/ src/",
+    "test": "npm run compile && mocha build/tests/ --inspect --full-trace"
+  },
+  "version": "2.0.4"
 }

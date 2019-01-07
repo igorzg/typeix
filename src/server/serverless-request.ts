@@ -7,21 +7,37 @@ import {Status} from "./status-code";
 import {Readable, Writable} from "stream";
 import {Socket} from "net";
 import {Inject, Injectable} from "../decorators";
+import {IModule} from "../interfaces/imodule";
+import { Context } from "aws-lambda";
+import {Injector} from "../injector/injector";
+import {getModule} from "./bootstrap";
+import {httpVerb} from "./http-verbs"
 
-
-
-
+/**
+ * @since 2.0.5
+ * @interface
+ *
+ * @description
+ * Configuration options for a serverless event
+ */
+export interface lambdaEvent {
+  rawEvent:any;
+  eventSource:string;
+  method:httpVerb;
+  path:string;
+  body:string
+  headers: any ;
+  rawHeaders: string[];
+  url?: string;
+  statusCode?: number;
+  statusMessage?: string;
+  requestContext: any;
+  identity?:any;
+  rawContext?:any;
+}
 
 
 export class ServerlessRequest extends Readable implements IncomingMessage {
-
-  /**
-   * @param {Logger} logger
-   * @description
-   * Provided by injector
-   */
-  @Inject(Logger)
-  protected readonly logger: Logger;
 
   httpVersion: string = "1.1";
   httpVersionMajor: number = 1;
@@ -29,7 +45,7 @@ export class ServerlessRequest extends Readable implements IncomingMessage {
   connection: Socket;
   complete: true;
   headers: any;
-  rawHeaders: string[];
+  rawHeaders: any;
   trailers: any;
   rawTrailers: any;
   method?: string;
@@ -41,48 +57,82 @@ export class ServerlessRequest extends Readable implements IncomingMessage {
   event:any;
   baseUrl:string;
   originalUrl:string;
+  ctx:any;
+
+  private logger:Logger;
 
   public setTimeout(msecs: number, callback: () => void): this {
     setTimeout(callback, msecs);
     return this;
   }
 
-  constructor(event, options) {
+  constructor(modules: Array<IModule>, event:any, context:Context) {
     super();
-    this.event=event;
+    let rootInjector: Injector = getModule(modules).injector;
+    this.ctx = context;
+    this.logger = rootInjector.get(Logger);
+    this.event = this.prepareEvent(event, context);
     this.headers = this.getHeaders(event);
-    this.body = this.getBody(event, this.headers);
+    this.body = this.getBody(this.event, this.headers);
 
     if (typeof this.headers['content-length'] === 'undefined') {
       this.headers['content-length'] = Buffer.byteLength(this.body);
     }
 
-    if (typeof options.requestId === 'string' && options.requestId.length > 0) {
-      const requestId = options.requestId.toLowerCase();
-      this.headers[requestId] = this.headers[requestId] || event.requestContext.requestId;
-    }
 
-    this.baseUrl = event.requestContext.path.slice(0, -event.path.length);
-    this.method = event.httpMethod;
+    this.baseUrl = this.event.path.slice(0, -this.event.path.length);
+    this.method = this.event.httpMethod;
     this.originalUrl = format({
-        pathname: event.requestContext.path,
-        query: event.queryStringParameters
+        pathname: this.event.requestContext.path,
+        query: this.event.queryStringParameters
       }),
     this.url = format({
-        pathname: event.path,
-        query: event.queryStringParameters
+        pathname: this.event.path,
+        query: this.event.queryStringParameters
       })
 
   }
 
-  private getHeaders(event:any):Array<string> {
+  private getHeaders(event:any):any {
+    console.log(this.ctx.awsRequestId);
+    if(!event.headers){
+      event.headers = {};
+    }
+    event.headers.awsRequestId= this.ctx.awsRequestId.toLowerCase();
     return Object.keys(event.headers).reduce((headers, key) => {
       headers[key.toLowerCase()] = event.headers[key];
       return headers;
     }, []);
   }
 
+  /**
+   * @since 2.0.5
+   * @function
+   * @name prepareEvent
+   * @param {Array<IModule>} modules The list of bootstrapped modules
+   * @param {any} the event object of a lambda execution
+   * @param {Context} the context of the lambda execution
+   * @returns {lambdaEvent}
+   *
+   * @description
+   * unifies Lambda event and set's defaults for event types which don't contain certain fields needed by the router
+   */
+  private prepareEvent(event:any, ctx: Context): lambdaEvent{
+    const cleanedEvent:lambdaEvent = {
+      rawEvent:event,
+      rawContext:ctx,
+      eventSource:"tbd", // TODO app should be able to identify event sources and inject routable information
+      method:event.httpMethod || 'GET',
+      path: event.path || '/',
+      body: event.body || '',
+      headers:this.getHeaders(event),
+      rawHeaders: event.headers || {},
+      requestContext: ctx,
+      identity:ctx.identity || {}
+    }
+    return cleanedEvent;
 
+  }
 
   private getBody(event:any, headers:Array<string>):Buffer {
     if(!event.body){

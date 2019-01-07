@@ -8,9 +8,11 @@ import {Metadata} from "../injector/metadata";
 import * as WebSocket from "ws";
 import {fireWebSocket, IWebSocketResult} from "./socket";
 import {HttpError} from "../error";
-import { Context } from "aws-lambda";
+import { Context, Callback } from "aws-lambda";
 import {httpVerb} from "./http-verbs"
 import {ServerlessRequest} from "./serverless-request";
+import * as requestResponse  from "aws-lambda-create-request-response";
+
 
 
 const TYPEX_SOCKET_ID_HEADER = "__typeix_id";
@@ -48,7 +50,7 @@ export interface HttpOptions {
 export interface lambdaEvent {
   rawEvent:any;
   eventSource:string;
-  method:httpVerb;
+  httpMethod:httpVerb;
   path:string;
   body:string
   headers: Array<string> ;
@@ -82,7 +84,7 @@ export function bootstrapApp(Class: Function): Array<IModule> {
   let modules: Array<IModule> = createModule(Class);
   let injector = getModule(modules).injector;
   let logger: Logger = injector.get(Logger);
-  logger.info("Module.info: Application Bootsrapped");
+  logger.info("Module.info: serverless Application Bootsrapped");
 
   return modules;
 }
@@ -100,13 +102,26 @@ export function bootstrapApp(Class: Function): Array<IModule> {
  * @description
  * run a lambda execution
  */
-export function run(app:Array<IModule>, event:any, context:Context):Array<IModule>{
+export function run(app:Array<IModule>, event:any, context:Context, callback:Callback):Array<IModule>{
     event = prepareEvent(event, context);
-    const request = new ServerlessRequest(event, context);
+    /*    const request = new ServerlessRequest(app, event, context);
+    let injector = getModule(app).injector;
+    let logger: Logger = injector.get(Logger);
+    logger.info("Module.info: start serving invokation");
 
+    //TODO request resomnse implementation and then fire from here
+    return app;*/
+    //const request = new ServerlessRequest(app, event, context);
+    //const response = new ServerlessRequest(app, event, context);
+    const {req, res} = requestResponse(event, callback)
+    let injector = getModule(app).injector;
+    let logger: Logger = injector.get(Logger);
+    logger.info("Module.info: start serving invokation");
+    fireRequest(app, req, res );
     //TODO request resomnse implementation and then fire from here
     return app;
 }
+
 
 
 /**
@@ -125,7 +140,7 @@ function prepareEvent(event:any, ctx: Context): lambdaEvent{
   const cleanedEvent:lambdaEvent = {
     rawEvent:event,
     eventSource:"tbd", // TODO app should be able to identify event sources and inject routable information
-    method:event.httpMethod || 'GET',
+    httpMethod:event.httpMethod || 'GET',
     path: event.path || '/',
     body: event.body || '',
     headers: [],
