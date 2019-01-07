@@ -10,8 +10,7 @@ import {IProvider} from "../interfaces/iprovider";
 import {EventEmitter} from "events";
 import {Status} from "./status-code";
 import {Router} from "../router/router";
-import { Callback } from "aws-lambda";
-import { Context }  from "aws-lambda";
+import { Callback, Context } from "aws-lambda";
 import {isPresent} from "../core";
 
 export const BOOTSTRAP_PROVIDERS = [Logger, Router];
