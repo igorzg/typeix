@@ -104,7 +104,6 @@ export function bootstrapApp(Class: Function): Array<IModule> {
  */
 export function invokeRequest(app:Array<IModule>, event:any, context:Context, callback:Callback):Array<IModule>{
     event = prepareEvent(event, context);
-    console.log(event);
     // build request and response objects
     const {req, res} = requestResponse(event, callback);
     let injector = getModule(app).injector;
