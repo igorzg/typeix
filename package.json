@@ -53,9 +53,14 @@
         "email": "igor.zg1987@gmail.com"
     },
     "contributors": [{
-        "name": "Michael Rose",
-        "email": "michael_rose@gmx.de"
-    }],
+            "name": "Michael Rose",
+            "email": "michael_rose@gmx.de"
+        },
+        {
+            "name": "Jens Verneuer",
+            "email": "jens.verneuer@cuponation.com"
+        }
+    ],
     "dependencies": {
         "reflect - metadata": "^0.1.10",
         "ws": "^3.2.0",
@@ -135,5 +140,5 @@
         "docs": "typedoc --options typedoc.json --includeDeclarations node_modules/@types/ src/",
         "test": "npm run compile && mocha build/tests/ --inspect --full-trace"
     },
-    "version": "2.0.4"
+    "version": "2.0.5"
 }
