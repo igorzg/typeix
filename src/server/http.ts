@@ -109,7 +109,6 @@ export function invokeRequest(app:Array<IModule>, event:any, context:Context, ca
     let injector = getModule(app).injector;
     let logger: Logger = injector.get(Logger);
     logger.info("Module.info: start serving invokation");
-    req.ctx=context;
     // fires the request from here a serveless request is handled like any other request
     fireRequest(app, req, res, event, context);
     return app;
