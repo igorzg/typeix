@@ -55,7 +55,6 @@
         "@types/sinon": "^2.3.3",
         "@types/sinon-chai": "^2.7.28",
         "@types/ws": "^3.2.0",
-        "aws-lambda-create-request-response": "^0.1.13",
         "chai": "^4.1.1",
         "mocha": "^3.5.0",
         "nyc": "^13.1.0",
