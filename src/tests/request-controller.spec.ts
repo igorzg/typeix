@@ -50,6 +50,8 @@ describe("ControllerResolver", () => {
     IRequest = {};
     eventEmitter = new EventEmitter();
     let injector = Injector.createAndResolve(ControllerResolver, [
+      {provide: "event", useValue: {}},
+      {provide: "context", useValue: {}},
       {provide: "data", useValue: data},
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},

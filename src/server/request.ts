@@ -7,6 +7,7 @@ import {Methods} from "../router";
 import {IConnection} from "../interfaces/iconnection";
 import {IncomingMessage} from "http";
 import {ControllerResolver} from "./controller-resolver";
+import {Context} from "aws-lambda";
 
 /**
  * Cookie parse regex
@@ -235,9 +236,11 @@ export class BaseRequest extends AbstractRequest {
   @Inject("resolvedRoute")
   private readonly resolvedRoute: IResolvedRoute;
 
+
   getId(): string {
     return this.id;
   }
+
 
   protected getIncomingMessage(): IncomingMessage {
     return this.incomingMessage;
@@ -363,6 +366,7 @@ export class Request extends AbstractRequest {
     this.controllerResolver.getEventEmitter().emit("statusCode", code);
   }
 
+
   /**
    * @since 1.0.0
    * @function
@@ -388,6 +392,32 @@ export class Request extends AbstractRequest {
     this.controllerResolver.getEventEmitter().emit("redirectTo", {
       code, url
     });
+  }
+
+  /**
+   * @since 2.0.5
+   * @function
+   * @name Request#getContext
+   *
+   * @description
+   * returns the passed in context in case of lamda environment
+   */
+
+  getEvent(): any {
+    return this.controllerResolver.getEvent();
+  }
+
+  /**
+   * @since 2.0.5
+   * @function
+   * @name Request#getContext
+   *
+   * @description
+   * returns the passed in context in case of lamda environment
+   */
+
+  getContext(): Context {
+    return this.controllerResolver.getContext();
   }
 
   getId(): string {

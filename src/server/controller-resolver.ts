@@ -17,6 +17,7 @@ import {IParam} from "../interfaces/iparam";
 import {Status} from "./status-code";
 import {Request} from "./request";
 import {ERROR_KEY} from "./request-resolver";
+import {Context} from  "aws-lambda";
 
 const CHAIN_KEY = "__chain__";
 
@@ -126,6 +127,23 @@ export class ControllerResolver {
   private resolvedRoute: IResolvedRoute;
 
   /**
+   * @param {any} event
+   * @description
+   * Lambda execution preprocessed event
+   */
+  @Inject("event")
+  protected readonly event: any;
+
+  /**
+   * @param {Context} Context
+   * @description
+   * Lambda execution Context if present
+   */
+  @Inject("context")
+  protected readonly context: Context;
+
+
+  /**
    * @since 1.0.0
    * @function
    * @name Request#isControllerPrototypeOf
@@ -190,6 +208,32 @@ export class ControllerResolver {
 
   getResolvedRoute(): IResolvedRoute {
     return this.resolvedRoute;
+  }
+
+  /**
+   * @since 2.0.5
+   * @function
+   * @name Request#getContext
+   *
+   * @description
+   * returns the passed in context in case of lamda environment
+   */
+
+  getEvent(): any {
+    return this.event;
+  }
+
+  /**
+   * @since 2.0.5
+   * @function
+   * @name Request#getContext
+   *
+   * @description
+   * returns the passed in context in case of lamda environment
+   */
+
+  getContext(): Context {
+    return this.context;
   }
 
   getId(): string {

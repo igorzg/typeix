@@ -71,6 +71,8 @@ export function fakeControllerActionCall(injector: Injector,
   request.method = "GET";
   request.headers = isObject(headers) ? headers : {};
   request.url = "/";
+  let lambdaEvent = {};
+  let lambdaContext = {};
   let response = new FakeServerResponse();
   let controllerProvider: IProvider = Metadata.verifyProvider(controller);
   let metadata: IControllerMetadata = Metadata.getComponentConfig(controllerProvider.provide);
@@ -81,6 +83,8 @@ export function fakeControllerActionCall(injector: Injector,
   };
   let providers: Array<IProvider> = [
     {provide: "data", useValue: []},
+    {provide: "event", useValue: lambdaEvent},
+    {provide: "context", useValue: lambdaContext},
     {provide: "request", useValue: request},
     {provide: "response", useValue: response},
     {provide: "url", useValue: request.url},

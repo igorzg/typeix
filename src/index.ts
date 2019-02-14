@@ -71,6 +71,8 @@ export {
  * Export http server
  */
 export {
+  bootstrapApp,
+  invokeRequest,
   httpServer,
   HttpOptions,
   getModule,

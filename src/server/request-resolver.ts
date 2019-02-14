@@ -19,6 +19,7 @@ import {IRedirect, Status} from "./status-code";
 import {clean} from "../logger/inspect";
 import {IWebSocketMetadata} from "../interfaces/iwebsocket";
 import {SocketResolver} from "./socket-resolver";
+import {Context} from  "aws-lambda";
 
 export const MODULE_KEY = "__module__";
 export const ERROR_KEY = "__error__";
@@ -97,6 +98,8 @@ export abstract class BaseRequestResolver {
    */
   @Inject("modules")
   protected readonly modules: Array<IModule>;
+
+
 
   /**
    * @since 1.0.0
@@ -260,6 +263,24 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
    */
   @Inject("contentType", true)
   private contentType: String;
+
+  /**
+   * @param {any} event
+   * @description
+   * Lambda execution preprocessed event
+   */
+  @Inject("event")
+  protected readonly event: any;
+
+  /**
+   * @param {Context} Context
+   * @description
+   * Lambda execution Context if present
+   */
+  @Inject("context")
+  protected readonly context: Context;
+
+
   /**
    * @param {EventEmitter} eventEmitter
    * @description
@@ -391,7 +412,6 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
    * Renders the given response and transfers the final data to the client
    */
   async render(response: string | Buffer, type: RenderType): Promise<string | Buffer> {
-
     let headers: OutgoingHttpHeaders = {"Content-Type": <string> this.contentType};
 
     switch (type) {
@@ -445,6 +465,8 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
    */
   processModule(resolvedModule: IResolvedModule, error?: HttpError): Promise<string | Buffer> {
     let providers = [
+      {provide: "event", useValue: this.event},
+      {provide: "context", useValue: this.context},
       {provide: "data", useValue: this.data},
       {provide: "request", useValue: this.request},
       {provide: "response", useValue: this.response},
