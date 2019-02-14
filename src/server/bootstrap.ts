@@ -174,26 +174,19 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * Use fireRequest to process request itself, this function is used by http/https server or
  * You can fire fake request
  */
-export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, event:any, ctx:Context): Promise<string | Buffer>;
-export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse): Promise<string | Buffer>;
-export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, ...lambdaSpecific:Array<any>){
+
+export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, event :any={}, ctx? :Context): Promise<string | Buffer>{
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);
   // preset values for regular execution context overwrite if Lambda context is indicated
   let UUID:string = uuid();
-  let event = {};
-  let ctx = {};
-  // in case of a lambda execution context pass on event, context and set the UUID to the aws provided value
 
-
-  if(isPresent(lambdaSpecific[0]) && isPresent(lambdaSpecific[1])){
-      event = lambdaSpecific[0];
-      ctx = lambdaSpecific[1];
-      // set the UUID to the aws provided UID
-      if(isPresent(lambdaSpecific[1].awsRequestId)){
-        UUID = lambdaSpecific[1].awsRequestId;
+  // in case of a lambda execution context is set and has a awsRequestId the request id is set as the internal UUID
+  if(!isPresent(ctx)){
+      if(isPresent(ctx.awsRequestId)){
+        UUID = ctx.awsRequestId;
       }
-   }
+  }
 
   /**
    * Create HttpRequestResolver injector
