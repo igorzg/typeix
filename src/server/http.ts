@@ -40,7 +40,7 @@ export interface HttpOptions {
 
 
 /**
- * @since 2.0.5
+ * @since 3.0.0
  * @interface
  *
  * @description
@@ -62,7 +62,7 @@ export interface lambdaEvent {
 }
 
 /**
- * @since 2.0.5
+ * @since 3.0.0
  * @function
  * @name bootstrapApp
  * @param {Function} Class Root application module to bootstrap
@@ -90,7 +90,7 @@ export function bootstrapApp(Class: Function): Array<IModule> {
 
 
 /**
- * @since 2.0.5
+ * @since 3.0.0
  * @function
  * @name run
  * @param {Array<IModule>} modules The list of bootstrapped modules
@@ -117,7 +117,7 @@ export function invokeRequest(app:Array<IModule>, event:any, context:Context, ca
 
 
 /**
- * @since 2.0.5
+ * @since 3.0.0
  * @function
  * @name prepareEvent
  * @param {Array<IModule>} modules The list of bootstrapped modules
