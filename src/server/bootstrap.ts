@@ -188,7 +188,7 @@ export function fireRequest(
   let UUID: string = uuid();
 
   // in case of a lambda execution context is set and has a awsRequestId the request id is set as the internal UUID
-  if (isPresent(ctx) && isPresent(ctx.awsRequestId)) {
+  if (ctx && ctx.awsRequestId) {
     UUID = ctx.awsRequestId;
   }
 
