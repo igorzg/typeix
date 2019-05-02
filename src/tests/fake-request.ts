@@ -64,6 +64,12 @@ describe("fakeHttpServer", () => {
       controllers: [MyController]
     })
     class MyModule implements IAfterConstruct {
+      @Inject(Logger)
+      private logger: Logger;
+
+      @Inject(Router)
+      private router: Router;
+
       afterConstruct(): void {
         this.router.addRules([
           {
@@ -92,12 +98,6 @@ describe("fakeHttpServer", () => {
         this.logger.enable();
         this.logger.setDebugLevel(LogLevels.BENCHMARK);
       }
-
-      @Inject(Logger)
-      private logger: Logger;
-
-      @Inject(Router)
-      private router: Router;
     }
 
     server = fakeHttpServer(MyModule);

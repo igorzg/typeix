@@ -1,3 +1,6 @@
+## 3.0.1-rc.0
+- Fixed issue with HTTP error handling
+
 ## 3.0.0-rc.0
 - Lambda support
 

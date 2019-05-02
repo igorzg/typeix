@@ -434,15 +434,9 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
         break;
       case RenderType.CUSTOM_ERROR_HANDLER:
         response = await this.processError(response, true);
-        this.response.writeHead(this.statusCode, headers);
-        this.response.write(response);
-        this.response.end();
         break;
       case RenderType.DEFAULT_ERROR_HANDLER:
         response = await this.processError(response, false);
-        this.response.writeHead(this.statusCode, headers);
-        this.response.write(response);
-        this.response.end();
         break;
       case RenderType.REDIRECT:
         this.response.setHeader("Location", this.redirectTo.url);
