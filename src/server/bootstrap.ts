@@ -175,17 +175,21 @@ export function createModule(Class: IProvider | Function, sibling?: Injector, mo
  * You can fire fake request
  */
 
-export function fireRequest(modules: Array<IModule>, request: IncomingMessage, response: ServerResponse, event :any={}, ctx? :Context): Promise<string | Buffer>{
+export function fireRequest(
+    modules: Array<IModule>,
+    request: IncomingMessage,
+    response: ServerResponse,
+    event: any = {},
+    ctx: Context = {} as any
+  ): Promise<string | Buffer> {
   let rootInjector: Injector = getModule(modules).injector;
   let logger: Logger = rootInjector.get(Logger);
   // preset values for regular execution context overwrite if Lambda context is indicated
-  let UUID:string = uuid();
+  let UUID: string = uuid();
 
   // in case of a lambda execution context is set and has a awsRequestId the request id is set as the internal UUID
-  if(!isPresent(ctx)){
-      if(isPresent(ctx.awsRequestId)){
-        UUID = ctx.awsRequestId;
-      }
+  if (isPresent(ctx) && isPresent(ctx.awsRequestId)) {
+    UUID = ctx.awsRequestId;
   }
 
   /**
