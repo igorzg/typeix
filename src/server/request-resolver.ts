@@ -437,6 +437,9 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
         break;
       case RenderType.DEFAULT_ERROR_HANDLER:
         response = await this.processError(response, false);
+        this.response.writeHead(this.statusCode, headers);
+        this.response.write(response);
+        this.response.end();
         break;
       case RenderType.REDIRECT:
         this.response.setHeader("Location", this.redirectTo.url);
@@ -511,7 +514,10 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
   protected handleError(data: any): void {
     this
       .render(data, RenderType.CUSTOM_ERROR_HANDLER)
-      .catch(() => this.render(data, RenderType.DEFAULT_ERROR_HANDLER));
+      .catch((error) => {
+        this.logger.error("HttpRequestResolver.handleError: CUSTOM_ERROR_HANDLER", error);
+        this.render(data, RenderType.DEFAULT_ERROR_HANDLER);
+      });
   }
 }
 

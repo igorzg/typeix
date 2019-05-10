@@ -1,3 +1,6 @@
+## 3.0.4
+- Bug fix with HTTP error handling
+
 ## 3.0.1-rc.0
 - Fixed issue with HTTP error handling
 
