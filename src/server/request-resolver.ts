@@ -515,7 +515,7 @@ export class HttpRequestResolver extends BaseRequestResolver implements IAfterCo
     this
       .render(data, RenderType.CUSTOM_ERROR_HANDLER)
       .catch((error) => {
-        this.logger.error("HttpRequestResolver.handleError: CUSTOM_ERROR_HANDLER", error);
+        this.logger.error(`HttpRequestResolver.handleError: ${error.message}`, error.stack);
         this.render(data, RenderType.DEFAULT_ERROR_HANDLER);
       });
   }
