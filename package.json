@@ -1,6 +1,6 @@
 {
     "name": "gsg-typeix",
-    "version": "3.0.3",
+    "version": "3.0.4",
     "dependencies": {
         "aws-lambda": "^0.1.2",
         "aws-lambda-create-request-response": "^0.1.13",
