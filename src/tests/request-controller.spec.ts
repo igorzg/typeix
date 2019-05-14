@@ -21,6 +21,7 @@ import {IFilter} from "../interfaces/ifilter";
 import {Filter} from "../decorators/filter";
 import {IControllerMetadata} from "../interfaces/icontroller";
 import {fakeControllerActionCall} from "../server/mocks";
+import {Context} from  "aws-lambda";
 
 // use chai spies
 use(sinonChai);
@@ -33,6 +34,21 @@ describe("ControllerResolver", () => {
   let controllerResolver: ControllerResolver;
   let controllerProvider, IRequest, request, response, data, id = uuid(), url = "/";
   let actionName = "action";
+  let event = {};
+  let context = {
+    callbackWaitsForEmptyEventLoop: true,
+    functionName: "functionName",
+    functionVersion: "functionVersion",
+    invokedFunctionArn: "arn:aws:lambda:region:account-id:function:function-name",
+    memoryLimitInMB: 128,
+    awsRequestId: "some-stringy",
+    logGroupName: "some-stringy",
+    logStreamName: "some-stringy",
+    getRemainingTimeInMillis : ()=>{return 1},
+    done: (error?: Error, result?: any)=>{},
+    fail: (error: Error | string) =>{},
+    succeed : (message: string, object: any)=>{}
+  }
 
   beforeEach(() => {
     resolvedRoute = {
@@ -45,13 +61,17 @@ describe("ControllerResolver", () => {
     };
     response = new EventEmitter();
     request = new EventEmitter();
+    event = {
+      "key": "value"
+    };
+    context = context; 
     data = [new Buffer(1), new Buffer(1)];
     controllerProvider = {};
     IRequest = {};
     eventEmitter = new EventEmitter();
     let injector = Injector.createAndResolve(ControllerResolver, [
-      {provide: "event", useValue: {}},
-      {provide: "context", useValue: {}},
+      {provide: "event", useValue: event},
+      {provide: "context", useValue: context},
       {provide: "data", useValue: data},
       {provide: "request", useValue: request},
       {provide: "response", useValue: response},
@@ -95,6 +115,22 @@ describe("ControllerResolver", () => {
   it("ControllerResolver.getIncomingMessage", () => {
     assert.isTrue(isEqual(controllerResolver.getIncomingMessage(), request));
   });
+
+  it("ControllerResolver.getResolvedRoute", () => {
+    assert.isTrue(isEqual(controllerResolver.getResolvedRoute(), resolvedRoute));
+  });  
+
+  it("ControllerResolver.getId", () => {
+    assert.isTrue(isEqual(controllerResolver.getId(), id));
+  });  
+
+  it("ControllerResolver.getContext", () => {
+    assert.isTrue(isEqual(controllerResolver.getContext(), context));
+  });  
+
+  it("ControllerResolver.getEvent", () => {
+    assert.isTrue(isEqual(controllerResolver.getEvent(), event));
+  });  
 
   it("ControllerResolver.getServerResponse", () => {
     assert.isTrue(isEqual(controllerResolver.getServerResponse(), response));
