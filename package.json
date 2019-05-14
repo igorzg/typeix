@@ -16,13 +16,13 @@
     },
     "repository": {
         "type": "git",
-        "url": "git@github.com:jverneuer/gsg-typeix.git"
+        "url": "git@github.com:AdminJuwel191/gsg-typeix.git"
     },
     "bugs": {
-        "url": "https://github.com/AdminJuwel191/typeix/issues",
-        "email": "igor.zg1987@gmail.com"
+        "url": "https://github.com/AdminJuwel191/gsg-typeix/issues",
+        "email": "opensource@joingsg.com"
     },
-    "homepage": "https://github.com/AdminJuwel191/typeix",
+    "homepage": "https://github.com/AdminJuwel191/gsg-typeix",
     "engines": {
         "node": ">=6.0.0"
     },
@@ -36,7 +36,7 @@
         "restful",
         "services"
     ],
-    "author": "igor.zg1987@gmail.com",
+    "author": "opensource@joingsg.com",
     "contributors": [
         {
             "name": "Michael Rose",
