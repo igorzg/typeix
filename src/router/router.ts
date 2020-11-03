@@ -264,7 +264,7 @@ export class Router {
     for (let route of this.routes) {
       let result = await route.parseRequest(pathName, method, headers);
       if (isTruthy(result) && !isEqual(true, result)) {
-        this.logger.info("Router.parseRequest", result);
+        this.logger.trace("Router.parseRequest", result);
         return Promise.resolve(<IResolvedRoute> result);
       }
     }
